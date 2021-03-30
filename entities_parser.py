@@ -98,7 +98,7 @@ class EntityVisitor(NodeVisitor):
         return str(string.text)
     
     def visit_NUMBER(self, node, visited_children):
-            return float(node.text)
+        return float(node.text)
     
     def visit_INTEGER(self, node, visited_children):
         return int(node.text)
