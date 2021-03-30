@@ -63,9 +63,9 @@ class SpawnAI(EternalEvent):
     group_label: str = "char"
         
 class SetMusicState(EternalEvent):
-	target: str = "idMusicEntity"
-	stateDecl: str = "idSoundState"
-	designComment: str = "char"
+    target: str = "idMusicEntity"
+    stateDecl: str = "idSoundState"
+    designComment: str = "char"
         
 class Wait(EternalEvent):
     seconds: str = "float"
