@@ -1,5 +1,4 @@
 from eternalevents import *
-import PyQt5
 import json
 import re
 import time
@@ -50,7 +49,7 @@ class EntityVisitor(NodeVisitor):
  
     def visit_DOCUMENT(self, node, visited_children):
         _, entities = visited_children
-        #print("Parsing finished!")
+        #print("")
         return entities
     
     def visit_VERSION_LINES(self, node, visited_children):
@@ -122,6 +121,7 @@ def generate_segments(filename):
         segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
     for segment in segments[1:]:
+        # handle encounters only for now
         if "idEncounterManager" in segment:
             yield "entity {" + re.sub(r"//.*$", "", segment)
  
@@ -135,4 +135,4 @@ def convert_entities_file(filename):
     return data
 
 
-convert_entities_file("example_entities.txt")
+#convert_entities_file("example_entities.txt")
