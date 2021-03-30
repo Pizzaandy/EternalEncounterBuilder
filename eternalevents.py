@@ -45,7 +45,7 @@ class EternalEvent:
         for init_arg, (cls_name, cls_args) in zip(args, self.args):
             setattr(self, cls_name, init_arg)
             
-# use mh_type instead of this shit
+# I should probably not do this lol
 class MaintainAICount(EternalEvent):
     spawnType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
