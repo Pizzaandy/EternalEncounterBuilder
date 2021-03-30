@@ -124,15 +124,17 @@ def generate_segments(filename):
         # handle encounters only for now
         if "idEncounterManager" in segment:
             yield "entity {" + re.sub(r"//.*$", "", segment)
- 
+
 def convert_entities_file(filename):
     tic = time.time()
     if __name__ == '__main__':
         print("Start processing")
         with Pool(processes=mp.cpu_count()) as pool:
             data = pool.map(ev.parse, generate_segments(filename))
-    print(f"Done processing in {time.time()-tic:.1f} seconds")
-    return data
+         
+        print(f"Done processing in {time.time()-tic:.1f} seconds")
+         
+        with open('testoutput.json', 'w') as fp:
+            json.dump(data, fp, indent = 4)
 
-
-#convert_entities_file("example_entities.txt")
+convert_entities_file("example_entities.txt")
