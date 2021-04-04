@@ -272,21 +272,9 @@ def generate_EBL_segments(filename):
     with open(filename) as fp:
         segments = re.split(r"^<ENCOUNTER", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
-    segment_count = 0
-    for segment in segments[1:]:
-        segment = strip_comments(segment)
-        # handle encounters only for now
-        segment_count += 1
-        yield "<ENCOUNTER" + re.sub(r"//.*$", "", segment)
-
-def compile_EBL(filename):    
-    data = map(ebl.parse, generate_EBL_segments(filename))
-    
-    
-    output_file = open("test_encounter.txt", "w")
-    output_file.write(str(data))
-    output_file.close()
-    
+    for segment in segments[0:]:
+        segment = "\n".join(segment.split("\n")[1:])
+        yield segment
 
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
@@ -325,5 +313,19 @@ def generate_events(data):
         else:
             args_list = format_args(args_list, arg_count)
             return event_cls(*args_list)
+        
+def compile_EBL(filename):    
+    encounters = list(map(ebl.parse, generate_EBL_segments(filename)))
+    output_file = open("test_encounter.txt", "w")
+    for encounter in encounters:
+        output_str = ""
+        events = generate_events(encounter)
+        if events is None:
+            continue
+        for event in events:
+            output_str += str(event)
+        output_file.write(output_str)
+    output_file.close()
+    
 
-compile_EBL()
+compile_EBL("test_EBL.txt")

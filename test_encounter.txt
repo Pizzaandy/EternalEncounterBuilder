@@ -1,0 +1,30 @@
+eventCall = {
+    eventDef = "spawnSingleAI";
+    args = {
+        num = 3;
+        item[0] = {
+            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
+        }
+        item[1] = {
+            idTarget_Spawn = "destroyed_rig_target_spawn_116";
+        }
+        item[2] = {
+            char = "";
+        }
+    }
+}
+eventCall = {
+    eventDef = "spawnSingleAI";
+    args = {
+        num = 3;
+        item[0] = {
+            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
+        }
+        item[1] = {
+            idTarget_Spawn = "destroyed_rig_target_spawn_117";
+        }
+        item[2] = {
+            char = "";
+        }
+    }
+}
