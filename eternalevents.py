@@ -5,6 +5,9 @@ import sys
 def str_to_class(classname):
     return getattr(sys.modules[__name__], classname)
 
+def get_event_args(classname):
+    return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
+
 # bruh
 camelcase = lambda test_str: test_str[:1].lower() + test_str[1:] if test_str else '' 
 
@@ -116,7 +119,7 @@ class ActivateTarget(EternalEvent):
 #events = []
 #for line in lines:
     #if line.startswith("Wave"):
-        
 
-
+mylist = get_event_args(SpawnAI)
+print(mylist)
 

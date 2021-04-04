@@ -45,7 +45,7 @@ ebl_grammar = Grammar(r"""
     DOCUMENT = (STATEMENTS)*
     STATEMENTS = SPACE? (EVENT / WAVE / WAITFORBLOCK / WAITFOR)
     
-    WAVE = "Wave" SPACE STRING LBRACE STATEMENTS* RBRACE
+    WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
     PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
     PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
     PARAM_LINE = PARAM+
@@ -146,41 +146,52 @@ class EntityVisitor(NodeVisitor):
 
 class EBLVisitor(NodeVisitor):
     def visit_DOCUMENT(self, node, visited_children):
+        output = []
         event_list = visited_children
-        return event_list
+        for event in event_list:
+            output.append(event)
+        return output
     
     def visit_STATEMENTS(self, node, visited_children):
         _, statement = visited_children
+        #print("statement: " + str(statement[0]))
         return statement[0]
     
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
         if not isinstance(statements, list):
-            return ["WAVE: " + str(varname)]
-        return statements.insert(0, "WAVE: " + str(varname))
+            return ["WAVE " + str(varname[0])]
+        statements.insert(0, "WAVE " + str(varname[0]))
+        return statements
     
     def visit_PARAM(self, node, visited_children):
         _, value, _, _ = visited_children
+        #print(value[0])
         return value[0]
     
     def visit_PARAM_LINE(self, node, visited_children):
         params = visited_children
-        print(params)
+        print("param_line:" + str(params))
         return params
     
     def visit_PARAM_TUPLE(self, node, visited_children):
         _, param_line, _, _, _, _ = visited_children
-        return param_line[0]
+        print("param_tuple: " + str(param_line))
+        return param_line
     
     def visit_PARAM_LIST(self, node, visited_children):
         _, param_tuples, _ = visited_children
+        print("param_list: " + str(param_tuples))
         return param_tuples
     
     def visit_EVENT(self, node, visited_children):
         event_name, _, _, params, _ = visited_children
+        #print(params[0])
         if not isinstance(params, list):
-            return ["EVENT: " + str(event_name)]
-        return params.insert(0, "EVENT: " + str(event_name))
+            return {"event": str(event_name), "args": "NULL"}
+        #params.insert(0, "EVENT: " + str(event_name))
+        print("event: " + str(params[0][0]))
+        return {"event": str(event_name), "args": params[0][0]}
     
     def visit_WAITFOR(self, node, visited_children):
         _, conditions = visited_children
@@ -244,8 +255,20 @@ def convert_entities_file(filename):
 
 sample_txt = ("""
 Wave bruh {
+    EVENT([
+        (param, parm2),
+        (param3, param4)
+    ])
+    bruh(eee)
 }
-eee()
+
+Wave wave2 {
+    banana(1,2)
+    Wave 2 {
+        
+    }
+}
+
 """)
 
 
