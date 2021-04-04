@@ -315,9 +315,9 @@ def generate_events(data):
             return event_cls(*args_list)
         
 def compile_EBL(filename):    
-    encounters = list(map(ebl.parse, generate_EBL_segments(filename)))
+    encounters = map(ebl.parse, generate_EBL_segments(filename))
     output_file = open("test_encounter.txt", "w")
-    for encounter in encounters:
+    for encounter in list(encounters):
         output_str = ""
         events = generate_events(encounter)
         if events is None:

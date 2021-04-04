@@ -1,6 +1,8 @@
 <ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
-
 Wave 2 {
-	spawn(CACODEMON, destroyed_rig_target_spawn_116)
-	spawn(DREAD_KNIGHT, destroyed_rig_target_spawn_117)
+	spawn(CACODEMON,destroyed_rig_target_spawn_116)
+	
+	spawn(DREAD_KNIGHT,destroyed_rig_target_spawn_117)
+	
+	setMusicState(1,2,3)
 }

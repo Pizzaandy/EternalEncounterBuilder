@@ -114,5 +114,5 @@ class ActivateTarget(EternalEvent):
     #if line.startswith("Wave"):
 
 #mylist = get_event_args(SpawnAI)
-#print(mylist)
+#print(mylist
 

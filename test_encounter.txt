@@ -28,3 +28,18 @@ eventCall = {
         }
     }
 }
+eventCall = {
+    eventDef = "setMusicState";
+    args = {
+        num = 3;
+        item[0] = {
+            idMusicEntity = 1.0;
+        }
+        item[1] = {
+            idSoundState = 2.0;
+        }
+        item[2] = {
+            char = 3.0;
+        }
+    }
+}
