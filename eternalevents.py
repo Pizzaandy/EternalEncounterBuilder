@@ -1,12 +1,5 @@
 import chevron
 from textwrap import dedent
-import sys
-
-def str_to_class(classname):
-    return getattr(sys.modules[__name__], classname)
-
-def get_event_args(classname):
-    return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
 
 # bruh
 camelcase = lambda test_str: test_str[:1].lower() + test_str[1:] if test_str else '' 
@@ -15,7 +8,7 @@ camelcase = lambda test_str: test_str[:1].lower() + test_str[1:] if test_str els
 event_to_ebl = {}
 ebl_to_event = {}
 
-encounterSpawnNames = [
+encounter_spawn_names = [
     "ARACHNOTRON",
     "BARON",
     "CACODEMON",
@@ -66,7 +59,7 @@ class EternalEvent:
         # add alias to dicts
         _alias = alias if alias else camelcase(cls.__name__)
         event_to_ebl[cls.__name__] = (_alias, len(args), optional_args)
-        ebl_to_event[_alias] = cls.__name__
+        ebl_to_event[_alias] = (cls.__name__, len(args))
         
     def __str__(cls):
         return cls.stringify()
@@ -74,7 +67,7 @@ class EternalEvent:
     def __init__(self, *args):
         for init_arg, (cls_name, cls_args) in zip(args, self.args):
             setattr(self, cls_name, init_arg)
-            
+
 # I should probably not do this lol
 class MaintainAICount(EternalEvent):
     spawnType: str = "eEncounterSpawnType_t"
@@ -120,6 +113,6 @@ class ActivateTarget(EternalEvent):
 #for line in lines:
     #if line.startswith("Wave"):
 
-mylist = get_event_args(SpawnAI)
-print(mylist)
+#mylist = get_event_args(SpawnAI)
+#print(mylist)
 

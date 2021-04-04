@@ -1,4 +1,5 @@
 from eternalevents import *
+import sys
 import json
 import re
 import time
@@ -9,6 +10,14 @@ from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 import chevron
 from textwrap import dedent
+
+#import event_to_ebl
+
+def str_to_class(classname):
+    return getattr(sys.modules[__name__], classname)
+
+def get_event_args(classname):
+    return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
 
 entity_grammar = Grammar(r"""
     #DOCUMENT = VERSION_LINES? ENTITY*
@@ -160,8 +169,9 @@ class EBLVisitor(NodeVisitor):
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
         if not isinstance(statements, list):
-            return ["WAVE " + str(varname[0])]
-        statements.insert(0, "WAVE " + str(varname[0]))
+            #return ["WAVE " + str(varname[0])]
+            return ["NULL"]
+        #statements.insert(0, "WAVE " + str(varname[0]))
         return statements
     
     def visit_PARAM(self, node, visited_children):
@@ -171,17 +181,17 @@ class EBLVisitor(NodeVisitor):
     
     def visit_PARAM_LINE(self, node, visited_children):
         params = visited_children
-        print("param_line:" + str(params))
+        #print("param_line:" + str(params))
         return params
     
     def visit_PARAM_TUPLE(self, node, visited_children):
         _, param_line, _, _, _, _ = visited_children
-        print("param_tuple: " + str(param_line))
+        #print("param_tuple: " + str(param_line))
         return param_line
     
     def visit_PARAM_LIST(self, node, visited_children):
         _, param_tuples, _ = visited_children
-        print("param_list: " + str(param_tuples))
+        #print("param_list: " + str(param_tuples))
         return param_tuples
     
     def visit_EVENT(self, node, visited_children):
@@ -190,7 +200,8 @@ class EBLVisitor(NodeVisitor):
         if not isinstance(params, list):
             return {"event": str(event_name), "args": "NULL"}
         #params.insert(0, "EVENT: " + str(event_name))
-        print("event: " + str(params[0][0]))
+        #print("event: " + str(params[0][0]))
+              
         return {"event": str(event_name), "args": params[0][0]}
     
     def visit_WAITFOR(self, node, visited_children):
@@ -225,7 +236,7 @@ def strip_comments(string):
     pattern = r"//(.*)[\r\n]+"
     return re.sub(pattern, "", string)
 
-def generate_segments(filename):
+def generate_entity_segments(filename):
     with open(filename) as fp:
         segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
@@ -245,7 +256,7 @@ def convert_entities_file(filename):
     if __name__ == '__main__':
         print("Start processing")
         with Pool(processes=mp.cpu_count()) as pool:
-            data = pool.map(ev.parse, generate_segments(filename))
+            data = pool.map(ev.parse, generate_entity_segments(filename))
          
         print(f"Done processing in {time.time()-tic:.1f} seconds")
         with open('testoutput.json', 'w') as fp:
@@ -253,33 +264,66 @@ def convert_entities_file(filename):
     return data
 
 
-sample_txt = ("""
-Wave bruh {
-    EVENT([
-        (param, parm2),
-        (param3, param4)
-    ])
-    bruh(eee)
-}
-
-Wave wave2 {
-    banana(1,2)
-    Wave 2 {
-        
-    }
-}
-
-""")
-
 
 ebl = EBLVisitor()
 ebl.grammar = ebl_grammar
-#data = ebl_grammar.parse(sample_txt)
-data = ebl.parse(sample_txt)
 
-print(data)
+def generate_EBL_segments(filename):
+    with open(filename) as fp:
+        segments = re.split(r"^<ENCOUNTER", fp.read(), flags=re.MULTILINE)
+    # skip first segment with version numbers in it, remove comments
+    segment_count = 0
+    for segment in segments[1:]:
+        segment = strip_comments(segment)
+        # handle encounters only for now
+        segment_count += 1
+        yield "<ENCOUNTER" + re.sub(r"//.*$", "", segment)
 
+def compile_EBL(filename):    
+    data = map(ebl.parse, generate_EBL_segments(filename))
+    
+    
+    output_file = open("test_encounter.txt", "w")
+    output_file.write(str(data))
+    output_file.close()
+    
 
+def format_args(args, arg_count):
+    for i, arg in enumerate(args):
+        if arg in encounter_spawn_names:
+            args[i] = "ENCOUNTER_SPAWN_" + arg
+    while len(args) < arg_count:
+        args.append("")
+    return args
 
+def generate_events(data):
+    if isinstance(data, list):
+        output = []
+        if len(data) == 0:
+            return None
+        for item in data:
+            if not isinstance(item, str):
+                new_item = generate_events(item)
+                if isinstance(new_item, list):
+                    output += new_item
+                else:
+                    output.append(generate_events(item))
+        output = [x for x in output if x != []]
+        return output
+                
+    if isinstance(data, dict):
+        args_list = data["args"]
+        cls_name, arg_count = ebl_to_event[data["event"]]
+        event_cls = str_to_class(cls_name)
+        #print(event_cls)
+        if any(isinstance(i, list) for i in args_list):
+            output = []
+            for args in args_list:
+                args = format_args(args, arg_count)
+                output.append(event_cls(*args))
+            return output
+        else:
+            args_list = format_args(args_list, arg_count)
+            return event_cls(*args_list)
 
-
+compile_EBL()
