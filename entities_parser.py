@@ -57,12 +57,15 @@ ebl_grammar = Grammar(r"""
     PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
     PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
     PARAM_LINE = PARAM+
-    PARAM = SPACE? (NUMBER / STRING / BOOL / SPACE) SPACE? ("," / &RPARENTHESES)
+    PARAM = NULLPARAM / REALPARAM
+    
+    REALPARAM = SPACE? (NUMBER / STRING) SPACE? ("," / &RPARENTHESES)
+    NULLPARAM = SPACE ("," / &RPARENCHAR)
     
     EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
     
-    WAITFORBLOCK = "waitFor" LBRACE EVENT* RBRACE
-    WAITFOR = "waitFor" (EVENT / TIMER)
+    WAITFORBLOCK = "waitFor" LBRACE (EVENT)* RBRACE
+    WAITFOR = "waitFor" SPACE? (EVENT / TIMER)
     TIMER = NUMBER SPACE? "sec"
         
     LBRACE    = SPACE? "{" SPACE?
@@ -71,6 +74,8 @@ ebl_grammar = Grammar(r"""
     RBRACKET  = SPACE? "]" SPACE?
     LPARENTHESES  = SPACE? "(" SPACE?
     RPARENTHESES  = SPACE? ")" SPACE?
+    LPARENCHAR = "("
+    RPARENCHAR = ")"
     
     SPACE = ~r"\s+"
     STRING = ~r"[\w/]+"
@@ -167,10 +172,18 @@ class EBLVisitor(NodeVisitor):
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
         if not isinstance(statements, list):
-            return ["NULL"]
+            return []
         return statements
     
     def visit_PARAM(self, node, visited_children):
+        value = visited_children
+        #print(value[0])
+        return value[0]
+    
+    def visit_NULLPARAM(self, node, visited_children):
+        return None
+    
+    def visit_REALPARAM(self, node, visited_children):
         _, value, _, _ = visited_children
         #print(value[0])
         return value[0]
@@ -194,23 +207,27 @@ class EBLVisitor(NodeVisitor):
         event_name, _, _, params, _ = visited_children
         #print(params[0])
         if not isinstance(params, list):
-            return {"event": str(event_name), "args": "NULL"}
+            return {"event": str(event_name), "args": []}
         #params.insert(0, "EVENT: " + str(event_name))
         #print("event: " + str(params[0][0]))
               
         return {"event": str(event_name), "args": params[0][0]}
     
     def visit_WAITFOR(self, node, visited_children):
-        _, conditions = visited_children
-        return conditions.insert(0, "WAITFOR")
+        _, _, conditions = visited_children
+        print(conditions)
+        conditions.append("false")
+        return {"event": "waitFor", "args": conditions}
     
     def visit_WAITFORBLOCK(self, node, visited_children):
-        _, conditions = visited_children
-        return conditions.insert(0, "WAITFORBLOCK")
+        _, _, conditions, _ = visited_children
+        if not isinstance(conditions, list):
+            return {"event": "waitForBlock", "args": []}
+        return {"event": "waitForBlock", "args": conditions}
     
     def visit_TIMER(self, node, visited_children):
         duration, _, _ = visited_children
-        return duration[0]
+        return duration
     
     def visit_STRING(self, node, visited_children):
         return str(node.text)
@@ -277,6 +294,8 @@ def format_args(args, arg_count):
     for i, arg in enumerate(args):
         if arg in encounter_spawn_names:
             args[i] = "ENCOUNTER_SPAWN_" + arg
+        if arg is None:
+            args[i] = ""
     while len(args) < arg_count:
         args.append("")
     return args
@@ -298,6 +317,13 @@ def create_events(data):
         return output
                 
     if isinstance(data, dict):
+        if data["event"] == "waitForBlock":
+            print(data["args"])
+            waitevent =  {
+                "event":"waitMultipleConditions",
+                "args":[len(data["args"]), "ENCOUNTER_LOGICAL_OP_AND", "false"]
+            }
+            return create_events([waitevent] + data["args"])
         args_list = data["args"]
         cls_name, arg_count = ebl_to_event[data["event"]]
         event_cls = str_to_class(cls_name)

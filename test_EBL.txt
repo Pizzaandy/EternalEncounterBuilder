@@ -1,23 +1,8 @@
 <ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
+// ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
-Wave 2 {
 
-	
-	spawn(HELL_KNIGHT,  , eee)
-
-	spawn(HELL_KNIGHT, destroyed_rig_target_spawn_117)
-
-	
-	spawn(PROWLER, destroyed_rig_target_spawn_118)
-
-	
-	spawn(PROWLER, destroyed_rig_target_spawn_119)
-
-	
-	spawn(PAIN_ELEMENTAL, destroyed_rig_target_spawn_120)
-
-	
-	spawn(CACODEMON, destroyed_rig_target_spawn_122)
-	
-	setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, HEAVY)
+waitFor all {
+	clearFactionOverrides()
+	spawn(CACODEMON, bruh)
 }

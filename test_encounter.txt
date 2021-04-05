@@ -1,0 +1,42 @@
+item[0] = {
+	eventCall = {
+	    eventDef = "waitMultipleConditions";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            int = 2;
+	        }
+	        item[1] = {
+	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+	        }
+	        item[2] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[1] = {
+	eventCall = {
+	    eventDef = "clearFactionOverrides";
+	    args = {
+	        num = 0;
+	    }
+	}
+}
+item[2] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
+	        }
+	        item[1] = {
+	            entity = "bruh";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}

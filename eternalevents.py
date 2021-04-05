@@ -63,7 +63,7 @@ class EternalEvent:
         items = [
             {
                 "index": index, 
-                "value": f'"{val[1]}"' if isinstance(val[1], str) and val[1] != "NULL" else val[1], 
+                "value": f'"{val[1]}"' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else val[1], 
                 "var": var[1]
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
@@ -83,9 +83,11 @@ class EternalEvent:
                 args.append((attr,value))
         cls.args = args
         # add alias to dicts
+        _default_alias = camelcase(cls.__name__)
         _alias = alias if alias else camelcase(cls.__name__)
         event_to_ebl[cls.__name__] = (_alias, len(args), optional_args)
         ebl_to_event[_alias] = (cls.__name__, len(args))
+        ebl_to_event[_default_alias] = (cls.__name__, len(args))
         
     def __str__(cls):
         return cls.stringify()
@@ -105,7 +107,7 @@ class MaintainAICount(EternalEvent):
     group_level: str = "string"
     max_spawn_delay: str = "float"
     
-class stopMaintainingAICount(EternalEvent):
+class StopMaintainingAICount(EternalEvent, alias = "stopMaintainAI"):
     spawnType: str = "eEncounterSpawnType_t"
     group_label: str = "string*"
 
@@ -125,7 +127,7 @@ class SetMusicState(EternalEvent):
     stateDecl: str = "decl"
     designComment: str = "string"
         
-class Wait(EternalEvent):
+class Wait(EternalEvent, alias = "waitFor"):
     seconds: str = "float"
     disableAIHighlight: str = "bool"
         
@@ -141,6 +143,11 @@ class ActivateTarget(EternalEvent):
     
 class ClearFactionOverrides(EternalEvent):
     pass
+
+class WaitMultipleConditions(EternalEvent):
+    condition_count: str = "int"
+    logic_operator: str = "encounterLogicOperator_t"
+    disableAIHighlight: str = "bool"
 
 #events = []
 #for line in lines:
