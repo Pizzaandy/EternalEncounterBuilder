@@ -1,4 +1,5 @@
 from eternalevents import *
+#from eternalevents import ebl_to_event, encounter_spawn_names
 import sys
 import json
 import re
@@ -11,7 +12,6 @@ from parsimonious.grammar import NodeVisitor
 import chevron
 from textwrap import dedent
 
-#import event_to_ebl
 
 def str_to_class(classname):
     return getattr(sys.modules[__name__], classname)
@@ -74,9 +74,8 @@ ebl_grammar = Grammar(r"""
     RPARENTHESES  = SPACE? ")" SPACE?
     
     SPACE = ~r"\s+"
-    STRING = ~r"\w+"
+    STRING = ~r"[\w/]+"
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
-    COMMENT = ~r"//(.*)[\r\n]+"
     BOOL = "true" / "false"
 """)
 
@@ -169,9 +168,7 @@ class EBLVisitor(NodeVisitor):
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
         if not isinstance(statements, list):
-            #return ["WAVE " + str(varname[0])]
             return ["NULL"]
-        #statements.insert(0, "WAVE " + str(varname[0]))
         return statements
     
     def visit_PARAM(self, node, visited_children):
@@ -264,7 +261,6 @@ def convert_entities_file(filename):
     return data
 
 
-
 ebl = EBLVisitor()
 ebl.grammar = ebl_grammar
 
@@ -274,7 +270,7 @@ def generate_EBL_segments(filename):
     # skip first segment with version numbers in it, remove comments
     for segment in segments[0:]:
         segment = "\n".join(segment.split("\n")[1:])
-        yield segment
+        yield strip_comments(segment)
 
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
@@ -284,7 +280,7 @@ def format_args(args, arg_count):
         args.append("")
     return args
 
-def generate_events(data):
+def create_events(data):
     if isinstance(data, list):
         output = []
         if len(data) == 0:
@@ -315,17 +311,18 @@ def generate_events(data):
             return event_cls(*args_list)
         
 def compile_EBL(filename):    
+    tic = time.time()
     encounters = map(ebl.parse, generate_EBL_segments(filename))
     output_file = open("test_encounter.txt", "w")
     for encounter in list(encounters):
         output_str = ""
-        events = generate_events(encounter)
+        events = create_events(encounter)
         if events is None:
             continue
         for event in events:
             output_str += str(event)
         output_file.write(output_str)
     output_file.close()
+    print(f"Done compiling in {time.time()-tic:.1f} seconds")
     
-
 compile_EBL("test_EBL.txt")

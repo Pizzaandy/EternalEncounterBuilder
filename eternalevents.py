@@ -15,8 +15,34 @@ encounter_spawn_names = [
     "CUEBALL",
     "CYBER_MANCUBUS",
     "DOOM_HUNTER",
-    "DREAD_KNIGHT"
+    "DREAD_KNIGHT",
+    "GARGOYLE",
+    "HELL_KNIGHT",
+    "HELL_SOLDIER",
+    "IMP",
+    "MANCUBUS",
+    "MARAUDER",
+    "PAIN_ELEMENTAL",
+    "PINKY",
+    "PROWLER",
+    "REVENANT",
+    "SHOTGUN_SOLDIER",
+    "TENTACLE",
+    "TYRANT",
+    "WHIPLASH",
+    "ZOMBIE_MAKYR",
+    "ZOMBIE_TIER_1",
+    "ZOMBIE_TIER_3",
+    "LOST_SOUL",
+    "SPECTRE",
+    "CARCASS",
+    "ARCHVILE",
+    "BUFF_POD",
+    "SPIRIT",
+    "TURRET"
+    "SUPER_TENTACLE"
 ]
+
 
 class EternalEvent:
     template = dedent("""\
