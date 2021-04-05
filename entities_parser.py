@@ -10,8 +10,7 @@ import multiprocessing as mp
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 import chevron
-from textwrap import dedent
-
+from textwrap import dedent, indent
 
 def str_to_class(classname):
     return getattr(sys.modules[__name__], classname)
@@ -264,6 +263,7 @@ def convert_entities_file(filename):
 ebl = EBLVisitor()
 ebl.grammar = ebl_grammar
 
+# Split EBL file into segments at <HEADERS>
 def generate_EBL_segments(filename):
     with open(filename) as fp:
         segments = re.split(r"^<ENCOUNTER", fp.read(), flags=re.MULTILINE)
@@ -272,6 +272,7 @@ def generate_EBL_segments(filename):
         segment = "\n".join(segment.split("\n")[1:])
         yield strip_comments(segment)
 
+# Adds "" in place of blank arguments and handles macros
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
         if arg in encounter_spawn_names:
@@ -280,6 +281,7 @@ def format_args(args, arg_count):
         args.append("")
     return args
 
+# Consumes parsed EBL file and generates a list of EternalEvents 
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -287,11 +289,11 @@ def create_events(data):
             return None
         for item in data:
             if not isinstance(item, str):
-                new_item = generate_events(item)
+                new_item = create_events(item)
                 if isinstance(new_item, list):
                     output += new_item
                 else:
-                    output.append(generate_events(item))
+                    output.append(create_events(item))
         output = [x for x in output if x != []]
         return output
                 
@@ -316,11 +318,13 @@ def compile_EBL(filename):
     output_file = open("test_encounter.txt", "w")
     for encounter in list(encounters):
         output_str = ""
+        item_index = 0
         events = create_events(encounter)
         if events is None:
             continue
         for event in events:
-            output_str += str(event)
+            output_str += f"item[{item_index}]" + " = {\n" + indent(str(event),"\t") + "}\n"
+            item_index += 1
         output_file.write(output_str)
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")

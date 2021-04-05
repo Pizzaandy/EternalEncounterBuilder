@@ -104,22 +104,26 @@ class MaintainAICount(EternalEvent):
     spawnGroup: str = "entity"
     group_level: str = "string"
     max_spawn_delay: str = "float"
+    
+class stopMaintainingAICount(EternalEvent):
+    spawnType: str = "eEncounterSpawnType_t"
+    group_label: str = "string*"
 
 class SpawnAI(EternalEvent):
     spawnType: str = "eEncounterSpawnType_t"
     spawn_count: str = "int"
-    spawnGroup: str = "idTargetSpawnGroup"
-    group_label: str = "char"
+    spawnGroup: str = "entity"
+    group_label: str = "string"
     
 class SpawnSingleAI(EternalEvent, alias = "spawn"):
     spawnType: str = "eEncounterSpawnType_t"
-    spawnTarget: str = "idTarget_Spawn"
-    group_label: str = "char*"
+    spawnTarget: str = "entity"
+    group_label: str = "string*"
         
 class SetMusicState(EternalEvent):
-    target: str = "idMusicEntity"
-    stateDecl: str = "idSoundState"
-    designComment: str = "char"
+    target: str = "entity"
+    stateDecl: str = "decl"
+    designComment: str = "string"
         
 class Wait(EternalEvent):
     seconds: str = "float"
@@ -133,7 +137,10 @@ class WaitAIHealthLevel(EternalEvent):
 
 class ActivateTarget(EternalEvent):
     targetEntity: str = "entity"
-    command: str = "Lock Door"
+    command: str = "string"
+    
+class ClearFactionOverrides(EternalEvent):
+    pass
 
 #events = []
 #for line in lines:
