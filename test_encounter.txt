@@ -1,63 +1,267 @@
 item[0] = {
 	eventCall = {
-	    eventDef = "maintainAICount";
+	    eventDef = "clearFactionOverrides";
 	    args = {
-	        num = 8;
-	        item[0] = {
-	            eEncounterSpawnType_t = "GARGOYLE_ZOMBIE_TIER_3";
-	        }
-	        item[1] = {
-	            int = 4.0;
-	        }
-	        item[2] = {
-	            int = -1.0;
-	        }
-	        item[3] = {
-	            float = 4.0;
-	        }
-	        item[4] = {
-	            int = 3.0;
-	        }
-	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
-	        }
-	        item[6] = {
-	            string = "";
-	        }
-	        item[7] = {
-	            float = 9.0;
-	        }
+	        num = 0;
 	    }
 	}
 }
 item[1] = {
 	eventCall = {
-	    eventDef = "maintainAICount";
+	    eventDef = "wait";
 	    args = {
-	        num = 8;
+	        num = 2;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
+	            float = 2.0;
 	        }
 	        item[1] = {
-	            int = 4.0;
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[2] = {
+	eventCall = {
+	    eventDef = "waitAIRemaining";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+	        }
+	        item[1] = {
+	            int = "";
 	        }
 	        item[2] = {
-	            int = -1.0;
+	            string = false;
 	        }
-	        item[3] = {
-	            float = 4.0;
+	    }
+	}
+}
+item[3] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
 	        }
-	        item[4] = {
-	            int = 3.0;
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_116";
 	        }
-	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
-	        }
-	        item[6] = {
+	        item[2] = {
 	            string = "";
 	        }
-	        item[7] = {
-	            float = 9.0;
+	    }
+	}
+}
+item[4] = {
+	eventCall = {
+	    eventDef = "wait";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            float = 0.25;
+	        }
+	        item[1] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[5] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_117";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[6] = {
+	eventCall = {
+	    eventDef = "waitAIRemaining";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+	        }
+	        item[1] = {
+	            int = 1.0;
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[7] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PROWLER";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_118";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[8] = {
+	eventCall = {
+	    eventDef = "wait";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            float = 0.25;
+	        }
+	        item[1] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[9] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PROWLER";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_119";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[10] = {
+	eventCall = {
+	    eventDef = "waitAIRemaining";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ARACHNOTRON HELL_KNIGHT ";
+	        }
+	        item[1] = {
+	            int = 0.0;
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[11] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_120";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[12] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_122";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[13] = {
+	eventCall = {
+	    eventDef = "wait";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            float = 0.25;
+	        }
+	        item[1] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[14] = {
+	eventCall = {
+	    eventDef = "waitMultipleConditions";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            int = 2;
+	        }
+	        item[1] = {
+	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+	        }
+	        item[2] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[15] = {
+	eventCall = {
+	    eventDef = "waitAIRemaining";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
+	        }
+	        item[1] = {
+	            int = 0.0;
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[16] = {
+	eventCall = {
+	    eventDef = "waitAIRemaining";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
+	        }
+	        item[1] = {
+	            int = 1.0;
+	        }
+	        item[2] = {
+	            string = "";
 	        }
 	    }
 	}

@@ -60,15 +60,16 @@ ebl_grammar = Grammar(r"""
     PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
     PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
     PARAM_LINE = PARAM+
-    PARAM = NULLPARAM / REALPARAM
+    PARAM = NULLPARAM / REALPARAM / MULTISTRING
     
-    REALPARAM = SPACE? (NUMBER / STRING) SPACE? ("," / &RPARENTHESES)
-    NULLPARAM = SPACE ("," / &RPARENCHAR)
+    REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING) SPACE? ("," / &RPARENTHESES)
+    NULLPARAM = SPACE? ("," / &RPARENCHAR)
+    MULTISTRING = (SPACE? STRING)+ SPACE? ("," / &RPARENTHESES)
     
     EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
     
     WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT)* RBRACE
-    WAITFOR = "waitFor" SPACE? (EVENT / TIMER) SPACE?
+    WAITFOR = "waitFor" SPACE? (EVENT / TIMER) 
     TIMER = NUMBER SPACE? "sec" 
         
     LBRACE    = SPACE? "{" SPACE?
@@ -222,7 +223,7 @@ class EBLVisitor(NodeVisitor):
         return {"event": str(event_name), "args": params[0][0]}
     
     def visit_WAITFOR(self, node, visited_children):
-        _, _, condition, _ = visited_children
+        _, _, condition = visited_children
         print("waitFor parsed")
         return {"event": "waitFor", "args": condition[0]}
     
@@ -240,6 +241,14 @@ class EBLVisitor(NodeVisitor):
     
     def visit_STRING(self, node, visited_children):
         return str(node.text)
+    
+    def visit_MULTISTRING(self, node, visited_children):
+        string, _, _ = visited_children
+        output_str = ""
+        for i, item in enumerate(string):
+            output_str += string[i][1] + " "
+        print(output_str)
+        return output_str
     
     def visit_NUMBER(self, node, visited_children):
         return float(node.text)
@@ -335,7 +344,7 @@ def create_events(data):
             cls_name, arg_count = ee.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
-            print("ERROR: undefined event!")
+            print(f'''ERROR: undefined event {data["event"]}!''')
         
         args_list = data["args"]
 
@@ -367,5 +376,5 @@ def compile_EBL(filename):
         output_file.write(output_str)
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
-    
+   
 compile_EBL("test_EBL.txt")
