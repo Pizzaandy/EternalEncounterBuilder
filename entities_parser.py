@@ -251,7 +251,10 @@ class EBLVisitor(NodeVisitor):
         return output_str
     
     def visit_NUMBER(self, node, visited_children):
-        return float(node.text)
+        if float(node.text).is_integer() and not "." in (node.text):
+            return int(node.text)
+        else:
+            return float(node.text)
     
     def visit_BOOL(self, node, visited_children):
         return node.text == "true"
@@ -298,7 +301,7 @@ def convert_entities_file(filename):
 ebl = EBLVisitor()
 ebl.grammar = ebl_grammar
 
-# Split EBL file into segments at <HEADERS>
+# Splits EBL file into segments at <ENCOUNTER headers>
 def generate_EBL_segments(filename):
     with open(filename) as fp:
         segments = re.split(r"^<ENCOUNTER", fp.read(), flags=re.MULTILINE)
@@ -307,7 +310,7 @@ def generate_EBL_segments(filename):
         segment = "\n".join(segment.split("\n")[1:])
         yield strip_comments(segment)
 
-# Adds "" in place of blank arguments and handles macros
+# Adds "" in place of blank arguments, handles macros, and fills in optional arguments
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
         if arg in ee.encounter_spawn_names:
@@ -318,7 +321,7 @@ def format_args(args, arg_count):
         args += [""]
     return args
 
-# Consumes parsed EBL file and generates a list of EternalEvents 
+# Consumes a parsed EBL file and generate a list of EternalEvents 
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -359,7 +362,7 @@ def create_events(data):
             args_list = format_args(args_list, arg_count)
             return [event_cls(*args_list)]
     return data
-        
+
 def compile_EBL(filename):    
     tic = time.time()
     encounters = map(ebl.parse, generate_EBL_segments(filename))
@@ -377,4 +380,4 @@ def compile_EBL(filename):
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
    
-compile_EBL("test_EBL.txt")
+compile_EBL("test_EBL_2.txt")

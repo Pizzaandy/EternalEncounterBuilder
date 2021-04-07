@@ -1,7 +1,10 @@
 <ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
 // ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
-
+maintainAICount([
+	(GARGOYLE ZOMBIE_TIER_3, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+	(SHOTGUN_SOLDIER, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+])
 clearFactionOverrides()
 waitFor 2 sec
 

@@ -102,7 +102,7 @@ class EternalEvent:
         return cls.stringify()
 
 # I should probably not do this lol
-class MaintainAICount(EternalEvent, alias = "maintainAI"):
+class MaintainAICount(EternalEvent, alias = ["maintainAI", "maintain"]):
     spawnType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
     max_spawn_count: str = "int"
