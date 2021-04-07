@@ -45,6 +45,7 @@ encounter_spawn_names = [
 
 
 class EternalEvent:
+    
     template = dedent("""\
         eventCall = {
             eventDef = "{{name}}";
@@ -68,7 +69,8 @@ class EternalEvent:
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
         ]
-        return chevron.render(template=self.template, data={"name":camelcase(type(self).__name__), "items":items, "count":len(items)})
+        name = camelcase(type(self).__name__)
+        return chevron.render(template=self.template, data={"name":name, "items":items, "count":len(items)})
     
     def __init_subclass__(cls, alias="", **kwargs):
         super().__init_subclass__(**kwargs)
@@ -82,22 +84,25 @@ class EternalEvent:
                     optional_args += 1
                 args.append((attr,value))
         cls.args = args
-        # add alias to dicts
+        # add event class aliases to dicts
         _default_alias = camelcase(cls.__name__)
-        _alias = alias if alias else camelcase(cls.__name__)
-        event_to_ebl[cls.__name__] = (_alias, len(args), optional_args)
-        ebl_to_event[_alias] = (cls.__name__, len(args))
-        ebl_to_event[_default_alias] = (cls.__name__, len(args))
+        _alias = alias if alias else [camelcase(cls.__name__)]
+        if not isinstance(_alias, list): _alias = [_alias]
+        event_to_ebl[cls.__name__] = (_alias[0], len(args), optional_args)
         
-    def __str__(cls):
-        return cls.stringify()
+        for item in _alias:
+            ebl_to_event[item] = (cls.__name__, len(args))
+        ebl_to_event[_default_alias] = (cls.__name__, len(args))
         
     def __init__(self, *args):
         for init_arg, (cls_name, cls_args) in zip(args, self.args):
             setattr(self, cls_name, init_arg)
+            
+    def __str__(cls):
+        return cls.stringify()
 
 # I should probably not do this lol
-class MaintainAICount(EternalEvent):
+class MaintainAICount(EternalEvent, alias = "maintainAI"):
     spawnType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
     max_spawn_count: str = "int"
@@ -127,7 +132,7 @@ class SetMusicState(EternalEvent):
     stateDecl: str = "decl"
     designComment: str = "string"
         
-class Wait(EternalEvent, alias = "waitFor"):
+class Wait(EternalEvent):
     seconds: str = "float"
     disableAIHighlight: str = "bool"
         
@@ -148,6 +153,12 @@ class WaitMultipleConditions(EternalEvent):
     condition_count: str = "int"
     logic_operator: str = "encounterLogicOperator_t"
     disableAIHighlight: str = "bool"
+    
+class WaitAIRemaining(EternalEvent, alias = "AIRemaining"):
+    aiType: str = "eEncounterSpawnType_t"
+    desired_count: str = "int"
+    group_label: str = "string"
+    
 
 #events = []
 #for line in lines:
@@ -155,4 +166,3 @@ class WaitMultipleConditions(EternalEvent):
 
 #mylist = get_event_args(SpawnAI)
 #print(mylist
-

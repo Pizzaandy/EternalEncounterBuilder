@@ -1,4 +1,5 @@
-from eternalevents import *
+#from eternalevents import *
+import eternalevents as ee
 #from eternalevents import ebl_to_event, encounter_spawn_names
 import sys
 import json
@@ -13,7 +14,7 @@ import chevron
 from textwrap import dedent, indent
 
 def str_to_class(classname):
-    return getattr(sys.modules[__name__], classname)
+    return getattr(ee, classname)
 
 def get_event_args(classname):
     return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
@@ -49,6 +50,8 @@ entity_grammar = Grammar(r"""
     SPACE   = ~r"\s+"
 """)
 
+
+
 ebl_grammar = Grammar(r"""
     DOCUMENT = (STATEMENTS)*
     STATEMENTS = SPACE? (EVENT / WAVE / WAITFORBLOCK / WAITFOR)
@@ -64,9 +67,9 @@ ebl_grammar = Grammar(r"""
     
     EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
     
-    WAITFORBLOCK = "waitFor" LBRACE (EVENT)* RBRACE
-    WAITFOR = "waitFor" SPACE? (EVENT / TIMER)
-    TIMER = NUMBER SPACE? "sec"
+    WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT)* RBRACE
+    WAITFOR = "waitFor" SPACE? (EVENT / TIMER) SPACE?
+    TIMER = NUMBER SPACE? "sec" 
         
     LBRACE    = SPACE? "{" SPACE?
     RBRACE    = SPACE? "}" SPACE?
@@ -82,6 +85,12 @@ ebl_grammar = Grammar(r"""
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
     BOOL = "true" / "false"
 """)
+
+waitFor_keywords = {
+    "all": "ENCOUNTER_LOGICAL_OP_AND",
+    "any": "ENCOUNTER_LOGICAL_OP_OR"
+}
+
 
 
 class EntityVisitor(NodeVisitor):
@@ -210,24 +219,24 @@ class EBLVisitor(NodeVisitor):
             return {"event": str(event_name), "args": []}
         #params.insert(0, "EVENT: " + str(event_name))
         #print("event: " + str(params[0][0]))
-              
         return {"event": str(event_name), "args": params[0][0]}
     
     def visit_WAITFOR(self, node, visited_children):
-        _, _, conditions = visited_children
-        print(conditions)
-        conditions.append("false")
-        return {"event": "waitFor", "args": conditions}
+        _, _, condition, _ = visited_children
+        print("waitFor parsed")
+        return {"event": "waitFor", "args": condition[0]}
     
     def visit_WAITFORBLOCK(self, node, visited_children):
-        _, _, conditions, _ = visited_children
+        _, _, keyword, _, conditions, _ = visited_children
         if not isinstance(conditions, list):
             return {"event": "waitForBlock", "args": []}
-        return {"event": "waitForBlock", "args": conditions}
+        keyword = keyword if isinstance(keyword,str) else "all"
+        print("waitForBlock parsed")
+        return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
     
     def visit_TIMER(self, node, visited_children):
         duration, _, _ = visited_children
-        return duration
+        return {"event": "wait", "args": [duration, "false"]}
     
     def visit_STRING(self, node, visited_children):
         return str(node.text)
@@ -292,51 +301,55 @@ def generate_EBL_segments(filename):
 # Adds "" in place of blank arguments and handles macros
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
-        if arg in encounter_spawn_names:
+        if arg in ee.encounter_spawn_names:
             args[i] = "ENCOUNTER_SPAWN_" + arg
         if arg is None:
             args[i] = ""
     while len(args) < arg_count:
-        args.append("")
+        args += [""]
     return args
 
 # Consumes parsed EBL file and generates a list of EternalEvents 
 def create_events(data):
     if isinstance(data, list):
         output = []
-        if len(data) == 0:
-            return None
         for item in data:
-            if not isinstance(item, str):
-                new_item = create_events(item)
-                if isinstance(new_item, list):
-                    output += new_item
-                else:
-                    output.append(create_events(item))
-        output = [x for x in output if x != []]
+            output += create_events(item)
         return output
                 
     if isinstance(data, dict):
         if data["event"] == "waitForBlock":
-            print(data["args"])
+            print("waitForBlock found!")
             waitevent =  {
                 "event":"waitMultipleConditions",
-                "args":[len(data["args"]), "ENCOUNTER_LOGICAL_OP_AND", "false"]
+                "args":[len(data["args"]), waitFor_keywords[data["keyword"]], "false"]
             }
             return create_events([waitevent] + data["args"])
+        
+        if data["event"] == "waitFor":
+            #print(create_events(data["args"]))
+            print("waitFor found!")
+            return create_events(data["args"])
+        
+        if data["event"] in ee.ebl_to_event:
+            cls_name, arg_count = ee.ebl_to_event[data["event"]]
+            event_cls = str_to_class(cls_name)
+        else:
+            print("ERROR: undefined event!")
+        
         args_list = data["args"]
-        cls_name, arg_count = ebl_to_event[data["event"]]
-        event_cls = str_to_class(cls_name)
-        #print(event_cls)
+
+        # Assume nested argument list means parameter tuple
         if any(isinstance(i, list) for i in args_list):
             output = []
             for args in args_list:
                 args = format_args(args, arg_count)
-                output.append(event_cls(*args))
+                output += [event_cls(*args)]
             return output
         else:
             args_list = format_args(args_list, arg_count)
-            return event_cls(*args_list)
+            return [event_cls(*args_list)]
+    return data
         
 def compile_EBL(filename):    
     tic = time.time()

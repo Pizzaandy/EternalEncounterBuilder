@@ -1,8 +1,9 @@
 <ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
 // ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
+maintainAI([
+	(GARGOYLE_ZOMBIE_TIER_3, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+	(SHOTGUN_SOLDIER, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+])
 
-waitFor all {
-	clearFactionOverrides()
-	spawn(CACODEMON, bruh)
-}
+//activate(destroyed_rig_target_relay_1, Lock Door)

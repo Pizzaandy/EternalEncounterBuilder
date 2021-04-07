@@ -1,41 +1,63 @@
 item[0] = {
 	eventCall = {
-	    eventDef = "waitMultipleConditions";
+	    eventDef = "maintainAICount";
 	    args = {
-	        num = 3;
+	        num = 8;
 	        item[0] = {
-	            int = 2;
+	            eEncounterSpawnType_t = "GARGOYLE_ZOMBIE_TIER_3";
 	        }
 	        item[1] = {
-	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+	            int = 4.0;
 	        }
 	        item[2] = {
-	            bool = false;
+	            int = -1.0;
+	        }
+	        item[3] = {
+	            float = 4.0;
+	        }
+	        item[4] = {
+	            int = 3.0;
+	        }
+	        item[5] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	        }
+	        item[6] = {
+	            string = "";
+	        }
+	        item[7] = {
+	            float = 9.0;
 	        }
 	    }
 	}
 }
 item[1] = {
 	eventCall = {
-	    eventDef = "clearFactionOverrides";
+	    eventDef = "maintainAICount";
 	    args = {
-	        num = 0;
-	    }
-	}
-}
-item[2] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
+	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
 	        }
 	        item[1] = {
-	            entity = "bruh";
+	            int = 4.0;
 	        }
 	        item[2] = {
+	            int = -1.0;
+	        }
+	        item[3] = {
+	            float = 4.0;
+	        }
+	        item[4] = {
+	            int = 3.0;
+	        }
+	        item[5] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	        }
+	        item[6] = {
 	            string = "";
+	        }
+	        item[7] = {
+	            float = 9.0;
 	        }
 	    }
 	}
