@@ -9,9 +9,11 @@ event_to_ebl = {}
 ebl_to_event = {}
 
 encounter_spawn_names = [
+    "ANY"
     "ARACHNOTRON",
     "BARON",
     "CACODEMON",
+    "CHAINGUN_SOLDIER",
     "CUEBALL",
     "CYBER_MANCUBUS",
     "DOOM_HUNTER",
@@ -46,31 +48,44 @@ encounter_spawn_names = [
 
 class EternalEvent:
     
-    template = dedent("""\
+    ev_template = dedent("""\
         eventCall = {
             eventDef = "{{name}}";
             args = {
                 num = {{count}};
                 {{#items}}
                 item[{{index}}] = {
-                    {{var}} = {{{value}}};
+                    {{var}} = {{{value}}}
                 }
                 {{/items}}
             }
         }
     """)
+    
+    decl_template = dedent("""\
+        {
+                        {{varname}} = {{{value}}}
+                    }""")
 
     def stringify(self):
         items = [
             {
                 "index": index, 
-                "value": f'"{val[1]}"' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else val[1], 
+                "value": f'"{val[1]}";' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else val[1], 
                 "var": var[1]
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
         ]
+        #print(items)
         name = camelcase(type(self).__name__)
-        return chevron.render(template=self.template, data={"name":name, "items":items, "count":len(items)})
+        for item in items:
+            if item["var"].startswith("decl"):
+                varname = item["var"].replace("decl = ", "")
+                item["var"] = "decl"
+                item["value"] = chevron.render(template=self.decl_template, data={"varname":varname, "value":item["value"]})
+                #print(item["value"])
+                
+        return chevron.render(template=self.ev_template, data={"name":name, "items":items, "count":len(items)})
     
     def __init_subclass__(cls, alias="", **kwargs):
         super().__init_subclass__(**kwargs)
@@ -78,7 +93,7 @@ class EternalEvent:
         args = []
         optional_args = 0
         for attr, value in cls.__dict__.items():
-            if not attr.startswith('__'):
+            if not attr.startswith("__"):
                 if value[-1] == "*":
                     value = value.replace("*", "")
                     optional_args += 1
@@ -101,7 +116,7 @@ class EternalEvent:
     def __str__(cls):
         return cls.stringify()
 
-# I should probably not do this lol
+# Gonna automate generate this list later
 class MaintainAICount(EternalEvent, alias = ["maintainAI", "maintain"]):
     spawnType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
@@ -111,6 +126,14 @@ class MaintainAICount(EternalEvent, alias = ["maintainAI", "maintain"]):
     spawnGroup: str = "entity"
     group_level: str = "string"
     max_spawn_delay: str = "float"
+
+class StaggeredAISpawn(EternalEvent):
+	spawnType: str = "eEncounterSpawnType_t"
+	spawn_count:  str = "int"
+	spawnGroup: str = "entity*"
+	group_label: str = "string*"
+	minSpawnStagger: str = "float"
+	maxSpawnStagger: str = "float"
     
 class StopMaintainingAICount(EternalEvent, alias = "stopMaintainAI"):
     spawnType: str = "eEncounterSpawnType_t"
@@ -129,9 +152,36 @@ class SpawnSingleAI(EternalEvent, alias = "spawn"):
         
 class SetMusicState(EternalEvent):
     target: str = "entity"
-    stateDecl: str = "decl"
+    stateDecl: str = "decl = soundstate"
     designComment: str = "string"
-        
+    
+class MakeAIAwareOfPlayer(EternalEvent, alias = "alertAI"):
+    allActive: str = "bool"
+    onSpawn: str = "bool"
+    groupLabel: str = "string*"
+    restorePerception: str = "bool"
+
+class ActivateTarget(EternalEvent, alias = "activate"):
+    targetEntity: str = "entity"
+    command: str = "string"
+    
+class SetFactionRelation(EternalEvent):
+	instigatorSpawnType: str = "eEncounterSpawnType_t"
+	groupLabel: str = "string*"
+	targetSpawnType: str = "eEncounterSpawnType_t"
+	relation: str = "socialEmotion_t"
+
+class ClearFactionOverrides(EternalEvent):
+    pass
+
+class ForceChargeOnAllAI(EternalEvent):
+    pass
+
+class WaitMulitpleConditions(EternalEvent):
+    condition_count: str = "int"
+    logic_operator: str = "encounterLogicOperator_t"
+    disableAIHighlight: str = "bool"
+    
 class Wait(EternalEvent):
     seconds: str = "float"
     disableAIHighlight: str = "bool"
@@ -141,24 +191,31 @@ class WaitAIHealthLevel(EternalEvent):
     desired_remaing_ai_count: str = "int"
     group_label: str = "char"
     disableAIHighlight: str = "bool"
-
-class ActivateTarget(EternalEvent):
-    targetEntity: str = "entity"
-    command: str = "string"
-    
-class ClearFactionOverrides(EternalEvent):
-    pass
-
-class WaitMultipleConditions(EternalEvent):
-    condition_count: str = "int"
-    logic_operator: str = "encounterLogicOperator_t"
-    disableAIHighlight: str = "bool"
     
 class WaitAIRemaining(EternalEvent, alias = "AIRemaining"):
     aiType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
     group_label: str = "string"
     
+class WaitMaintainComplete(EternalEvent, alias = "maintainComplete"):
+    aiType: str = "eEncounterSpawnType_t"
+    remaining_spawn_couunt: str = "int"
+    group_label: str = "string"
+    
+class WaitForEventFlag(EternalEvent, alias = ""):
+    eventFlag: str = "eEncounterEventFlags_t"
+    userFlag: str = "string*"
+    testIfAlreadyRaised: str = "bool"
+    disableAIHighlight: str = "bool"
+
+class DamageAI(EternalEvent):
+    damageType: str = "decl = damage"
+    aiType: str = "eEncounterSpawnType_t"
+    group_label: str = "string*"
+    
+class DesignerComment(EternalEvent, alias = "print"):
+	designerComment: str = "string*"
+	printToConsole: str = "bool"
 
 #events = []
 #for line in lines:

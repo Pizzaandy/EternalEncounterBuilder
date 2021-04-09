@@ -1,4 +1,8 @@
-<ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
+SETTINGS
+formatModifiedSpawnTargets
+formatAllSpawnTargets
+
+REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 // ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
 maintainAICount([ 
@@ -17,3 +21,4 @@ waitFor 0.25 sec
 
 spawn(HELL_KNIGHT, destroyed_rig_target_spawn_116)
 
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, START_LIGHT)
