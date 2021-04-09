@@ -4,19 +4,19 @@ item[0] = {
 	    args = {
 	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "GARGOYLE ZOMBIE_TIER_3 ";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
 	        }
 	        item[1] = {
-	            int = 4
+	            int = 4;
 	        }
 	        item[2] = {
-	            int = -1
+	            int = -1;
 	        }
 	        item[3] = {
-	            float = 4
+	            float = 4;
 	        }
 	        item[4] = {
-	            int = 3
+	            int = 3;
 	        }
 	        item[5] = {
 	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
@@ -25,7 +25,7 @@ item[0] = {
 	            string = "";
 	        }
 	        item[7] = {
-	            float = 9.0
+	            float = 9.0;
 	        }
 	    }
 	}
@@ -39,16 +39,16 @@ item[1] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
 	        }
 	        item[1] = {
-	            int = 4
+	            int = 4;
 	        }
 	        item[2] = {
-	            int = -1
+	            int = -1;
 	        }
 	        item[3] = {
-	            float = 4
+	            float = 4;
 	        }
 	        item[4] = {
-	            int = 3
+	            int = 3;
 	        }
 	        item[5] = {
 	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
@@ -57,7 +57,7 @@ item[1] = {
 	            string = "";
 	        }
 	        item[7] = {
-	            float = 9.0
+	            float = 9.0;
 	        }
 	    }
 	}
@@ -76,7 +76,7 @@ item[3] = {
 	    args = {
 	        num = 3;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ARACHNOTRON";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
 	            entity = "destroyed_rig_target_spawn_114";
@@ -110,13 +110,13 @@ item[5] = {
 	    args = {
 	        num = 3;
 	        item[0] = {
-	            int = 2
+	            int = 2;
 	        }
 	        item[1] = {
 	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
 	        }
 	        item[2] = {
-	            bool = false
+	            bool = false;
 	        }
 	    }
 	}
@@ -127,10 +127,10 @@ item[6] = {
 	    args = {
 	        num = 3;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ARACHNOTRON";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
-	            int = 0
+	            int = 0;
 	        }
 	        item[2] = {
 	            string = "";
@@ -147,7 +147,7 @@ item[7] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
 	        }
 	        item[1] = {
-	            int = 0
+	            int = 0;
 	        }
 	        item[2] = {
 	            string = "";
@@ -161,10 +161,10 @@ item[8] = {
 	    args = {
 	        num = 2;
 	        item[0] = {
-	            float = 0.25
+	            float = 0.25;
 	        }
 	        item[1] = {
-	            bool = false
+	            bool = false;
 	        }
 	    }
 	}

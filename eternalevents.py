@@ -8,44 +8,6 @@ camelcase = lambda test_str: test_str[:1].lower() + test_str[1:] if test_str els
 event_to_ebl = {}
 ebl_to_event = {}
 
-encounter_spawn_names = [
-    "ANY"
-    "ARACHNOTRON",
-    "BARON",
-    "CACODEMON",
-    "CHAINGUN_SOLDIER",
-    "CUEBALL",
-    "CYBER_MANCUBUS",
-    "DOOM_HUNTER",
-    "DREAD_KNIGHT",
-    "GARGOYLE",
-    "HELL_KNIGHT",
-    "HELL_SOLDIER",
-    "IMP",
-    "MANCUBUS",
-    "MARAUDER",
-    "PAIN_ELEMENTAL",
-    "PINKY",
-    "PROWLER",
-    "REVENANT",
-    "SHOTGUN_SOLDIER",
-    "TENTACLE",
-    "TYRANT",
-    "WHIPLASH",
-    "ZOMBIE_MAKYR",
-    "ZOMBIE_TIER_1",
-    "ZOMBIE_TIER_3",
-    "LOST_SOUL",
-    "SPECTRE",
-    "CARCASS",
-    "ARCHVILE",
-    "BUFF_POD",
-    "SPIRIT",
-    "TURRET"
-    "SUPER_TENTACLE"
-]
-
-
 class EternalEvent:
     
     ev_template = dedent("""\
@@ -71,7 +33,7 @@ class EternalEvent:
         items = [
             {
                 "index": index, 
-                "value": f'"{val[1]}";' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else val[1], 
+                "value": f'"{val[1]}";' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else f'{val[1]};', 
                 "var": var[1]
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))

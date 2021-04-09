@@ -1,10 +1,94 @@
 import eternalevents as ee
-from parsimonious.grammar import Grammar
-from parsimonious.grammar import NodeVisitor
-#import chevron
-from textwrap import dedent, indent
+import EBL_grammar as EBL
+from textwrap import indent
 import re
 import time
+
+ebl = EBL.NodeVisitor()
+ebl.grammar = EBL.grammar
+variables = []
+
+waitFor_keywords = {
+    "all": "ENCOUNTER_LOGICAL_OP_AND",
+    "any": "ENCOUNTER_LOGICAL_OP_OR"
+}
+
+encounter_spawn_names = [
+    "ANY",
+    "GENERIC",
+    "ARACHNOTRON",
+    "BARON",
+    "CACODEMON",
+    "CHAINGUN_SOLDIER",
+    "CUEBALL",
+    "CYBER_MANCUBUS",
+    "DOOM_HUNTER",
+    "DREAD_KNIGHT",
+    "GARGOYLE",
+    "HELL_KNIGHT",
+    "HELL_SOLDIER",
+    "IMP",
+    "MANCUBUS",
+    "MARAUDER",
+    "PAIN_ELEMENTAL",
+    "PINKY",
+    "PROWLER",
+    "REVENANT",
+    "SHOTGUN_SOLDIER",
+    "TENTACLE",
+    "TYRANT",
+    "WHIPLASH",
+    "ZOMBIE_MAKYR",
+    "ZOMBIE_TIER_1",
+    "ZOMBIE_TIER_3",
+    "LOST_SOUL",
+    "SPECTRE",
+    "CARCASS",
+    "ARCHVILE",
+    "BUFF_POD",
+    "SPIRIT",
+    "TURRET",
+    "SUPER_TENTACLE"
+]
+
+encounter_spawn_aliases = {
+    "Any": "ANY",
+    "Generic": "GENERIC",
+    "Arachnotron": "ARACHNOTRON",
+    "Baron": "BARON",
+    "Cacodemon": "CACODEMON",
+    "ChaingunSoldier": "CHAINGUN_SOLDIER",
+    "Cueball": "CUEBALL",
+    "CyberMancubus": "CYBER_MANCUBUS",
+    "DoomHunter": "DOOM_HUNTER",
+    "DreadKnight": "DREAD_KNIGHT",
+    "Gargoyle": "GARGOYLE",
+    "HellKnight": "HELL_KNIGHT",
+    "HellSoldier": "HELL_SOLDIER",
+    "Imp": "IMP",
+    "Mancubus": "MANCUBUS",
+    "Marauder": "MARAUDER",
+    "PainElemental": "PAIN_ELEMENTAL",
+    "Pinky": "PINKY",
+    "Prowler": "PROWLER",
+    "Revenant": "REVENANT",
+    "ShotgunSoldier": "SHOTGUN_SOLDIER",
+    "Tentacle": "TENTACLE",
+    "Tyrant": "TYRANT",
+    "Whiplash": "WHIPLASH",
+    "ZombieMakyr": "ZOMBIE_MAKYR",
+    "ZombieTier1": "ZOMBIE_TIER_1",
+    "ZombieTier3": "ZOMBIE_TIER_3",
+    "LostSoul": "LOST_SOUL",
+    "Spectre": "SPECTRE",
+    "Carcass": "CARCASS",
+    "Archvile": "ARCHVILE",
+    "BuffPod": "BUFF_POD",
+    "Spirit": "SPIRIT",
+    "Turret": "TURRET",
+    "SuperTentacle": "SUPER_TENTACLE",
+}
+
 
 def str_to_class(classname):
     return getattr(ee, classname)
@@ -12,153 +96,12 @@ def str_to_class(classname):
 def get_event_args(classname):
     return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
 
-ebl_grammar = Grammar(r"""
-    DOCUMENT = (STATEMENTS)*
-    STATEMENTS = SPACE? (EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
-    
-    ASSIGNMENT = STRING EQUALS (NUMBER / STRING)
-    
-    WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
-    PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
-    PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
-    PARAM_LINE = PARAM+
-    PARAM = NULLPARAM / REALPARAM / MULTISTRING
-    
-    REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING) SPACE? ("," / &RPARENTHESES)
-    NULLPARAM = SPACE? ("," / &RPARENCHAR)
-    MULTISTRING = (SPACE? STRING)+ SPACE? ("," / &RPARENTHESES)
-    
-    EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
-    
-    WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT)* RBRACE
-    WAITFOR = "waitFor" SPACE? (EVENT / TIMER) 
-    TIMER = NUMBER SPACE? "sec" 
-        
-    LBRACE        = SPACE? "{" SPACE?
-    RBRACE        = SPACE? "}" SPACE?
-    LBRACKET      = SPACE? "[" SPACE?
-    RBRACKET      = SPACE? "]" SPACE?
-    LPARENTHESES  = SPACE? "(" SPACE?
-    RPARENTHESES  = SPACE? ")" SPACE?
-    LPARENCHAR    = "("
-    RPARENCHAR    = ")"
-    EQUALS        = SPACE? "=" SPACE?
-    
-    SPACE = ~r"\s+"
-    STRING = ~r"[\w/]+"
-    NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
-""")
-
-waitFor_keywords = {
-    "all": "ENCOUNTER_LOGICAL_OP_AND",
-    "any": "ENCOUNTER_LOGICAL_OP_OR"
-}
-
-class EBLVisitor(NodeVisitor):
-    def visit_DOCUMENT(self, node, visited_children):
-        output = []
-        event_list = visited_children
-        for event in event_list:
-            output.append(event)
-        return output
-    
-    def visit_STATEMENTS(self, node, visited_children):
-        _, statement = visited_children
-        #print("statement: " + str(statement[0]))
-        return statement[0]
-    
-    def visit_WAVE(self, node, visited_children):
-        _, _, varname, _, statements, _ = visited_children
-        if not isinstance(statements, list):
-            return []
-        return statements
-    
-    def visit_PARAM(self, node, visited_children):
-        value = visited_children
-        #print(value[0])
-        return value[0]
-    
-    def visit_NULLPARAM(self, node, visited_children):
-        return None
-    
-    def visit_REALPARAM(self, node, visited_children):
-        _, value, _, _ = visited_children
-        #print(value[0])
-        return value[0]
-    
-    def visit_PARAM_LINE(self, node, visited_children):
-        params = visited_children
-        #print("param_line:" + str(params))
-        return params
-    
-    def visit_PARAM_TUPLE(self, node, visited_children):
-        _, param_line, _, _, _, _ = visited_children
-        #print("param_tuple: " + str(param_line))
-        return param_line
-    
-    def visit_PARAM_LIST(self, node, visited_children):
-        _, param_tuples, _ = visited_children
-        #print("param_list: " + str(param_tuples))
-        return param_tuples
-    
-    def visit_EVENT(self, node, visited_children):
-        event_name, _, _, params, _ = visited_children
-        #print(params[0])
-        if not isinstance(params, list):
-            return {"event": str(event_name), "args": []}
-        #params.insert(0, "EVENT: " + str(event_name))
-        #print("event: " + str(params[0][0]))
-        return {"event": str(event_name), "args": params[0][0]}
-    
-    def visit_WAITFOR(self, node, visited_children):
-        _, _, condition = visited_children
-        print("waitFor parsed")
-        return {"event": "waitFor", "args": condition[0]}
-    
-    def visit_WAITFORBLOCK(self, node, visited_children):
-        _, _, keyword, _, conditions, _ = visited_children
-        if not isinstance(conditions, list):
-            return {"event": "waitForBlock", "args": []}
-        keyword = keyword if isinstance(keyword,str) else "all"
-        print("waitForBlock parsed")
-        return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
-    
-    def visit_TIMER(self, node, visited_children):
-        duration, _, _ = visited_children
-        return {"event": "wait", "args": [duration, "false"]}
-    
-    def visit_STRING(self, node, visited_children):
-        return str(node.text)
-    
-    def visit_MULTISTRING(self, node, visited_children):
-        string, _, _ = visited_children
-        output_str = ""
-        for i, item in enumerate(string):
-            output_str += string[i][1] + " "
-        print(output_str)
-        return output_str
-    
-    def visit_NUMBER(self, node, visited_children):
-        if float(node.text).is_integer() and not "." in (node.text):
-            return int(node.text)
-        else:
-            return float(node.text)
-    
-    #def visit_BOOL(self, node, visited_children):
-        #return node.text == "true"
-    
-    def generic_visit(self, node, visited_children):
-        return visited_children or node
-
 def strip_comments(string):
     pattern = r"//(.*)[\r\n]+"
     return re.sub(pattern, "", string)
 
 
-ebl = EBLVisitor()
-ebl.grammar = ebl_grammar
-
-# Splits EBL file into segments at REPLACE ENCOUNTER headers
+# Splits EBL file into segments at REPLACE ENCOUNTER headers, handles SETTINGS flags
 def generate_EBL_segments(filename, format_file = True):
     with open(filename) as fp:
         segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
@@ -170,18 +113,26 @@ def generate_EBL_segments(filename, format_file = True):
         segment = "\n".join(segment.split("\n")[1:])
         yield strip_comments(segment)
 
-# Adds "" in place of blank arguments, handles macros, and fills in optional arguments
+# Handles macros and fills in missing arguments
 def format_args(args, arg_count):
     for i, arg in enumerate(args):
-        if arg in ee.encounter_spawn_names:
-            args[i] = "ENCOUNTER_SPAWN_" + arg
+        if isinstance(arg, str):
+            args[i] = ""
+            for word in arg.split():
+                if word in encounter_spawn_names:
+                    args[i] += "ENCOUNTER_SPAWN_" + word + " "
+                elif word in encounter_spawn_aliases:
+                    args[i] += "ENCOUNTER_SPAWN_" + encounter_spawn_aliases[word] + " "
+                else:
+                    args[i] += word + " "
+            args[i] = args[i].strip()
         if arg is None:
             args[i] = ""
     while len(args) < arg_count:
         args += [""]
     return args
 
-# Consumes a parsed EBL file and generate a list of EternalEvents 
+# Consumes a parsed EBL file and generates a list of EternalEvents 
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -190,6 +141,12 @@ def create_events(data):
         return output
                 
     if isinstance(data, dict):
+        if "variable" in data:
+            if data["variable"] in variables:
+                variables[data["variable"]] += [data["value"]]
+            else:
+                variables[data["variable"]] = [data["value"]]
+        
         if data["event"] == "waitForBlock":
             print("waitForBlock found!")
             waitevent =  {
@@ -211,7 +168,7 @@ def create_events(data):
         
         args_list = data["args"]
 
-        # Assume nested argument list means parameter tuple
+        # Assume nested argument list means parameter list
         if any(isinstance(i, list) for i in args_list):
             output = []
             for args in args_list:
@@ -228,12 +185,14 @@ def format_targets(filename, do_all):
         print("FORMATTING ALL TARGETS")
     else:
         print("FORMATTING MODIFIED TARGETS ONLY")
-    
+
+# (function, parameters)
 setting_to_func = {
     "formatModifiedSpawnTargets": (format_targets, [False]),
     "formatAllSpawnTargets": (format_targets, [True])
 }
 
+# Format entities file according to SETTINGS flags
 def format_entities_file(filename, settings):
     for line in settings.splitlines():
         print(line)
@@ -241,6 +200,7 @@ def format_entities_file(filename, settings):
             func, args = setting_to_func[line]
             func(filename, *args)
 
+# The Big One:tm:
 def compile_EBL(filename):    
     tic = time.time()
     segments = generate_EBL_segments(filename, format_file = True)
