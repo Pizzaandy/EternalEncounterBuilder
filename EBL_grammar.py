@@ -5,7 +5,7 @@ grammar = Grammar(r"""
     DOCUMENT = (STATEMENTS)*
     STATEMENTS = SPACE? (EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
     
-    ASSIGNMENT = STRING EQUALS (NUMBER / STRING)
+    ASSIGNMENT = STRING EQUALS (NUMBER / STRING) SPACE?
     
     WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
     PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
@@ -19,9 +19,9 @@ grammar = Grammar(r"""
     
     EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
     
-    WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT)* RBRACE
+    WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT / ASSIGNMENT)* RBRACE
     WAITFOR = "waitFor" SPACE? (EVENT / TIMER) 
-    TIMER = NUMBER SPACE? "sec" 
+    TIMER = (NUMBER) SPACE? "sec" 
         
     LBRACE        = SPACE? "{" SPACE?
     RBRACE        = SPACE? "}" SPACE?
@@ -53,8 +53,8 @@ class NodeVisitor(NodeVisitor):
     
     # ASSIGNMENT = STRING EQUALS (NUMBER / STRING)
     def visit_ASSIGNMENT(self, node, visited_children):
-        varname, _, value = visited_children
-        return {"variable": varname, "value": value}
+        varname, _, value, _ = visited_children
+        return {"variable": varname, "value": value[0]}
     
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
@@ -101,15 +101,15 @@ class NodeVisitor(NodeVisitor):
     
     def visit_WAITFOR(self, node, visited_children):
         _, _, condition = visited_children
-        print("waitFor parsed")
+        #print("waitFor parsed")
         return {"event": "waitFor", "args": condition[0]}
     
     def visit_WAITFORBLOCK(self, node, visited_children):
         _, _, keyword, _, conditions, _ = visited_children
         if not isinstance(conditions, list):
             return {"event": "waitForBlock", "args": []}
-        keyword = keyword if isinstance(keyword,str) else "all"
-        print("waitForBlock parsed")
+        keyword = keyword if isinstance(keyword, str) else "all"
+        #print("waitForBlock parsed")
         return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
     
     def visit_TIMER(self, node, visited_children):
@@ -124,7 +124,7 @@ class NodeVisitor(NodeVisitor):
         output_str = ""
         for i, item in enumerate(string):
             output_str += string[i][1] + " "
-        print(output_str)
+        #print(output_str)
         return output_str.strip()
     
     def visit_NUMBER(self, node, visited_children):
@@ -132,9 +132,6 @@ class NodeVisitor(NodeVisitor):
             return int(node.text)
         else:
             return float(node.text)
-    
-    #def visit_BOOL(self, node, visited_children):
-        #return node.text == "true"
     
     def generic_visit(self, node, visited_children):
         return visited_children or node

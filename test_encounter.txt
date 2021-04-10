@@ -130,7 +130,7 @@ item[6] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
-	            int = 0;
+	            int = 5.2e-7;
 	        }
 	        item[2] = {
 	            string = "";
@@ -147,7 +147,7 @@ item[7] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
 	        }
 	        item[1] = {
-	            int = 0;
+	            int = 10;
 	        }
 	        item[2] = {
 	            string = "";
@@ -161,7 +161,7 @@ item[8] = {
 	    args = {
 	        num = 2;
 	        item[0] = {
-	            float = 0.25;
+	            float = 2;
 	        }
 	        item[1] = {
 	            bool = false;

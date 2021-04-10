@@ -33,7 +33,9 @@ class EternalEvent:
         items = [
             {
                 "index": index, 
-                "value": f'"{val[1]}";' if isinstance(val[1], str) and val[1] not in ["NULL","true","false"] else f'{val[1]};', 
+                "value": (f'"{val[1]}";' if isinstance(val[1], str) 
+                          and val[1] not in ["NULL","true","false"] 
+                          else f'{val[1]};'), 
                 "var": var[1]
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
@@ -44,7 +46,9 @@ class EternalEvent:
             if item["var"].startswith("decl"):
                 varname = item["var"].replace("decl = ", "")
                 item["var"] = "decl"
-                item["value"] = chevron.render(template=self.decl_template, data={"varname":varname, "value":item["value"]})
+                item["value"] = (chevron.render(template=self.decl_template, 
+                                                data={"varname":varname, 
+                                                      "value":item["value"]}))
                 #print(item["value"])
                 
         return chevron.render(template=self.ev_template, data={"name":name, "items":items, "count":len(items)})
@@ -78,7 +82,6 @@ class EternalEvent:
     def __str__(cls):
         return cls.stringify()
 
-# Gonna automate generate this list later
 class MaintainAICount(EternalEvent, alias = ["maintainAI", "maintain"]):
     spawnType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
@@ -164,7 +167,7 @@ class WaitMaintainComplete(EternalEvent, alias = "maintainComplete"):
     remaining_spawn_couunt: str = "int"
     group_label: str = "string"
     
-class WaitForEventFlag(EternalEvent, alias = ""):
+class WaitForEventFlag(EternalEvent, alias = "Flag"):
     eventFlag: str = "eEncounterEventFlags_t"
     userFlag: str = "string*"
     testIfAlreadyRaised: str = "bool"
