@@ -1,0 +1,5 @@
+REPLACE ENCOUNTER city_lower_encounter_manager_lower_city_main
+
+city = city_lower_target_spawn_
+
+spawn(Arachnotron, city_lower_target_spawn_37

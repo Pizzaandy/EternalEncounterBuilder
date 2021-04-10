@@ -15,8 +15,11 @@ class EBL_Assignment():
     value: str
     
 def add_variable(varname, value):
+    if varname in variables:
+        print(f"Modified variable {varname} = {value}")
+    else:
+       print(f"Added variable {varname} = {value}") 
     variables[varname] = value
-    print(f"Added variable {varname} = {value}")
 
 waitFor_keywords = {
     "all": "ENCOUNTER_LOGICAL_OP_AND",
@@ -115,18 +118,20 @@ def strip_comments(string):
 
 
 # Splits EBL file into segments at REPLACE ENCOUNTER headers 
-# and handles SETTINGS flags
+# and also handles SETTINGS flags
 def generate_EBL_segments(filename, format_file = True):
     with open(filename) as fp:
         segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
     start_index = 0
     if segments[0].startswith("SETTINGS"):
-        print("SETTINGS found")
+        print("SETTINGS header found!")
         start_index = 1
         if format_file: 
             format_entities_file(filename, segments[0])
         else:
             print("Settings Ignored lol")
+    else:
+        print("No SETTINGS found")
     for segment in segments[start_index:]:
         segment = "\n".join(segment.split("\n")[1:])
         yield strip_comments(segment)
@@ -213,7 +218,8 @@ setting_to_func = {
     "formatAllSpawnTargets": (format_targets, [True])
 }
 
-# Format entities file according to SETTINGS flags
+# Read SETTINGS flags and format entities file 
+# also make sure we don't miss any variables
 def format_entities_file(filename, settings):
     for line in settings.splitlines():
         #print(line)
@@ -233,9 +239,9 @@ def is_number(s):
         return False
 
 # The Big One:tm:
-def compile_EBL(filename):    
+def compile_EBL(ebl_file):    
     tic = time.time()
-    segments = generate_EBL_segments(filename, format_file = True)
+    segments = generate_EBL_segments(ebl_file, format_file = True)
     encounters = map(ebl.parse, segments)
     output_file = open("test_encounter.txt", "w")
     for encounter in list(encounters):
