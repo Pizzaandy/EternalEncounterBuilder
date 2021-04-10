@@ -1,0 +1,15 @@
+SETTINGS
+
+REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
+// ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
+
+foo = Apple
+bar = Banana@fizz
+
+maintainAICount([ 
+	(Gargoyle, fizzz, -1, 4, 3, foo@foo, thebool , 9.),
+	(ZombieTier3, 4, -1, 4, 3, foo@bar , , 9.)
+])
+spawn(thebool, foo@bar@bar@bar)
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, HEAVY)

@@ -19,6 +19,14 @@ def add_variable(varname, value):
         print(f"Modified variable {varname} = {value}")
     else:
        print(f"Added variable {varname} = {value}") 
+       
+    if "@" in value:
+        for var, val in variables.items():
+            val = format_args([val],1)[0]
+            value = value.replace(f'{var}', str(val))
+        variables[varname] = value.replace("@","")
+        print(f'''Formatted nested prefix {varname} = {value.replace("@","")}''')
+        return
     variables[varname] = value
 
 waitFor_keywords = {
@@ -237,7 +245,23 @@ def is_number(s):
         return True
     except ValueError:
         return False
-
+    
+def apply_prefixes(event_string):
+    segments = event_string.split("@")
+    segstr = ""
+    final_i = len(segments)-1
+    for i, seg in enumerate(segments):
+        for var, val in variables.items():
+            val = format_args([val],1)[0]
+            if ((seg.endswith(f'{var}') and i != final_i) 
+            or (seg.startswith(f'{var}') and i != 0)):
+                seg = seg.replace(f'{var}', str(val))
+            val = (val if is_number(str(val)) or var in ["true","false"] 
+                   else f'"{val}"')
+            seg = seg.replace(f'"{var}"', str(val))
+        segstr += seg
+    return segstr
+  
 # The Big One:tm:
 def compile_EBL(ebl_file):    
     tic = time.time()
@@ -256,12 +280,8 @@ def compile_EBL(ebl_file):
                 add_variable(event.name, event.value)
                 continue
             event_string = str(event)
-            for var, val in variables.items():
-                #print(var)
-                replace_str = (f'"{var}"' if is_number(str(val))
-                               or var in ["NULL","true","false"] else var)
-                event_string = event_string.replace(replace_str, str(val))
-                #print(event_string)
+            if "@" in event_string:
+                event_string = apply_prefixes(event_string)
                 
             output_str += (f"item[{item_index}]" + " = {\n" +
                            indent(event_string,"\t") + "}\n")
@@ -270,5 +290,5 @@ def compile_EBL(ebl_file):
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
    
-compile_EBL("test_EBL_2.txt")
+compile_EBL("Test EBL Files/test_EBL_2.txt")
 #print(variables)

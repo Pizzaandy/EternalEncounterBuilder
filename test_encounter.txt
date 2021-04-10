@@ -4,10 +4,10 @@ item[0] = {
 	    args = {
 	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE";
 	        }
 	        item[1] = {
-	            int = 4;
+	            int = "fizzz";
 	        }
 	        item[2] = {
 	            int = -1;
@@ -19,10 +19,10 @@ item[0] = {
 	            int = 3;
 	        }
 	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	            entity = "BananaAppleApple";
 	        }
 	        item[6] = {
-	            string = "";
+	            string = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[7] = {
 	            float = 9.0;
@@ -36,7 +36,7 @@ item[1] = {
 	    args = {
 	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
 	        }
 	        item[1] = {
 	            int = 4;
@@ -51,7 +51,7 @@ item[1] = {
 	            int = 3;
 	        }
 	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	            entity = "AppleBananaApple";
 	        }
 	        item[6] = {
 	            string = "";
@@ -64,129 +64,22 @@ item[1] = {
 }
 item[2] = {
 	eventCall = {
-	    eventDef = "clearFactionOverrides";
+	    eventDef = "spawnSingleAI";
 	    args = {
-	        num = 0;
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+	        }
+	        item[1] = {
+	            entity = "AppleBananaAppleBananaApple";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
 	    }
 	}
 }
 item[3] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_114";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[4] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_115";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[5] = {
-	eventCall = {
-	    eventDef = "waitMulitpleConditions";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            int = 2;
-	        }
-	        item[1] = {
-	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
-	        }
-	        item[2] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[6] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[1] = {
-	            int = 5.2e-7;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[7] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
-	        }
-	        item[1] = {
-	            int = 10;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[8] = {
-	eventCall = {
-	    eventDef = "wait";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            float = 2;
-	        }
-	        item[1] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[9] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_116";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[10] = {
 	eventCall = {
 	    eventDef = "setMusicState";
 	    args = {
@@ -196,11 +89,11 @@ item[10] = {
 	        }
 	        item[1] = {
 	            decl = {
-	                soundstate = "music_ghost_states/main_light";
+	                soundstate = "music_ghost_states/main_heavy";
 	            }
 	        }
 	        item[2] = {
-	            string = "START_LIGHT";
+	            string = "HEAVY";
 	        }
 	    }
 	}

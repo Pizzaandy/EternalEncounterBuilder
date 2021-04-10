@@ -34,7 +34,7 @@ grammar = Grammar(r"""
     EQUALS        = SPACE? "=" SPACE?
     
     SPACE = ~r"\s+"
-    STRING = ~r"[\w/]+"
+    STRING = ~r"[\w/@.]+"
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """)
 
