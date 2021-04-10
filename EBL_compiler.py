@@ -7,27 +7,30 @@ import time
 
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
-
 variables = {}
+
+
 @dataclass
 class EBL_Assignment():
     name: str
     value: str
-    
+
+
 def add_variable(varname, value):
     if varname in variables:
         print(f"Modified variable {varname} = {value}")
     else:
-       print(f"Added variable {varname} = {value}") 
-       
-    if "@" in value:
+        print(f"Added variable {varname} = {value}")
+
+    if isinstance(value, str) and "@" in value:
         for var, val in variables.items():
-            val = format_args([val],1)[0]
+            val = format_args([val], 1)[0]
             value = value.replace(f'{var}', str(val))
-        variables[varname] = value.replace("@","")
+        variables[varname] = value.replace("@", "")
         print(f'''Formatted nested prefix {varname} = {value.replace("@","")}''')
         return
     variables[varname] = value
+
 
 waitFor_keywords = {
     "all": "ENCOUNTER_LOGICAL_OP_AND",
@@ -115,26 +118,28 @@ encounter_spawn_aliases = {
 def str_to_class(classname):
     return getattr(ee, classname)
 
+
 def get_event_args(classname):
-    return ([i for i in classname.__dict__.keys() 
-             if not i.startswith('__') 
+    return ([i for i in classname.__dict__.keys()
+             if not i.startswith('__')
              and not i.startswith('args')])
+
 
 def strip_comments(string):
     pattern = r"//(.*)[\r\n]+"
     return re.sub(pattern, "", string)
 
 
-# Splits EBL file into segments at REPLACE ENCOUNTER headers 
+# Splits EBL file into segments at REPLACE ENCOUNTER headers
 # and also handles SETTINGS flags
-def generate_EBL_segments(filename, format_file = True):
+def generate_EBL_segments(filename, format_file=True):
     with open(filename) as fp:
         segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
     start_index = 0
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
         start_index = 1
-        if format_file: 
+        if format_file:
             format_entities_file(filename, segments[0])
         else:
             print("Settings Ignored lol")
@@ -143,6 +148,7 @@ def generate_EBL_segments(filename, format_file = True):
     for segment in segments[start_index:]:
         segment = "\n".join(segment.split("\n")[1:])
         yield strip_comments(segment)
+
 
 # Handles macros and fills in missing arguments
 def format_args(args, arg_count):
@@ -164,7 +170,8 @@ def format_args(args, arg_count):
         args += [""]
     return args
 
-# Consumes a parsed EBL file and generates a list of EternalEvents 
+
+# Consumes a parsed EBL file and generates a list of EternalEvents
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -172,33 +179,33 @@ def create_events(data):
             event = create_events(item)
             output += event if event is not None else []
         return output
-                
+
     if isinstance(data, dict):
         if "variable" in data:
             return [EBL_Assignment(data["variable"], data["value"])]
-        
+
         if data["event"] == "waitForBlock":
-            #print("waitForBlock found!")
+            # print("waitForBlock found!")
             #print(data["args"])
             length = len([ev for ev in data["args"] if not "variable" in ev[0]])
            # print(length)
             waitevent =  {
-                "event":"waitMulitpleConditions",
-                "args":[length, waitFor_keywords[data["keyword"]], "false"]
+                "event": "waitMulitpleConditions",
+                "args": [length, waitFor_keywords[data["keyword"]], "false"]
             }
             return create_events([waitevent] + data["args"])
-        
+
         if data["event"] == "waitFor":
             #print(create_events(data["args"]))
             #print("waitFor found!")
             return create_events(data["args"])
-        
+
         if data["event"] in ee.ebl_to_event:
             cls_name, arg_count = ee.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
             print(f'''ERROR: undefined event {data["event"]}!''')
-        
+
         args_list = data["args"]
 
         # Assume nested argument list means parameter list
@@ -213,6 +220,7 @@ def create_events(data):
             return [event_cls(*args_list)]
     return data
 
+
 def format_targets(filename, do_all):
     if do_all:
         print("Formatting all spawn targets")
@@ -226,7 +234,8 @@ setting_to_func = {
     "formatAllSpawnTargets": (format_targets, [True])
 }
 
-# Read SETTINGS flags and format entities file 
+
+# Read SETTINGS flags and format entities file
 # also make sure we don't miss any variables
 def format_entities_file(filename, settings):
     for line in settings.splitlines():
@@ -238,34 +247,49 @@ def format_entities_file(filename, settings):
         if line.count('=') == 1:
             var = line.split("=")
             add_variable(var[0].strip(), var[1].strip())
-            
+
+
 def is_number(s):
     try:
         float(s)
         return True
     except ValueError:
         return False
-    
+
+
+# Apply @ prefixes and variables
 def apply_prefixes(event_string):
-    segments = event_string.split("@")
-    segstr = ""
-    final_i = len(segments)-1
-    for i, seg in enumerate(segments):
-        for var, val in variables.items():
-            val = format_args([val],1)[0]
-            if ((seg.endswith(f'{var}') and i != final_i) 
-            or (seg.startswith(f'{var}') and i != 0)):
-                seg = seg.replace(f'{var}', str(val))
-            val = (val if is_number(str(val)) or var in ["true","false"] 
-                   else f'"{val}"')
-            seg = seg.replace(f'"{var}"', str(val))
-        segstr += seg
-    return segstr
-  
+    output_str = "none"
+    items = variables.items()
+    sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
+    #print(sorted_variables)
+    if "@" in event_string:
+        segments = event_string.split("@")
+        final_i = len(segments)-1
+        for i, seg in enumerate(segments):
+            for var, val in sorted_variables:
+                val = format_args([val], 1)[0]
+                if ((seg.endswith(f'{var}') and i != final_i)
+                        or (seg.startswith(f'{var}') and i != 0)):
+                    seg = seg.replace(f'{var}', str(val))
+                val = (val if is_number(str(val)) or var in ["true", "false"]
+                       else f'"{val}"')
+                seg = seg.replace(f'"{var}"', str(val))
+            output_str += seg
+    else:
+        for var, val in sorted_variables:
+            val = (f'"{val}"' if is_number(str(val)) or
+                   var in ["true", "false"] else val)
+            event_string = event_string.replace(f'"{var}"', str(val))
+        output_str = event_string
+    #print(output_str)
+    return output_str
+
+
 # The Big One:tm:
-def compile_EBL(ebl_file):    
+def compile_EBL(ebl_file):
     tic = time.time()
-    segments = generate_EBL_segments(ebl_file, format_file = True)
+    segments = generate_EBL_segments(ebl_file, format_file=True)
     encounters = map(ebl.parse, segments)
     output_file = open("test_encounter.txt", "w")
     for encounter in list(encounters):
@@ -280,15 +304,14 @@ def compile_EBL(ebl_file):
                 add_variable(event.name, event.value)
                 continue
             event_string = str(event)
-            if "@" in event_string:
-                event_string = apply_prefixes(event_string)
-                
+            event_string = apply_prefixes(event_string)
+
             output_str += (f"item[{item_index}]" + " = {\n" +
-                           indent(event_string,"\t") + "}\n")
+                           indent(event_string, "\t") + "}\n")
             item_index += 1
         output_file.write(output_str)
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
-   
+
+
 compile_EBL("Test EBL Files/test_EBL_2.txt")
-#print(variables)

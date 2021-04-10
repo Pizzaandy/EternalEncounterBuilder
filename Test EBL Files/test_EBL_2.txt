@@ -1,15 +1,15 @@
 SETTINGS
+formatAllSpawnTargets
 
 REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
-// ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
-foo = Apple
-bar = Banana@fizz
+bruh = true
+bruh2 = 10.5e-2
+bruhhhh = banana
+my_prefix = destroyed_rig_encounter_spawn_group_zone_
+prefix1 = Doom_
+prefix2 = Eternal
 
-maintainAICount([ 
-	(Gargoyle, fizzz, -1, 4, 3, foo@foo, thebool , 9.),
-	(ZombieTier3, 4, -1, 4, 3, foo@bar , , 9.)
-])
-spawn(thebool, foo@bar@bar@bar)
+spawn(Arachnotron, my_prefix@bruhhhh)
+spawn(DreadKnight, bruh)
 
-setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, HEAVY)

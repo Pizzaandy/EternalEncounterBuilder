@@ -1,69 +1,5 @@
 item[0] = {
-	eventCall = {
-	    eventDef = "maintainAICount";
-	    args = {
-	        num = 8;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE";
-	        }
-	        item[1] = {
-	            int = "fizzz";
-	        }
-	        item[2] = {
-	            int = -1;
-	        }
-	        item[3] = {
-	            float = 4;
-	        }
-	        item[4] = {
-	            int = 3;
-	        }
-	        item[5] = {
-	            entity = "BananaAppleApple";
-	        }
-	        item[6] = {
-	            string = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[7] = {
-	            float = 9.0;
-	        }
-	    }
-	}
-}
-item[1] = {
-	eventCall = {
-	    eventDef = "maintainAICount";
-	    args = {
-	        num = 8;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
-	        }
-	        item[1] = {
-	            int = 4;
-	        }
-	        item[2] = {
-	            int = -1;
-	        }
-	        item[3] = {
-	            float = 4;
-	        }
-	        item[4] = {
-	            int = 3;
-	        }
-	        item[5] = {
-	            entity = "AppleBananaApple";
-	        }
-	        item[6] = {
-	            string = "";
-	        }
-	        item[7] = {
-	            float = 9.0;
-	        }
-	    }
-	}
-}
-item[2] = {
-	eventCall = {
+	noneeventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
 	        num = 3;
@@ -71,7 +7,7 @@ item[2] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
-	            entity = "AppleBananaAppleBananaApple";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_banana";
 	        }
 	        item[2] = {
 	            string = "";
@@ -79,21 +15,19 @@ item[2] = {
 	    }
 	}
 }
-item[3] = {
+item[1] = {
 	eventCall = {
-	    eventDef = "setMusicState";
+	    eventDef = "spawnSingleAI";
 	    args = {
 	        num = 3;
 	        item[0] = {
-	            entity = "sound_sound_musicentity_1";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
 	        }
 	        item[1] = {
-	            decl = {
-	                soundstate = "music_ghost_states/main_heavy";
-	            }
+	            entity = true;
 	        }
 	        item[2] = {
-	            string = "HEAVY";
+	            string = "";
 	        }
 	    }
 	}
