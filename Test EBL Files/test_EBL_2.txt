@@ -5,11 +5,26 @@ REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 
 bruh = true
 bruh2 = 10.5e-2
+bruh3 = bruh@bruh2
 bruhhhh = banana
+bruh4 = bruh@bruhhhh
+
+megabruh = bruh3@bruh4
+
 my_prefix = destroyed_rig_encounter_spawn_group_zone_
-prefix1 = Doom_
-prefix2 = Eternal
+firstname = Doom_
+lastname = Eternal
 
-spawn(Arachnotron, my_prefix@bruhhhh)
-spawn(DreadKnight, bruh)
+gargzomb = "Gargoyle ZombieTier3"
 
+spawn(Arachnotron, my_prefix@6)
+spawn(DreadKnight, my_prefix@7)
+print(firstname@lastname) // prints Doom_Eternal to console
+
+maintain([
+	(gargzomb, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+	(SHOTGUN_SOLDIER, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+])
+
+
+print(bruh3)

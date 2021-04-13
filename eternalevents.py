@@ -104,7 +104,7 @@ class StaggeredAISpawn(EternalEvent):
     minSpawnStagger: str = "float"
     maxSpawnStagger: str = "float"
 
-class StopMaintainingAICount(EternalEvent, alias = "stopMaintainAI"):
+class StopMaintainingAICount(EternalEvent, alias="stopMaintainAI"):
     spawnType: str = "eEncounterSpawnType_t"
     group_label: str = "string*"
 
@@ -114,7 +114,7 @@ class SpawnAI(EternalEvent):
     spawnGroup: str = "entity"
     group_label: str = "string"
 
-class SpawnSingleAI(EternalEvent, alias = "spawn"):
+class SpawnSingleAI(EternalEvent, alias="spawn"):
     spawnType: str = "eEncounterSpawnType_t"
     spawnTarget: str = "entity"
     group_label: str = "string*"
@@ -124,13 +124,13 @@ class SetMusicState(EternalEvent):
     stateDecl: str = "decl = soundstate"
     designComment: str = "string"
 
-class MakeAIAwareOfPlayer(EternalEvent, alias = "alertAI"):
+class MakeAIAwareOfPlayer(EternalEvent, alias="alertAI"):
     allActive: str = "bool"
     onSpawn: str = "bool"
     groupLabel: str = "string*"
     restorePerception: str = "bool"
 
-class ActivateTarget(EternalEvent, alias = "activate"):
+class ActivateTarget(EternalEvent, alias="activate"):
     targetEntity: str = "entity"
     command: str = "string"
 
@@ -161,17 +161,17 @@ class WaitAIHealthLevel(EternalEvent):
     group_label: str = "char"
     disableAIHighlight: str = "bool"
 
-class WaitAIRemaining(EternalEvent, alias = "AIRemaining"):
+class WaitAIRemaining(EternalEvent, alias="AIRemaining"):
     aiType: str = "eEncounterSpawnType_t"
     desired_count: str = "int"
     group_label: str = "string"
 
-class WaitMaintainComplete(EternalEvent, alias = "maintainComplete"):
+class WaitMaintainComplete(EternalEvent, alias="maintainComplete"):
     aiType: str = "eEncounterSpawnType_t"
     remaining_spawn_couunt: str = "int"
     group_label: str = "string"
 
-class WaitForEventFlag(EternalEvent, alias = "Flag"):
+class WaitForEventFlag(EternalEvent, alias="Flag"):
     eventFlag: str = "eEncounterEventFlags_t"
     userFlag: str = "string*"
     testIfAlreadyRaised: str = "bool"
@@ -182,7 +182,7 @@ class DamageAI(EternalEvent):
     aiType: str = "eEncounterSpawnType_t"
     group_label: str = "string*"
 
-class DesignerComment(EternalEvent, alias = "print"):
+class DesignerComment(EternalEvent, alias="print"):
 	designerComment: str = "string*"
 	printToConsole: str = "bool"
 

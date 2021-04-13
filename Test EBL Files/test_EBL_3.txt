@@ -1,5 +1,18 @@
-REPLACE ENCOUNTER city_lower_encounter_manager_lower_city_main
+REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 
-city = city_lower_target_spawn_
+my_prefix = destroyed_rig_encounter_spawn_group_zone_
+seven = 7
+firstname = Doom_
+lastname = Eternal
 
-spawn(Arachnotron, city_lower_target_spawn_37
+spawn(Arachnotron, my_prefix@6) // destroyed_rig_encounter_spawn_group_zone_6
+spawn(DreadKnight, my_prefix@seven) // destroyed_rig_encounter_spawn_group_zone_7
+print(firstname@lastname) // DesignerComment, prints "Doom_Eternal" to console
+
+gz = "Gargoyle ZombieTier3"
+
+rig = my_prefix
+maintain([
+	(gz, 4, -1, 4, 3, rig@6, , 9.)
+	(ShotgunSoldier Imp, 4, -1, 4, 3, rig@6, , 9.)
+])

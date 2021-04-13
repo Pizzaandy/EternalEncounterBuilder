@@ -1,5 +1,5 @@
 item[0] = {
-	noneeventCall = {
+	eventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
 	        num = 3;
@@ -7,7 +7,7 @@ item[0] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_banana";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
 	        }
 	        item[2] = {
 	            string = "";
@@ -24,10 +24,88 @@ item[1] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
 	        }
 	        item[1] = {
-	            entity = true;
+	            entity = "destroyed_rig_encounter_spawn_group_zone_7";
 	        }
 	        item[2] = {
 	            string = "";
+	        }
+	    }
+	}
+}
+item[2] = {
+	eventCall = {
+	    eventDef = "designerComment";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            string = "Doom_Eternal";
+	        }
+	        item[1] = {
+	            bool = "";
+	        }
+	    }
+	}
+}
+item[3] = {
+	eventCall = {
+	    eventDef = "maintainAICount";
+	    args = {
+	        num = 8;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
+	        }
+	        item[1] = {
+	            int = 4;
+	        }
+	        item[2] = {
+	            int = -1;
+	        }
+	        item[3] = {
+	            float = 4;
+	        }
+	        item[4] = {
+	            int = 3;
+	        }
+	        item[5] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	        }
+	        item[6] = {
+	            string = "";
+	        }
+	        item[7] = {
+	            float = 9.0;
+	        }
+	    }
+	}
+}
+item[4] = {
+	eventCall = {
+	    eventDef = "maintainAICount";
+	    args = {
+	        num = 8;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER ENCOUNTER_SPAWN_IMP";
+	        }
+	        item[1] = {
+	            int = 4;
+	        }
+	        item[2] = {
+	            int = -1;
+	        }
+	        item[3] = {
+	            float = 4;
+	        }
+	        item[4] = {
+	            int = 3;
+	        }
+	        item[5] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	        }
+	        item[6] = {
+	            string = "";
+	        }
+	        item[7] = {
+	            float = 9.0;
 	        }
 	    }
 	}

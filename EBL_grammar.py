@@ -5,7 +5,7 @@ grammar = Grammar(r"""
     DOCUMENT = (STATEMENTS)*
     STATEMENTS = SPACE? (EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
 
-    ASSIGNMENT = STRING EQUALS (NUMBER / STRING) SPACE?
+    ASSIGNMENT = STRING EQUALS (NUMBER / STRING / STRINGLITERAL) SPACE?
 
     WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
     PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
@@ -13,7 +13,7 @@ grammar = Grammar(r"""
     PARAM_LINE = PARAM+
     PARAM = NULLPARAM / REALPARAM / MULTISTRING
 
-    REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING) SPACE? ("," / &RPARENTHESES)
+    REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING / STRINGLITERAL) SPACE? ("," / &RPARENTHESES)
     NULLPARAM = SPACE? ("," / &RPARENCHAR)
     MULTISTRING = (SPACE? STRING)+ SPACE? ("," / &RPARENTHESES)
 
@@ -34,7 +34,8 @@ grammar = Grammar(r"""
     EQUALS        = SPACE? "=" SPACE?
 
     SPACE = ~r"\s+"
-    STRING = ~r"[\w/@.]+"
+    STRING = ~r'[\w/@.]+'
+    STRINGLITERAL = ~r'"[\w/@. ]+"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """)
 
@@ -119,6 +120,9 @@ class NodeVisitor(NodeVisitor):
 
     def visit_STRING(self, node, visited_children):
         return str(node.text)
+
+    def visit_STRINGLITERAL(self, node, visited_children):
+        return str(node.text).replace('"', '')
 
     def visit_MULTISTRING(self, node, visited_children):
         string, _, _ = visited_children
