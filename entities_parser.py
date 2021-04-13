@@ -131,7 +131,7 @@ def strip_comments(string):
     return re.sub(pattern, "", string)
 
 
-def generate_entity_segments(filename):
+def generate_entity_segments(filename, clsname="idEncounterManager"):
     with open(filename) as fp:
         segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
@@ -139,23 +139,36 @@ def generate_entity_segments(filename):
     for segment in segments[1:]:
         segment = strip_comments(segment)
         # handle encounters only for now
-        if '''inherit = "target/spawn";''' in segment:
+        if f'''class = "{clsname}";''' in segment:
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
 
-    print(f"{segment_count} targets found")
+    print(f"{segment_count} instances of {clsname} found!")
 
 
-def convert_entities_file(filename):
+def parse_entities(filename, class_filter):
     tic = time.time()
     data = []
     if __name__ == '__main__':
         print("Start processing")
         with Pool(processes=mp.cpu_count()) as pool:
-            data = pool.map(ev.parse, generate_entity_segments(filename))
+            data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
 
         print(f"Done processing in {time.time()-tic:.1f} seconds")
         with open('testoutput.json', 'w') as fp:
             json.dump(data, fp, indent=4)
     return data
 
+entities = parse_entities("Test Entities/e3m2_hell.entities", "idAI2")
+for entity in entities:
+    name = None
+    key_list = list(entity)
+    for key in key_list:
+        if "entityDef" in key:
+            name = key
+            break
+    if not name:
+        print("ERROR: No entityDef")
+        continue
+    name = name.replace("entityDef ", "")
+    print(name)
