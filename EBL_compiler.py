@@ -145,7 +145,7 @@ encounter_spawn_aliases = {
     "Cyberdemon": "TYRANT",
     "Whiplash": "WHIPLASH",
     "ZombieMakyr": "ZOMBIE_MAKYR",
-    "MakyrDrone": "ZOMBIE_MAKYR",
+    "MaykrDrone": "ZOMBIE_MAKYR",
     "ZombieT1Screecher": "ZOMBIE_T1_SCREECHER",
     "Screecher": "ZOMBIE_T1_SCREECHER",
     "ZombieTier1": "ZOMBIE_TIER_1",
@@ -308,7 +308,7 @@ def is_number(s):
         return False
 
 
-# Apply @ prefixes and macro names
+# Apply @ prefixes and macro names (jank)
 def apply_prefixes(event_string):
     output_str = ""
     items = variables.items()
