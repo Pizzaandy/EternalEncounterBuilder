@@ -1,6 +1,6 @@
 REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 
-// Macros whee
+// macros! whee
 my_prefix = destroyed_rig_encounter_spawn_group_zone_
 seven = 7
 firstname = Doom_

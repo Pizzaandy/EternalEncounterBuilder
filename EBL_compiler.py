@@ -235,10 +235,7 @@ def create_events(data):
             return [EBL_Assignment(data["variable"], data["value"])]
 
         if data["event"] == "waitForBlock":
-            # print("waitForBlock found!")
-            #print(data["args"])
             length = len([ev for ev in data["args"] if not "variable" in ev[0]])
-           # print(length)
             waitevent =  {
                 "event": "waitMulitpleConditions",
                 "args": [length, waitFor_keywords[data["keyword"]], "false"]
@@ -246,8 +243,6 @@ def create_events(data):
             return create_events([waitevent] + data["args"])
 
         if data["event"] == "waitFor":
-            #print(create_events(data["args"]))
-            #print("waitFor found!")
             return create_events(data["args"])
 
         if data["event"] in ee.ebl_to_event:
@@ -258,7 +253,7 @@ def create_events(data):
 
         args_list = data["args"]
 
-        # Assume nested argument list means parameter list
+        # Assume nested argument list means a list of parameters
         if any(isinstance(i, list) for i in args_list):
             output = []
             for args in args_list:
@@ -351,6 +346,7 @@ def compile_EBL(ebl_file):
         if events is None:
             continue
         for event in events:
+            print(f"{vars(event)}")
             if isinstance(event, EBL_Assignment):
                 add_variable(event.name, event.value)
                 continue
