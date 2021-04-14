@@ -157,7 +157,7 @@ class Wait(EternalEvent):
     seconds = "float"
     disableAIHighlight = "bool"
 
-class WaitAIHealthLevel(EternalEvent):
+class WaitAIHealthLevel(EternalEvent, alias="AIHealthLevel"):
     aiType = "eEncounterSpawnType_t"
     desired_remaing_ai_count = "int"
     group_label = "char"

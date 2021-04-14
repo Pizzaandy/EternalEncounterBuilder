@@ -361,4 +361,4 @@ def compile_EBL(ebl_file):
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
 
 
-compile_EBL("Test EBL Files/test_EBL_3.txt")
+compile_EBL("Test EBL Files/test_EBL.txt")

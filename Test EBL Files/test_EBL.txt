@@ -1,37 +1,41 @@
-<ENCOUNTER destroyed_rig_encounter_manager_dlc1_2>
+REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 // ENCOUNTER header: replace all encounterComponent events in the following idEncounterManager entity.
 
+group = destroyed_rig_encounter_spawn_group_zonee_
+rig = destroyed_rig_target_spawn_
+
+gargzomb = "Gargoyle MechaZombie"
 maintainAICount([
-	(GARGOYLE ZOMBIE_TIER_3, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
-	(SHOTGUN_SOLDIER, 4, -1, 4, 3, destroyed_rig_encounter_spawn_group_zone_6, , 9.)
+	(gargzomb, 4, -1, 4, 3, group@6,, 9.)
+	(Shotgunner, 4, -1, 4, 3, group@7,, 9.)
 ])
 clearFactionOverrides()
-waitFor 2 sec
+waitFor 2. sec
 
-//makeAIAwareOfPlayer(true, true,, false)
-waitFor AIRemaining(ARACHNOTRON,,false)
+makeAIAwareOfPlayer(true, true, , false)
+waitFor AIRemaining(Spider,1,false)
 
-spawn(HELL_KNIGHT, destroyed_rig_target_spawn_116)
+spawn(HellKnight, rig@116)
 waitFor 0.25 sec
-spawn(HELL_KNIGHT, destroyed_rig_target_spawn_117)
-waitFor AIRemaining(HELL_KNIGHT, 1)
+spawn(HellKnight, rig@117)
+waitFor AIRemaining(HellKnight, 1)
 
-spawn(PROWLER, destroyed_rig_target_spawn_118)
+spawn(Prowler, rig@118)
 waitFor 0.25 sec
 
-spawn(PROWLER, destroyed_rig_target_spawn_119)
-waitFor AIRemaining(ARACHNOTRON HELL_KNIGHT, 0)
+spawn(Prowler, rig@119)
+waitFor AIRemaining(Arachnotron HellKnight, 0)
 
-spawn(PAIN_ELEMENTAL, destroyed_rig_target_spawn_120)
-//waitFor AIHealthLevel(PAIN_ELEMENTAL, 0.25)
+spawn(PainElemental, rig@120)
+waitFor AIHealthLevel(PainElemental, 0.25)
 
-spawn(CACODEMON, destroyed_rig_target_spawn_122)
+spawn(Cacodemon, rig@122)
 waitFor 0.25 sec
 
 waitFor all { 
-	AIRemaining(PAIN_ELEMENTAL, 0)
-	AIRemaining(CACODEMON, 1)
+	AIRemaining(PainElemental, 0)
+	AIRemaining(Cacodemon, 1)
 }
 
-//setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, HEAVY)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, HEAVY)
 
