@@ -43,7 +43,7 @@ class EternalEvent:
         #print(items)
         name = camelcase(type(self).__name__)
         for item in items:
-            if item["var"].startswith("decl:"):
+            if item["var"].startswith("decl"):
                 varname = item["var"].replace("decl:", "")
                 item["var"] = "decl"
                 item["value"] = (
@@ -123,7 +123,7 @@ class SpawnSingleAI(EternalEvent, alias="spawn"):
 
 class SetMusicState(EternalEvent):
     target = "entity"
-    stateDecl = "decl = soundstate"
+    stateDecl = "decl:soundstate"
     designComment = "string"
 
 class MakeAIAwareOfPlayer(EternalEvent, alias="alertAI"):
@@ -160,7 +160,7 @@ class Wait(EternalEvent):
 class WaitAIHealthLevel(EternalEvent, alias="AIHealthLevel"):
     aiType = "eEncounterSpawnType_t"
     desired_remaing_ai_count = "int"
-    group_label = "char"
+    group_label = "char*"
     disableAIHighlight = "bool"
 
 class WaitAIRemaining(EternalEvent, alias="AIRemaining"):

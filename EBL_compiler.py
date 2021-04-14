@@ -8,7 +8,7 @@ import time
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
 variables = {}
-debug_vars = True
+debug_vars = False
 
 
 @dataclass
@@ -240,6 +240,7 @@ def create_events(data):
                 "event": "waitMulitpleConditions",
                 "args": [length, waitFor_keywords[data["keyword"]], "false"]
             }
+            print(f'{data["keyword"]}: {waitFor_keywords[data["keyword"]]}')
             return create_events([waitevent] + data["args"])
 
         if data["event"] == "waitFor":
@@ -346,7 +347,7 @@ def compile_EBL(ebl_file):
         if events is None:
             continue
         for event in events:
-            print(f"{vars(event)}")
+            # print(f"{vars(event)}")
             if isinstance(event, EBL_Assignment):
                 add_variable(event.name, event.value)
                 continue

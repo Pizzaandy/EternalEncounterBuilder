@@ -19,7 +19,7 @@ item[0] = {
 	            int = 3;
 	        }
 	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zonee_6";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
 	        }
 	        item[6] = {
 	            string = "";
@@ -51,7 +51,7 @@ item[1] = {
 	            int = 3;
 	        }
 	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zonee_7";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_7";
 	        }
 	        item[6] = {
 	            string = "";
@@ -86,6 +86,40 @@ item[3] = {
 }
 item[4] = {
 	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_115";
+	        }
+	        item[2] = {
+	            string = "my_heavies";
+	        }
+	    }
+	}
+}
+item[5] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_116";
+	        }
+	        item[2] = {
+	            string = "my_heavies";
+	        }
+	    }
+	}
+}
+item[6] = {
+	eventCall = {
 	    eventDef = "makeAIAwareOfPlayer";
 	    args = {
 	        num = 4;
@@ -104,7 +138,7 @@ item[4] = {
 	    }
 	}
 }
-item[5] = {
+item[7] = {
 	eventCall = {
 	    eventDef = "waitAIRemaining";
 	    args = {
@@ -113,41 +147,10 @@ item[5] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
 	        }
 	        item[1] = {
-	            int = "";
+	            int = 1;
 	        }
 	        item[2] = {
 	            string = false;
-	        }
-	    }
-	}
-}
-item[6] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_116";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[7] = {
-	eventCall = {
-	    eventDef = "wait";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            float = 0.25;
-	        }
-	        item[1] = {
-	            bool = false;
 	        }
 	    }
 	}
@@ -161,15 +164,46 @@ item[8] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
 	        }
 	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_117";
+	            entity = "destroyed_rig_target_spawn_116";
 	        }
 	        item[2] = {
-	            string = "";
+	            string = "my_heavies";
 	        }
 	    }
 	}
 }
 item[9] = {
+	eventCall = {
+	    eventDef = "wait";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            float = 0.25;
+	        }
+	        item[1] = {
+	            bool = false;
+	        }
+	    }
+	}
+}
+item[10] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_target_spawn_117";
+	        }
+	        item[2] = {
+	            string = "my_heavies";
+	        }
+	    }
+	}
+}
+item[11] = {
 	eventCall = {
 	    eventDef = "waitAIRemaining";
 	    args = {
@@ -186,7 +220,7 @@ item[9] = {
 	    }
 	}
 }
-item[10] = {
+item[12] = {
 	eventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
@@ -203,7 +237,7 @@ item[10] = {
 	    }
 	}
 }
-item[11] = {
+item[13] = {
 	eventCall = {
 	    eventDef = "wait";
 	    args = {
@@ -217,7 +251,7 @@ item[11] = {
 	    }
 	}
 }
-item[12] = {
+item[14] = {
 	eventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
@@ -234,7 +268,7 @@ item[12] = {
 	    }
 	}
 }
-item[13] = {
+item[15] = {
 	eventCall = {
 	    eventDef = "waitAIRemaining";
 	    args = {
@@ -246,12 +280,12 @@ item[13] = {
 	            int = 0;
 	        }
 	        item[2] = {
-	            string = "";
+	            string = "my_heavies";
 	        }
 	    }
 	}
 }
-item[14] = {
+item[16] = {
 	eventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
@@ -268,7 +302,7 @@ item[14] = {
 	    }
 	}
 }
-item[15] = {
+item[17] = {
 	eventCall = {
 	    eventDef = "waitAIHealthLevel";
 	    args = {
@@ -288,7 +322,7 @@ item[15] = {
 	    }
 	}
 }
-item[16] = {
+item[18] = {
 	eventCall = {
 	    eventDef = "spawnSingleAI";
 	    args = {
@@ -305,7 +339,7 @@ item[16] = {
 	    }
 	}
 }
-item[17] = {
+item[19] = {
 	eventCall = {
 	    eventDef = "wait";
 	    args = {
@@ -319,7 +353,7 @@ item[17] = {
 	    }
 	}
 }
-item[18] = {
+item[20] = {
 	eventCall = {
 	    eventDef = "waitMulitpleConditions";
 	    args = {
@@ -328,7 +362,7 @@ item[18] = {
 	            int = 2;
 	        }
 	        item[1] = {
-	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_OR";
 	        }
 	        item[2] = {
 	            bool = false;
@@ -336,7 +370,7 @@ item[18] = {
 	    }
 	}
 }
-item[19] = {
+item[21] = {
 	eventCall = {
 	    eventDef = "waitAIRemaining";
 	    args = {
@@ -353,7 +387,7 @@ item[19] = {
 	    }
 	}
 }
-item[20] = {
+item[22] = {
 	eventCall = {
 	    eventDef = "waitAIRemaining";
 	    args = {
@@ -370,19 +404,21 @@ item[20] = {
 	    }
 	}
 }
-item[21] = {
+item[23] = {
 	eventCall = {
 	    eventDef = "setMusicState";
 	    args = {
 	        num = 3;
 	        item[0] = {
-	            entity = "sound_sound_musicentity_1";
+	            entity = "sound_sound_musicentity_2";
 	        }
 	        item[1] = {
-	            decl = soundstate = "music_ghost_states/main_heavy";
+	            decl = {
+	                soundstate = "music_ghost_states/main_heavy";
+	            }
 	        }
 	        item[2] = {
-	            string = "HEAVY";
+	            string = "heavy or something idk";
 	        }
 	    }
 	}
