@@ -8,7 +8,7 @@ import time
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
 variables = {}
-debug_vars = False
+debug_vars = True
 
 
 @dataclass
@@ -31,7 +31,7 @@ def add_variable(varname, value):
     minimum_chars = 0
     prefixed = False
     if isinstance(value, str):
-        prefixed = "@" in value
+        prefixed = "+" in value
         minimum_chars = len(str(value)) if not prefixed else 0
 
     items = variables.items()
@@ -47,8 +47,8 @@ def add_variable(varname, value):
         if value != old_value:
             debug_print(f"Substituted {var} = {value} into assignment {varname}")
     if prefixed:
-        variables[varname] = value.replace("@", "")
-        debug_print(f'''Flattened nested prefix {varname} = {value.replace("@","")}''')
+        variables[varname] = value.replace("+", "")
+        debug_print(f'''Flattened nested prefix {varname} = {value.replace("+","")}''')
         return
 
     variables[varname] = format_args([value], 1)[0]
@@ -304,24 +304,24 @@ def is_number(s):
         return False
 
 
-# Apply @ prefixes and macro names (jank)
+# Apply + prefixes and macro names (jank)
 def apply_prefixes(event_string):
     output_str = ""
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
     #print(sorted_variables)
-    if "@" in event_string:
-        segments = event_string.split("@")
+    if "+" in event_string:
+        segments = event_string.split("+")
         for i, seg in enumerate(segments):
             for var, val in sorted_variables:
                 val = format_args([val], 1)[0]
-                if ((seg.endswith(f'{var}') and i != len(segments)-1)
-                        or (seg.startswith(f'{var}') and i != 0)):
+                if ((seg.rstrip().endswith(f'{var}') and i != len(segments)-1)
+                or (seg.lstrip().startswith(f'{var}') and i != 0)):
                     seg = seg.replace(f'{var}', str(val))
                 if not (is_number(str(val)) or val in ["true", "false"]):
                     debug_print(f'added "" for {var} = {val}')
                     val = f'"{val}"'
-                seg = seg.replace(f'"{var}"', str(val))
+                seg = seg.replace(f'"{var}"', str(val)).lstrip()
             output_str += seg
     else:
         for var, val in sorted_variables:
@@ -361,5 +361,4 @@ def compile_EBL(ebl_file):
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
 
-
-compile_EBL("Test EBL Files/test_EBL.txt")
+compile_EBL("Test EBL Files/test_EBL_2.txt")

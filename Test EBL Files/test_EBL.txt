@@ -5,38 +5,37 @@ Music = sound_sound_musicentity_2
 mus_heavy = music_ghost_states/main_heavy
 group_rig = destroyed_rig_encounter_spawn_group_zone_
 rig = destroyed_rig_target_spawn_
+myfloat = "bruh fam"
 
 gargzomb = "Gargoyle MechaZombie"
-maintainAICount([
-	(gargzomb, 4, -1, 4, 3, group_rig@6,, 9.)
-	(Shotgunner, 4, -1, 4, 3, group_rig@7,, 9.)
-])
+
+maintainAICount
+(gargzomb, 4, -1, 4, 3, group_rig   + 6,, 9.)
+(Shotgunner, 4, -1, 4, 3, group_rig+7,, myfloat)
+
 clearFactionOverrides()
 waitFor 2. sec
 
-spawn([
-	(Arachnotron, rig@115, my_heavies),
-	(Arachnotron, rig@116, my_heavies)
-])
+spawn(Arachnotron, rig+115, my_heavies)(Arachnotron, rig+116, my_heavies)
 
-makeAIAwareOfPlayer(true, true, , false)
+makeAIAwareOfPlayer(true, true,, false)
 waitFor AIRemaining(Arachnotron,1,false)
 
-spawn(HellKnight, rig@116, my_heavies)
+spawn(HellKnight, rig+116, my_heavies)
 waitFor 0.25 sec
-spawn(HellKnight, rig@117, my_heavies)
+spawn(HellKnight, rig+117, my_heavies)
 waitFor AIRemaining(HellKnight, 1)
 
-spawn(Prowler, rig@118)
+spawn(Prowler, rig+118)
 waitFor 0.25 sec
 
-spawn(Prowler, rig@119)
+spawn(Prowler, rig+119)
 waitFor AIRemaining(Arachnotron HellKnight, 0, my_heavies)
 
-spawn(PainElemental, rig@120)
+spawn(PainElemental, rig+120)
 waitFor AIHealthLevel(PainElemental, 0.25)
 
-spawn(Cacodemon, rig@122)
+spawn(Cacodemon, rig+122)
 waitFor 0.25 sec
 
 waitFor any { 

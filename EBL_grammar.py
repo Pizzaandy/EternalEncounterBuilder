@@ -8,16 +8,16 @@ grammar = Grammar(r"""
     ASSIGNMENT = STRING EQUALS (NUMBER / STRING / STRINGLITERAL) SPACE?
 
     WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
-    PARAM_LIST = LBRACKET PARAM_TUPLE* RBRACKET
+    PARAM_LIST = PARAM_TUPLE+
     PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
-    PARAM_LINE = PARAM+
+    PARAM_LINE = PARAM*
     PARAM = NULLPARAM / REALPARAM / MULTISTRING
 
     REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING / STRINGLITERAL) SPACE? ("," / &RPARENTHESES)
     NULLPARAM = SPACE? ("," / &RPARENCHAR)
     MULTISTRING = (SPACE? STRING)+ SPACE? ("," / &RPARENTHESES)
 
-    EVENT = STRING SPACE? LPARENTHESES (PARAM_LIST / PARAM_LINE)? RPARENTHESES
+    EVENT = STRING SPACE? PARAM_LIST
 
     WAITFORBLOCK = "waitFor" SPACE? STRING? LBRACE (EVENT / ASSIGNMENT)* RBRACE
     WAITFOR = "waitFor" SPACE? (EVENT / TIMER)
@@ -34,8 +34,8 @@ grammar = Grammar(r"""
     EQUALS        = SPACE? "=" SPACE?
 
     SPACE = ~r"\s+"
-    STRING = ~r'[\w/@.]+'
-    STRINGLITERAL = ~r'"[\w/@. ]+"'
+    STRING = ~r'[\w/+.]+'
+    STRINGLITERAL = ~r'"[\w/+. ]+"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """)
 
@@ -88,18 +88,19 @@ class NodeVisitor(NodeVisitor):
         return param_line
 
     def visit_PARAM_LIST(self, node, visited_children):
-        _, param_tuples, _ = visited_children
+        param_tuples = visited_children
         #print("param_list: " + str(param_tuples))
         return param_tuples
 
     def visit_EVENT(self, node, visited_children):
-        event_name, _, _, params, _ = visited_children
-        #print(params[0])
+        event_name, _, params = visited_children
+        #print(params)
         if not isinstance(params, list):
+            print("STINKY")
             return {"event": str(event_name), "args": []}
         #params.insert(0, "EVENT: " + str(event_name))
         #print("event: " + str(params[0][0]))
-        return {"event": str(event_name), "args": params[0][0]}
+        return {"event": str(event_name), "args": params}
 
     def visit_WAITFOR(self, node, visited_children):
         _, _, condition = visited_children
@@ -134,8 +135,10 @@ class NodeVisitor(NodeVisitor):
         return output_str.strip()
 
     def visit_NUMBER(self, node, visited_children):
-        if float(node.text).is_integer() and "." not in (node.text):
-            return int(node.text)
+        if (float(node.text).is_integer()
+            and "." not in node.text
+            and "+" not in node.text):
+                return int(node.text)
         else:
             return float(node.text)
 

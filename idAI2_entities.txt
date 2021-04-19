@@ -1,0 +1,315 @@
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef game_ai_fodder_imp {
+	inherit = "ai/fodder/imp";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.5;
+				y = 0.5;
+				z = 1.60000002;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/imp";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/imp/fs_imp_concrete";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_imp";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 200;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_imp_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_imp";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_imp";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_imp_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_imp_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_imp";
+			aimAssistData = {
+				meleeTargetHeadOnly = true;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/imp/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 7;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[1] = {
+							damageGroupName = "left_lower_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[2] = {
+							damageGroupName = "right_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[3] = {
+							damageGroupName = "right_lower_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[4] = {
+							damageGroupName = "head";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[5] = {
+							damageGroupName = "chest";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[6] = {
+							damageGroupName = "gut";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head";
+				item[1] = "spine2";
+				item[2] = "rightforearm";
+				item[3] = "leftforearm";
+				item[4] = "rightleg";
+				item[5] = "leftleg";
+			}
+		}
+		factionName = "imp";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/imp/base";
+					}
+					ptr[11] = {
+						componentDecl = "aicomponent/transientfocus/demon/imp_default";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 3;
+					item[0] = "syncmelee/imp";
+					item[1] = "syncmelee/playerdeath/imp";
+					item[2] = "syncmelee/imp_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 19;
+							item[0] = "syncdeath/playervsai/imp/left_upper";
+							item[1] = "syncdeath/playervsai/imp/right_upper";
+							item[2] = "syncdeath/playervsai/imp/front_head";
+							item[3] = "syncdeath/playervsai/imp/front_chest";
+							item[4] = "syncdeath/playervsai/imp/back_upper";
+							item[5] = "syncdeath/playervsai/imp/left_lower";
+							item[6] = "syncdeath/playervsai/imp/right_lower";
+							item[7] = "syncdeath/playervsai/imp/above_front";
+							item[8] = "syncdeath/playervsai/imp/back_lower";
+							item[9] = "syncdeath/playervsai/imp/above_back";
+							item[10] = "syncdeath/playervsai/imp/front_lower";
+							item[11] = "syncdeath/playervsai/imp/front_leftarm";
+							item[12] = "syncdeath/playervsai/imp/front_rightarm";
+							item[13] = "syncdeath/playervsai/imp/chainsaw/cut_back";
+							item[14] = "syncdeath/playervsai/imp/chainsaw/cut_front";
+							item[15] = "syncdeath/playervsai/imp/berserk/berserk_above_front";
+							item[16] = "syncdeath/playervsai/imp/crucbile/crucible_front";
+							item[17] = "syncdeath/playervsai/imp/berserk/berserk_front_upper";
+							item[18] = "syncdeath/playervsai/imp/crucbile/crucible_back";
+						}
+					}
+				}
+			}
+			componentList = "fodder/imp";
+			aiDeathStat = "STAT_IMP_KILLED";
+			aiDeathCodex = "codex/hell/demon_imp";
+			positioningParms = {
+				num = 1;
+				item[0] = "imp/default";
+			}
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 75;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+				fieldOfView = {
+					value = 360;
+				}
+				fieldOfView_close = {
+					value = 360;
+				}
+				exposedSightTime = 0;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/imp";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 39.0140038;
+				maxEnemyCoverDistance = 39.0140038;
+			}
+			behaviors = {
+				decl = "behaviors/imp/demon_imp";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/imp";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/imp/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+				initialState = "AIOVERRIDE_FORCE_AWARENESS_OF_PLAYER";
+			}
+			freeze = {
+				damageThreshold = 2;
+				freezeTime = 8;
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 200;
+					starting = 200;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/imp";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/imp_auto";
+			canGetUp = true;
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/imp/base/imp.md6";
+			lightRigDecl = "imp/imp_default";
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_imp";
+		}
+		fxDecl = "character/imp/imp";
+		startingInventory = {
+			num = 4;
+			item[0] = {
+				startSlot = "HOLSTERED";
+				showHolstered = false;
+				inventoryDecl = "weapon/ai/imp/fireball";
+			}
+			item[1] = {
+				inventoryDecl = "ammo/ai/imp/fireball";
+			}
+			item[2] = {
+				showHolstered = false;
+				inventoryDecl = "weapon/ai/imp/fireball_fastball";
+			}
+			item[3] = {
+				inventoryDecl = "ammo/ai/imp/fireball_fastball";
+			}
+		}
+		walkIKDecl = "walkik/imp_base";
+		spawnPosition = {
+			x = -154.899857;
+			y = -279.800018;
+			z = -18;
+		}
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					y = 2.38418579e-07;
+				}
+				mat[1] = {
+					x = -2.38418579e-07;
+				}
+			}
+		}
+	}
+}
+}

@@ -159,16 +159,20 @@ def parse_entities(filename, class_filter):
             json.dump(data, fp, indent=4)
     return data
 
-entities = parse_entities("Test Entities/e3m2_hell.entities", "idAI2")
-for entity in entities:
-    name = None
-    key_list = list(entity)
-    for key in key_list:
-        if "entityDef" in key:
-            name = key
-            break
-    if not name:
-        print("ERROR: No entityDef")
-        continue
-    name = name.replace("entityDef ", "")
-    print(name)
+# entities = parse_entities("Test Entities/e3m2_hell.entities", "idAI2")
+# for entity in entities:
+#     name = None
+#     key_list = list(entity)
+#     for key in key_list:
+#         if "entityDef" in key:
+#             name = key
+#             break
+#     if not name:
+#         print("ERROR: No entityDef")
+#         continue
+#     name = name.replace("entityDef ", "")
+#     print(name)
+
+fp = 'C:\AndyStuff\DoomModding\randomizer_example'
+segments = generate_entity_segments(fp, "idAI2")
+

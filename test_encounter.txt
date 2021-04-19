@@ -1,5 +1,53 @@
 item[0] = {
 	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[1] = {
+	eventCall = {
+	    eventDef = "spawnSingleAI";
+	    args = {
+	        num = 3;
+	        item[0] = {
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
+	        }
+	        item[1] = {
+	            entity = "destroyed_rig_encounter_spawn_group_zone_7";
+	        }
+	        item[2] = {
+	            string = "";
+	        }
+	    }
+	}
+}
+item[2] = {
+	eventCall = {
+	    eventDef = "designerComment";
+	    args = {
+	        num = 2;
+	        item[0] = {
+	            string = "Doom_Eternal";
+	        }
+	        item[1] = {
+	            bool = "";
+	        }
+	    }
+	}
+}
+item[3] = {
+	eventCall = {
 	    eventDef = "maintainAICount";
 	    args = {
 	        num = 8;
@@ -30,7 +78,7 @@ item[0] = {
 	    }
 	}
 }
-item[1] = {
+item[4] = {
 	eventCall = {
 	    eventDef = "maintainAICount";
 	    args = {
@@ -51,7 +99,7 @@ item[1] = {
 	            int = 3;
 	        }
 	        item[5] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_7";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_6";
 	        }
 	        item[6] = {
 	            string = "";
@@ -62,363 +110,16 @@ item[1] = {
 	    }
 	}
 }
-item[2] = {
-	eventCall = {
-	    eventDef = "clearFactionOverrides";
-	    args = {
-	        num = 0;
-	    }
-	}
-}
-item[3] = {
-	eventCall = {
-	    eventDef = "wait";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            float = 2.0;
-	        }
-	        item[1] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[4] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_115";
-	        }
-	        item[2] = {
-	            string = "my_heavies";
-	        }
-	    }
-	}
-}
 item[5] = {
 	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_116";
-	        }
-	        item[2] = {
-	            string = "my_heavies";
-	        }
-	    }
-	}
-}
-item[6] = {
-	eventCall = {
-	    eventDef = "makeAIAwareOfPlayer";
-	    args = {
-	        num = 4;
-	        item[0] = {
-	            bool = true;
-	        }
-	        item[1] = {
-	            bool = true;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	        item[3] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[7] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
-	        }
-	        item[1] = {
-	            int = 1;
-	        }
-	        item[2] = {
-	            string = false;
-	        }
-	    }
-	}
-}
-item[8] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_116";
-	        }
-	        item[2] = {
-	            string = "my_heavies";
-	        }
-	    }
-	}
-}
-item[9] = {
-	eventCall = {
-	    eventDef = "wait";
+	    eventDef = "designerComment";
 	    args = {
 	        num = 2;
 	        item[0] = {
-	            float = 0.25;
+	            string = 1230.105;
 	        }
 	        item[1] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[10] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_117";
-	        }
-	        item[2] = {
-	            string = "my_heavies";
-	        }
-	    }
-	}
-}
-item[11] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            int = 1;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[12] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PROWLER";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_118";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[13] = {
-	eventCall = {
-	    eventDef = "wait";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            float = 0.25;
-	        }
-	        item[1] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[14] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PROWLER";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_119";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[15] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON ENCOUNTER_SPAWN_HELL_KNIGHT";
-	        }
-	        item[1] = {
-	            int = 0;
-	        }
-	        item[2] = {
-	            string = "my_heavies";
-	        }
-	    }
-	}
-}
-item[16] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_120";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[17] = {
-	eventCall = {
-	    eventDef = "waitAIHealthLevel";
-	    args = {
-	        num = 4;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
-	        }
-	        item[1] = {
-	            int = 0.25;
-	        }
-	        item[2] = {
-	            char = "";
-	        }
-	        item[3] = {
 	            bool = "";
-	        }
-	    }
-	}
-}
-item[18] = {
-	eventCall = {
-	    eventDef = "spawnSingleAI";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
-	        }
-	        item[1] = {
-	            entity = "destroyed_rig_target_spawn_122";
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[19] = {
-	eventCall = {
-	    eventDef = "wait";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            float = 0.25;
-	        }
-	        item[1] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[20] = {
-	eventCall = {
-	    eventDef = "waitMulitpleConditions";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            int = 2;
-	        }
-	        item[1] = {
-	            encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_OR";
-	        }
-	        item[2] = {
-	            bool = false;
-	        }
-	    }
-	}
-}
-item[21] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
-	        }
-	        item[1] = {
-	            int = 0;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[22] = {
-	eventCall = {
-	    eventDef = "waitAIRemaining";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CACODEMON";
-	        }
-	        item[1] = {
-	            int = 1;
-	        }
-	        item[2] = {
-	            string = "";
-	        }
-	    }
-	}
-}
-item[23] = {
-	eventCall = {
-	    eventDef = "setMusicState";
-	    args = {
-	        num = 3;
-	        item[0] = {
-	            entity = "sound_sound_musicentity_2";
-	        }
-	        item[1] = {
-	            decl = {
-	                soundstate = "music_ghost_states/main_heavy";
-	            }
-	        }
-	        item[2] = {
-	            string = "heavy or something idk";
 	        }
 	    }
 	}
