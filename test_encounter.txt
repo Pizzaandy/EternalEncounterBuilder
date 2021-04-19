@@ -24,7 +24,7 @@ item[1] = {
 	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
 	        }
 	        item[1] = {
-	            entity = "destroyed_rig_encounter_spawn_group_zone_7";
+	            entity = "destroyed_rig_encounter_spawn_group_zone_seven";
 	        }
 	        item[2] = {
 	            string = "";
@@ -38,7 +38,7 @@ item[2] = {
 	    args = {
 	        num = 2;
 	        item[0] = {
-	            string = "Doom_Eternal";
+	            string = "Doom Eternal";
 	        }
 	        item[1] = {
 	            bool = "";
@@ -52,7 +52,7 @@ item[3] = {
 	    args = {
 	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE ENCOUNTER_SPAWN_IMP";
 	        }
 	        item[1] = {
 	            int = 4;
@@ -84,7 +84,7 @@ item[4] = {
 	    args = {
 	        num = 8;
 	        item[0] = {
-	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
+	            eEncounterSpawnType_t = "ENCOUNTER_SPAWN_SPECTRE";
 	        }
 	        item[1] = {
 	            int = 4;
@@ -106,20 +106,6 @@ item[4] = {
 	        }
 	        item[7] = {
 	            float = 9.0;
-	        }
-	    }
-	}
-}
-item[5] = {
-	eventCall = {
-	    eventDef = "designerComment";
-	    args = {
-	        num = 2;
-	        item[0] = {
-	            string = 1230.105;
-	        }
-	        item[1] = {
-	            bool = "";
 	        }
 	    }
 	}

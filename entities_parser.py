@@ -173,6 +173,13 @@ def parse_entities(filename, class_filter):
 #     name = name.replace("entityDef ", "")
 #     print(name)
 
-fp = 'C:\AndyStuff\DoomModding\randomizer_example'
+fp = 'randomizer_example.txt'
 segments = generate_entity_segments(fp, "idAI2")
+output_str = ""
+for seg in segments:
+    output_str += seg + "\n"
+output_file = open("idAI2_entities.txt", "w")
+output_file.write(output_str)
+output_file.close()
+
 

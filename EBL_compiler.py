@@ -8,7 +8,8 @@ import time
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
 variables = {}
-debug_vars = True
+debug_vars = False
+space_char = "^"
 
 
 @dataclass
@@ -41,6 +42,7 @@ def add_variable(varname, value):
             continue
         if not isinstance(value, str):
             continue
+        #val = val.replace(space_char, " ")
         val = format_args([val], 1)[0]
         old_value = value
         value = value.replace(f'{var}', str(val))
@@ -205,14 +207,17 @@ def format_args(args, arg_count):
     for i, arg in enumerate(args):
         if isinstance(arg, str):
             args[i] = ""
-            for word in arg.split():
+            arg = arg.replace("^", "^ ").split()
+            for word in arg:
+                old_word = word
+                word = word.replace("^", "")
                 if word in encounter_spawn_names:
                     args[i] += "ENCOUNTER_SPAWN_" + word + " "
                 elif word in encounter_spawn_aliases:
                     args[i] += ("ENCOUNTER_SPAWN_" +
                                 encounter_spawn_aliases[word] + " ")
                 else:
-                    args[i] += word + " "
+                    args[i] += old_word + " "
             args[i] = args[i].strip()
         if arg is None:
             args[i] = ""
@@ -304,8 +309,9 @@ def is_number(s):
         return False
 
 
-# Apply + prefixes and macro names (jank)
-def apply_prefixes(event_string):
+# Concatenate strings (jank)
+# TODO: make less jank, this is ugly as hell
+def concat_macros(event_string):
     output_str = ""
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
@@ -321,7 +327,13 @@ def apply_prefixes(event_string):
                 if not (is_number(str(val)) or val in ["true", "false"]):
                     debug_print(f'added "" for {var} = {val}')
                     val = f'"{val}"'
-                seg = seg.replace(f'"{var}"', str(val)).lstrip()
+                seg = seg.replace(f'"{var}"', str(val))
+                if i == len(segments)-1:
+                    seg = seg.lstrip()
+                elif i == 0:
+                    seg = seg.rstrip()
+                else:
+                    seg = seg.strip()
             output_str += seg
     else:
         for var, val in sorted_variables:
@@ -331,7 +343,7 @@ def apply_prefixes(event_string):
             event_string = event_string.replace(f'"{var}"', str(val))
         output_str = event_string
     #print(output_str)
-    return output_str
+    return output_str.replace(space_char, " ")
 
 
 # The Big One:tm:
@@ -352,7 +364,7 @@ def compile_EBL(ebl_file):
                 add_variable(event.name, event.value)
                 continue
 
-            event_string = apply_prefixes(str(event))
+            event_string = concat_macros(str(event))
 
             output_str += (f"item[{item_index}]" + " = {\n" +
                            indent(event_string, "\t") + "}\n")
@@ -361,4 +373,4 @@ def compile_EBL(ebl_file):
     output_file.close()
     print(f"Done compiling in {time.time()-tic:.1f} seconds")
 
-compile_EBL("Test EBL Files/test_EBL_2.txt")
+compile_EBL("Test EBL Files/test_EBL_3.txt")

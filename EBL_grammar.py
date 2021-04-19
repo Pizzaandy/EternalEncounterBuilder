@@ -34,8 +34,8 @@ grammar = Grammar(r"""
     EQUALS        = SPACE? "=" SPACE?
 
     SPACE = ~r"\s+"
-    STRING = ~r'[\w/+.]+'
-    STRINGLITERAL = ~r'"[\w/+. ]+"'
+    STRING = ~r'[\w/#+.]+'
+    STRINGLITERAL = ~r'"[\t\n\w/#+. ]+"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """)
 
@@ -121,10 +121,12 @@ class NodeVisitor(NodeVisitor):
         return {"event": "wait", "args": [duration, "false"]}
 
     def visit_STRING(self, node, visited_children):
+        #print(str(node.text))
         return str(node.text)
 
     def visit_STRINGLITERAL(self, node, visited_children):
-        return str(node.text).replace('"', '')
+        #print (str(node.text).replace('"', '').replace(" ", "^"))
+        return str(node.text).replace('"', '').replace(" ", "^")
 
     def visit_MULTISTRING(self, node, visited_children):
         string, _, _ = visited_children

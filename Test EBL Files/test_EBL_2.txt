@@ -3,9 +3,10 @@ formatAllSpawnTargets
 
 REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 
-bruh = "123"
+bruh = 123#
 bruh2 = 10.5e-2
 bruh3 = bruh+bruh2
+print(bruh3) // "12310.5e-2" lol
 bruhhhh = banana
 bruh4 = bruh+bruhhhh
 
@@ -17,8 +18,8 @@ lastname = Eternal
 
 gargzomb = "Gargoyle ZombieTier3"
 
-spawn(Arachnotron, my_prefix+6)
-spawn(DreadKnight, my_prefix+7)
+spawn(Arachnotron, my_prefix + 6)
+spawn(DreadKnight, my_prefix + 7)
 print(firstname+lastname) // prints Doom_Eternal to console
 
 maintain
@@ -27,4 +28,3 @@ maintain
 
 
 
-print(bruh3)

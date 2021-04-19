@@ -110,7 +110,7 @@ class StopMaintainingAICount(EternalEvent, alias=["stopMaintainAI", "stopMaintai
     spawnType = "eEncounterSpawnType_t"
     group_label = "string*"
 
-class SpawnAI(EternalEvent):
+class SpawnAI(EternalEvent, alias="spawnMultiple"):
     spawnType = "eEncounterSpawnType_t"
     spawn_count = "int"
     spawnGroup = "entity"

@@ -2,18 +2,24 @@ REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
 
 // macros! whee
 my_prefix = destroyed_rig_encounter_spawn_group_zone_
-seven = 7
-firstname = Doom_
+firstname = "Doom "
 lastname = Eternal
 
-spawn(Arachnotron, my_prefix@6) // destroyed_rig_encounter_spawn_group_zone_6
-spawn(DreadKnight, my_prefix@seven) // destroyed_rig_encounter_spawn_group_zone_7
-print(firstname@lastname) // DesignerComment, prints "Doom_Eternal" to console
+spawn(Arachnotron, my_prefix + 6) // destroyed_rig_encounter_spawn_group_zone_6
 
-gz = "Gargoyle ZombieTier3"
+spawn(DreadKnight, my_prefix + seven) // destroyed_rig_encounter_spawn_group_zone_7
+print(firstname + lastname) // DesignerComment, prints "Doom Eternal" to console
+print(firstname+firstname+lastname) // prints "Doom Doom Eternal" to console
+
+// this is horrendous but you are allowed to do it
+my_fodder = "
+	Gargoyle
+	Imp
+"
 
 rig = my_prefix
-maintain([
-	(gz, 4, -1, 4, 3, rig@6, , 9.)
-	(ShotgunSoldier Imp, 4, -1, 4, 3, rig@6, , 9.)
-])
+
+// see previous comment
+maintain
+(my_fodder, 4, -1, 4, 3, rig+6, , 9.)
+(Spectre, 4, -1, 4, 3, rig+6, , 9.)
