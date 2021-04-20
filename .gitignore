@@ -1,3 +1,5 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+idFileDeCompressor.exe
+oo2core_8_win64.dll
