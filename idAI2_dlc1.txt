@@ -1,0 +1,708 @@
+// Automatically added 2 idAI2 entities from DLC 1:
+
+// custom_ai_ambient_turret
+// custom_ai_heavy_bloodangel
+// custom_ai_ambient_super_tentacle
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_ambient_turret {
+	inherit = "ai/ambient/turret";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 1.10000002;
+				y = 1.10000002;
+				z = 2.20000005;
+			}
+			forceObstacle = true;
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/turret";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_walk_s";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 150;
+				decayRate = 0;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/turret/default";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 1;
+				item[0] = "base_com_md";
+			}
+			radiusDamageHitTestGroups = {
+				num = 1;
+				item[0] = "base";
+			}
+		}
+		factionName = "turret";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/ambient/turret";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/ambient/turret";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[13] = {
+						componentDecl = "aicomponent/turret";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 1;
+					item[0] = "syncmelee/turret";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+					}
+				}
+			}
+			aiDeathCodex = "";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 50;
+				obstaclePerceptionRadius = 0;
+				closePerceptionRadius = 50;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+				fieldOfView = {
+					value = 360;
+				}
+				fieldOfView_close = {
+					value = 360;
+				}
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/turret";
+				allowInvalidSuicide = false;
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+				turretMode = true;
+			}
+			cover = {
+				coverRadius = 0;
+			}
+			behaviors = {
+				decl = "behaviors/turret/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/turret";
+			}
+			vsAIDamageMask = "PAIN";
+			ambient = {
+				sndAmbient = "play_turret_idle";
+			}
+			spawnSettings = {
+				timers_setOnSpawn = {
+					num = 1;
+					item[0] = {
+						name = "spawn";
+					}
+				}
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 1000;
+					starting = 1000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/ambient/turret";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/ambient/turret/base/turret.md6";
+			lightRigDecl = "turret/turret_default";
+			materialRemap = {
+				num = 1;
+				item[0] = {
+					from = "art/ai_props/turret/turret_eye_a";
+					to = "art/ai_props/turret/turret_eye_a2";
+				}
+			}
+			scale = {
+				x = 1.25;
+				y = 1.25;
+				z = 1.25;
+			}
+		}
+		fxDecl = "character/turret/turret";
+		startingInventory = {
+			num = 1;
+			item[0] = {
+				startSlot = "EQUIPPED";
+				inventoryDecl = "weapon/ai/turret/turret";
+			}
+		}
+		spawnPosition = {
+			x = 36.5499649;
+			y = 360.549835;
+			z = 118;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_heavy_bloodangel {
+	inherit = "ai/heavy/bloodangel";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.699999988;
+				y = 0.699999988;
+				z = 2.29999995;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/bloodangel";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_walk_s";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 3000;
+				decayRate = -300;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/bloodangel/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 5;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "arm_lower_rt";
+				item[3] = "arm_lower_lf";
+				item[4] = "skirt_part03_md";
+			}
+		}
+		factionName = "blood_angel";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/heavy/bloodangel";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/heavy/bloodangel_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[7] = {
+						componentDecl = "bloodangel";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/bloodangel/base";
+					}
+					ptr[15] = {
+						componentDecl = "aicomponent/waveblast/bloodangel/clearout";
+					}
+					ptr[31] = {
+						componentDecl = "aicomponent/bloodangel/bloodangel";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 1;
+					item[0] = "syncmelee/bloodangel";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 10;
+							item[0] = "syncdeath/playervsai/bloodangel/chainsaw/cut_front";
+							item[1] = "syncdeath/playervsai/bloodangel/chainsaw/cut_back";
+							item[2] = "syncdeath/playervsai/bloodangel/berserk/berserk_front_upper";
+							item[3] = "syncdeath/playervsai/bloodangel/front_upper";
+							item[4] = "syncdeath/playervsai/bloodangel/above_front";
+							item[5] = "syncdeath/playervsai/bloodangel/berserk/berserk_above_front";
+							item[6] = "syncdeath/playervsai/bloodangel/above_back";
+							item[7] = "syncdeath/playervsai/bloodangel/back_upper";
+							item[8] = "syncdeath/playervsai/bloodangel/left_upper";
+							item[9] = "syncdeath/playervsai/bloodangel/right_upper";
+						}
+					}
+				}
+			}
+			aiDeathCodex = "";
+			positioningParms = {
+				num = 2;
+				item[0] = "bloodangel/default";
+				item[1] = "bloodangel/evasive";
+			}
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/bloodangel";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 40;
+				maxEnemyCoverDistance = 40;
+			}
+			behaviors = {
+				decl = "behaviors/bloodangel/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/bloodangel";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/bloodangel/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_heavy";
+				teleportDelayMS = 1250;
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 8000;
+					starting = 8000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/heavy/bloodangel";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_heavy";
+			articulatedFigure = "characters/monsters/bloodangel";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/bloodangel/base/bloodangel.md6";
+			lightRigDecl = "bloodangel/bloodangel_default";
+			materialRemap = {
+				num = 4;
+				item[0] = {
+					from = "art/tile/common/blockout/gray_01_flat";
+					to = "models/monsters/bloodangel/gray_temp";
+				}
+				item[1] = {
+					from = "art/tile/common/blockout/gray_03";
+					to = "models/monsters/bloodangel/gray_03_temp";
+				}
+				item[2] = {
+					from = "art/tile/common/blockout/gray_04";
+					to = "models/monsters/bloodangel/gray_04_temp";
+				}
+				item[3] = {
+					from = "art/tile/common/blockout/red_01";
+					to = "models/monsters/bloodangel/bloodangel_webbing";
+				}
+			}
+		}
+		fxDecl = "character/bloodangel/bloodangel";
+		startingInventory = {
+			num = 2;
+			item[0] = {
+				inventoryDecl = "weapon/ai/bloodangel/ethereal_joust";
+			}
+			item[1] = {
+				startSlot = "EQUIPPED";
+				inventoryDecl = "weapon/ai/bloodangel/burst_fire";
+			}
+		}
+		spawnPosition = {
+			x = 141.900009;
+			y = 3261;
+			z = -2883.04834;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_ambient_super_tentacle {
+	inherit = "ai/ambient/super_tentacle";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_CYLINDER";
+			size = {
+				x = 1.29999995;
+				y = 1.29999995;
+				z = 3;
+			}
+			numSides = 8;
+			forceObstacle = true;
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "default";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_walk_s";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 150;
+				decayRate = 0;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/super_tentacle/default";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 5;
+				item[0] = "tentaclesec_part01_md";
+				item[1] = "tentaclesec_part03_md";
+				item[2] = "tentaclesec_part05_md";
+				item[3] = "tentaclesec_part09_md";
+				item[4] = "tentaclesec_part13_md";
+			}
+		}
+		factionName = "super_tentacle";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/ambient/super_tentacle";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = NULL;
+					}
+					ptr[14] = {
+						componentDecl = NULL;
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 1;
+					item[0] = "syncmelee/super_tentacle";
+				}
+			}
+			componentList = "ambient/super_tentacle";
+			aiDeathCodex = "codex/hell/demon_tentacle";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/super_tentacle";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 0;
+			}
+			behaviors = {
+				decl = "behaviors/super_tentacle/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/super_tentacle";
+			}
+			vsAIDamageMask = "PAIN";
+			ambient = {
+				sndAmbient = "play_tentacle_idle_loop";
+			}
+			spawnSettings = {
+				timers_setOnSpawn = {
+					num = 1;
+					item[0] = {
+						name = "spawn";
+					}
+				}
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 4000;
+					starting = 4000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/ambient/super_tentacle";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/ambient/super_tentacle/base/super_tentacle.md6";
+			lightRigDecl = "tentacle/tentacle_default";
+			materialRemap = {
+				num = 2;
+				item[0] = {
+					from = "models/characters/ambient/tentacle/tentacle";
+					to = "models/characters/ambient/super_tentacle/super_tentacle";
+				}
+				item[1] = {
+					from = "models/characters/ambient/tentacle/tentacle_wounds";
+					to = "models/characters/ambient/super_tentacle/super_tentacle_wounds";
+				}
+			}
+			scale = {
+				x = 8;
+				y = 8;
+				z = 8;
+			}
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_tentacle";
+		}
+		fxDecl = "character/super_tentacle/super_tentacle";
+		spawnPosition = {
+			x = -1650.40051;
+			y = -224.599884;
+			z = -149.884201;
+		}
+	}
+}
+}

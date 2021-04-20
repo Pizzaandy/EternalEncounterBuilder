@@ -3,3 +3,4 @@ __pycache__/
 *.py[cod]
 idFileDeCompressor.exe
 oo2core_8_win64.dll
+ignore_this/idAI2_list_generator.py

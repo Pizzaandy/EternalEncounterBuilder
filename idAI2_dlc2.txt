@@ -1,0 +1,1546 @@
+// Automatically added 4 idAI2 entities from DLC 2:
+
+// custom_ai_superheavy_baron_armored
+// custom_ai_fodder_prowler_cursed
+// custom_ai_fodder_imp_stone
+// custom_ai_fodder_soldier_chaingun
+// custom_ai_fodder_zombie_t1_screecher
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_superheavy_baron_armored {
+	inherit = "ai/superheavy/baron_armored";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 1;
+				y = 1;
+				z = 2.70000005;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/baron_armored";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_baron";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 7000;
+				decayRate = -1050;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_baron_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_baron";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_baron_landing";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_baron_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_baron_landing";
+			footstepEffectTable_Friendly = "impacteffect/footsteps/ai_hellknight";
+			footstepEffectTable_FriendlySprint = "impacteffect/footsteps/ai_hellknight";
+			footstepEffectTable_FriendlySlowWalk = "impacteffect/footsteps/ai_hellknight";
+			footstepEffectTable_FriendlyCrouchWalk = "impacteffect/footsteps/ai_hellknight";
+			footstepEffectTable_FriendlyLanding = "impacteffect/footsteps/ai_hellknight";
+			footstepEffectTable_FriendlyHeavyLanding = "impacteffect/footsteps/ai_hellknight";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_hellknight";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_hellknight";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_hellknight";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_hellknight";
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/baron/armored";
+				bodyArmor = {
+					hasBodyArmorOnSpawn = true;
+					hittestGroupName = "body_armor";
+					hitPoints = 3000;
+					armorRespawnTime = 2.5;
+					armorRespawnWarningTime = 4;
+					maceRespawnTime = 0.5;
+					bodyArmorHittestGroups = {
+						num = 18;
+						item[0] = "body_armor";
+						item[1] = "chest_armor";
+						item[2] = "crotch_armor";
+						item[3] = "head_armor";
+						item[4] = "left_arm_armor";
+						item[5] = "left_calf_armor";
+						item[6] = "left_forearm_armor";
+						item[7] = "left_leg_armor";
+						item[8] = "neck_armor";
+						item[9] = "right_arm_armor";
+						item[10] = "right_calf_armor";
+						item[11] = "right_forearm_armor";
+						item[12] = "right_leg_armor";
+						item[13] = "stomach_armor";
+						item[14] = "back_armor";
+						item[15] = "horn_left_armor";
+						item[16] = "horn_right_armor";
+						item[17] = "right_arm_armor_vulnerable";
+					}
+					bodyHittestGroups = {
+						num = 16;
+						item[0] = "chest";
+						item[1] = "crotch";
+						item[2] = "head";
+						item[3] = "left_arm";
+						item[4] = "left_calf";
+						item[5] = "left_forearm";
+						item[6] = "left_leg";
+						item[7] = "neck";
+						item[8] = "right_arm";
+						item[9] = "right_calf";
+						item[10] = "right_forearm";
+						item[11] = "right_leg";
+						item[12] = "stomach";
+						item[13] = "back";
+						item[14] = "horn_left";
+						item[15] = "horn_right";
+					}
+					suppressDamageTimeInSecOnArmorPops = 0.100000001;
+					IgnoreDamagesOnArmorPops = {
+						num = 8;
+						item[0] = "damage/firearm/bfg_charge_sphere_arc_splash";
+						item[1] = "damage/firearm/rocket_launcher_splash";
+						item[2] = "damage/firearm/gauss_rifle_concuss";
+						item[3] = "damage/firearm/pop_rocket_splash";
+						item[4] = "damage/firearm/gauss_rifle_ballista_splash_larger_explosion";
+						item[5] = "damage/firearm/gauss_rifle_ballista_splash";
+						item[6] = "damage/throwable/frag_grenade/frag_grenade_splash_concussive_blast";
+						item[7] = "damage/throwable/frag_grenade/frag_grenade_splash";
+					}
+				}
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 10;
+				item[0] = "head";
+				item[1] = "spine2";
+				item[2] = "lefthand";
+				item[3] = "righthand";
+				item[4] = "rightleg";
+				item[5] = "leftleg";
+				item[6] = "leftarm";
+				item[7] = "rightarm";
+				item[8] = "leftupleg";
+				item[9] = "rightupleg";
+			}
+		}
+		factionName = "baron";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_superheavy";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_superheavy_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/baron";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/baron";
+					}
+					ptr[6] = {
+						componentDecl = "aicomponent/baron";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/baron/base";
+					}
+					ptr[11] = {
+						componentDecl = "aicomponent/transientfocus/demon/hellknight_default";
+					}
+					ptr[15] = {
+						componentDecl = "aicomponent/waveblast/baron/base";
+					}
+					ptr[28] = {
+						componentDecl = "aicomponent/whiplash/armored_baron";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/baron_armored";
+					item[1] = "syncmelee/baron_armored_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 10;
+							item[0] = "syncdeath/playervsai/baron/back_upper";
+							item[1] = "syncdeath/playervsai/baron/above_front";
+							item[2] = "syncdeath/playervsai/baron/above_back";
+							item[3] = "syncdeath/playervsai/baron/front_upper";
+							item[4] = "syncdeath/playervsai/baron/left_upper";
+							item[5] = "syncdeath/playervsai/baron/right_upper";
+							item[6] = "syncdeath/playervsai/baron/crucbile/crucible_front";
+							item[7] = "syncdeath/playervsai/baron/berserk/berserk_front_upper";
+							item[8] = "syncdeath/playervsai/baron/crucbile/crucible_back";
+							item[9] = "syncdeath/playervsai/baron/berserk/berserk_above_front";
+						}
+					}
+				}
+			}
+			aiDeathStat = "STAT_BARON_KILLED";
+			aiDeathCodex = "codex/hell/demon_baron_armored";
+			positioningParms = {
+				num = 3;
+				item[0] = "baron/default";
+				item[1] = "baron/ranged";
+				item[2] = "baron/ranged_unreachable";
+			}
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/baron";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 39.0140038;
+				maxEnemyCoverDistance = 39.0140038;
+			}
+			behaviors = {
+				decl = "behaviors/baron/armored";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/baron_armored";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/baron/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_superheavy";
+				teleportDelayMS = 2000;
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 7000;
+					starting = 7000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/superheavy/baron_armored";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_super_heavy";
+			articulatedFigure = "characters/monsters/baron_auto";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/baron/base/baron_armor.md6";
+			lightRigDecl = "baron_armored/default";
+			materialRemap = {
+				num = 1;
+				item[0] = {
+					from = "art/tile/common/blockout/red_01";
+					to = "models/monsters/baron/temp_armor_deleteme";
+				}
+			}
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_baronofhell";
+		}
+		fxDecl = "character/baron/baron_armored";
+		walkIKDecl = "walkik/hellknight";
+		spawnPosition = {
+			x = -1706.90002;
+			y = -347.199982;
+			z = -156;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_fodder_prowler_cursed {
+	inherit = "ai/fodder/prowler_cursed";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.600000024;
+				y = 0.600000024;
+				z = 1.829;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/prowler";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/imp/fs_imp_concrete";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_prowler";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 1000;
+				decayRate = -50;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_prowler_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_prowler";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_prowler";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_prowler_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_prowler_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_imp";
+			aimAssistData = {
+				meleeTargetHeadOnly = true;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/prowler/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part0_md";
+				item[2] = "arm_handbind_lf";
+				item[3] = "arm_handbind_rt";
+				item[4] = "leg_lowerbind_lf";
+				item[5] = "leg_lowerbind_rt";
+			}
+		}
+		factionName = "prowler";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_heavy";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_heavy_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/prowler_cursed";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/prowler/base";
+					}
+					ptr[13] = {
+						componentDecl = "aicomponent/prowler_cursed";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/prowler_cursed";
+					item[1] = "syncmelee/prowler_cursed_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 19;
+							item[0] = "syncdeath/playervsai/prowler/front_rightarm";
+							item[1] = "syncdeath/playervsai/prowler/front_head";
+							item[2] = "syncdeath/playervsai/prowler/right_upper";
+							item[3] = "syncdeath/playervsai/prowler/front_lower";
+							item[4] = "syncdeath/playervsai/prowler/front_leftarm";
+							item[5] = "syncdeath/playervsai/prowler/left_lower";
+							item[6] = "syncdeath/playervsai/prowler/left_upper";
+							item[7] = "syncdeath/playervsai/prowler/above_front";
+							item[8] = "syncdeath/playervsai/prowler/above_back";
+							item[9] = "syncdeath/playervsai/prowler/right_lower";
+							item[10] = "syncdeath/playervsai/prowler/back_lower";
+							item[11] = "syncdeath/playervsai/prowler/back_upper";
+							item[12] = "syncdeath/playervsai/prowler/chainsaw/cut_front";
+							item[13] = "syncdeath/playervsai/prowler/chainsaw/cut_back";
+							item[14] = "syncdeath/playervsai/prowler/berserk/berserk_above_front";
+							item[15] = "syncdeath/playervsai/prowler/berserk/berserk_front_upper";
+							item[16] = "syncdeath/playervsai/prowler/crucbile/crucible_front";
+							item[17] = "syncdeath/playervsai/prowler/crucbile/crucible_back";
+							item[18] = "syncdeath/playervsai/prowler/front_chest";
+						}
+					}
+				}
+			}
+			aiDeathStat = "STAT_IMP_KILLED";
+			aiDeathCodex = "codex/hell/demon_prowler_cursed";
+			positioningParms = {
+				num = 3;
+				item[0] = "prowler_cursed/default";
+				item[1] = "prowler_cursed/retreat";
+				item[2] = "prowler_cursed/retreat_occluded";
+			}
+			defaultHitJoint = "spine_part1_md";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/prowler";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 39.0140038;
+				maxEnemyCoverDistance = 39.0140038;
+			}
+			behaviors = {
+				decl = "behaviors/prowler_cursed/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/prowler_cursed";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/prowler/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+			freeze = {
+				damageThreshold = 2;
+				freezeTime = 8;
+			}
+			canBeEmpowered = false;
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 1000;
+					starting = 1000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/prowler_cursed";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/prowler";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/prowler_cursed/base/prowler_cursed.md6";
+			lightRigDecl = "prowler_cursed/prowler_cursed_default";
+			materialRemap = {
+				num = 4;
+				item[0] = {
+					from = "models/monsters/prowler/prowler_arms";
+					to = "models/monsters/prowler_cursed/prowler_cursed_arms";
+				}
+				item[1] = {
+					from = "models/monsters/prowler/prowler_head";
+					to = "models/monsters/prowler_cursed/prowler_cursed_head";
+				}
+				item[2] = {
+					from = "models/monsters/prowler/prowler_legs";
+					to = "models/monsters/prowler_cursed/prowler_cursed_legs";
+				}
+				item[3] = {
+					from = "models/monsters/prowler/prowler_torso";
+					to = "models/monsters/prowler_cursed/prowler_cursed_torso";
+				}
+			}
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_prowler";
+		}
+		fxDecl = "character/prowler_cursed/prowler";
+		startingInventory = {
+			num = 4;
+			item[0] = {
+				startSlot = "HOLSTERED";
+				inventoryDecl = "weapon/ai/prowler_cursed/shadow_bolt_single";
+			}
+			item[1] = {
+				inventoryDecl = "ammo/ai/prowler_cursed/shadow_bolt_single";
+			}
+			item[2] = {
+				inventoryDecl = "weapon/ai/prowler_cursed/shadow_bolt_multi";
+			}
+			item[3] = {
+				inventoryDecl = "ammo/ai/prowler_cursed/shadow_bolt_multi";
+			}
+		}
+		spawnPosition = {
+			x = 1163.30005;
+			y = 477.399994;
+			z = 57.0999985;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_fodder_imp_stone {
+	inherit = "ai/fodder/imp_stone";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.5;
+				y = 0.5;
+				z = 1.60000002;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/imp_stone";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/imp/fs_imp_concrete";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_imp";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 200;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_imp_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_imp";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_imp";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_imp_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_imp_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_imp";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_imp";
+			aimAssistData = {
+				meleeTargetHeadOnly = true;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/imp_stone/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 7;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[1] = {
+							damageGroupName = "left_lower_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[2] = {
+							damageGroupName = "right_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[3] = {
+							damageGroupName = "right_lower_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[4] = {
+							damageGroupName = "head";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[5] = {
+							damageGroupName = "chest";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+						item[6] = {
+							damageGroupName = "gut";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head";
+				item[1] = "spine2";
+				item[2] = "rightforearm";
+				item[3] = "leftforearm";
+				item[4] = "rightleg";
+				item[5] = "leftleg";
+			}
+		}
+		factionName = "imp";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/fodder/stone_imp";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/imp_stone/base";
+					}
+					ptr[11] = {
+						componentDecl = "aicomponent/transientfocus/demon/imp_default";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/imp_stone";
+					item[1] = "syncmelee/imp_stone_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 19;
+							item[0] = "syncdeath/playervsai/imp/left_upper";
+							item[1] = "syncdeath/playervsai/imp/right_upper";
+							item[2] = "syncdeath/playervsai/imp/front_head";
+							item[3] = "syncdeath/playervsai/imp/front_chest";
+							item[4] = "syncdeath/playervsai/imp/back_upper";
+							item[5] = "syncdeath/playervsai/imp/left_lower";
+							item[6] = "syncdeath/playervsai/imp/right_lower";
+							item[7] = "syncdeath/playervsai/imp/above_front";
+							item[8] = "syncdeath/playervsai/imp/back_lower";
+							item[9] = "syncdeath/playervsai/imp/above_back";
+							item[10] = "syncdeath/playervsai/imp/front_lower";
+							item[11] = "syncdeath/playervsai/imp/front_leftarm";
+							item[12] = "syncdeath/playervsai/imp/front_rightarm";
+							item[13] = "syncdeath/playervsai/imp/chainsaw/cut_back";
+							item[14] = "syncdeath/playervsai/imp/chainsaw/cut_front";
+							item[15] = "syncdeath/playervsai/imp/berserk/berserk_above_front";
+							item[16] = "syncdeath/playervsai/imp/crucbile/crucible_front";
+							item[17] = "syncdeath/playervsai/imp/berserk/berserk_front_upper";
+							item[18] = "syncdeath/playervsai/imp/crucbile/crucible_back";
+						}
+					}
+				}
+			}
+			componentList = "fodder/imp";
+			aiDeathStat = "STAT_IMP_KILLED";
+			aiDeathCodex = "codex/hell/demon_imp_stone";
+			positioningParms = {
+				num = 2;
+				item[0] = "imp_stone/default";
+				item[1] = "imp_stone/default_direct_nav";
+			}
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/imp";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 39.0140038;
+				maxEnemyCoverDistance = 39.0140038;
+			}
+			behaviors = {
+				decl = "behaviors/imp_stone/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/imp_stone";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/imp/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+			freeze = {
+				damageThreshold = 2;
+				freezeTime = 8;
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 200;
+					starting = 200;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/imp_stone";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/imp_auto";
+			canGetUp = true;
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/imp_stone/base/imp_stone.md6";
+			lightRigDecl = "imp_stone/imp_stone_default";
+			materialRemap = {
+				num = 5;
+				item[0] = {
+					from = "models/monsters/imp/imp_arms";
+					to = "models/monsters/imp_stone/imp_stone_arms";
+				}
+				item[1] = {
+					from = "models/monsters/imp/imp_eyes";
+					to = "models/monsters/imp_stone/imp_stone_eyes";
+				}
+				item[2] = {
+					from = "models/monsters/imp/imp_head";
+					to = "models/monsters/imp_stone/imp_stone_head";
+				}
+				item[3] = {
+					from = "models/monsters/imp/imp_legs";
+					to = "models/monsters/imp_stone/imp_stone_legs";
+				}
+				item[4] = {
+					from = "models/monsters/imp/imp_torso";
+					to = "models/monsters/imp_stone/imp_stone_torso";
+				}
+			}
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_imp";
+		}
+		fxDecl = "character/imp_stone/imp_stone";
+		startingInventory = {
+			num = 2;
+			item[0] = {
+				startSlot = "HOLSTERED";
+				showHolstered = false;
+				inventoryDecl = "weapon/ai/imp_stone/fireball";
+			}
+			item[1] = {
+				inventoryDecl = "ammo/ai/imp_stone/fireball";
+			}
+		}
+		walkIKDecl = "walkik/imp_base";
+		spawnPosition = {
+			x = 1163.99976;
+			y = 480;
+			z = 57.0999985;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_fodder_soldier_chaingun {
+	inherit = "ai/fodder/soldier_chaingun";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.600000024;
+				y = 0.600000024;
+				z = 1.829;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/soldier_blaster";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/hellified_soldier/hs_footstep";
+				sndRagdollStart = "play_hell_soldier_death_short";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_soldier";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 500;
+				decayRate = -25;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_soldier_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_soldier";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_soldier";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_soldier_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_soldier_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_soldier";
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/soldier_chaingun/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 6;
+						item[0] = {
+							damageGroupName = "head";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[1] = {
+							damageGroupName = "chest";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[2] = {
+							damageGroupName = "right_arm";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[3] = {
+							damageGroupName = "left_arm";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[4] = {
+							damageGroupName = "right_leg";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[5] = {
+							damageGroupName = "left_leg";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "arm_hand_lf";
+				item[3] = "arm_hand_rt";
+				item[4] = "leg_lower_lf";
+				item[5] = "leg_lower_rt";
+			}
+		}
+		factionName = "chaingun";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = NULL;
+					}
+					ptr[14] = {
+						componentDecl = NULL;
+					}
+					ptr[9] = {
+						componentDecl = NULL;
+					}
+					ptr[10] = {
+						componentDecl = NULL;
+					}
+					ptr[11] = {
+						componentDecl = NULL;
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/soldier_chaingun";
+					item[1] = "syncmelee/soldier_blaster_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 19;
+							item[0] = "syncdeath/playervsai/soldier_blaster/right_upper";
+							item[1] = "syncdeath/playervsai/soldier_blaster/left_upper";
+							item[2] = "syncdeath/playervsai/soldier_blaster/front_upper";
+							item[3] = "syncdeath/playervsai/soldier_blaster/front_head";
+							item[4] = "syncdeath/playervsai/soldier_blaster/left_lower";
+							item[5] = "syncdeath/playervsai/soldier_blaster/above_back";
+							item[6] = "syncdeath/playervsai/soldier_blaster/above_front";
+							item[7] = "syncdeath/playervsai/soldier_blaster/front_rightarm";
+							item[8] = "syncdeath/playervsai/soldier_blaster/front_leftarm";
+							item[9] = "syncdeath/playervsai/soldier_blaster/berserk/berserk_above_front";
+							item[10] = "syncdeath/playervsai/soldier_blaster/chainsaw/cut_back";
+							item[11] = "syncdeath/playervsai/soldier_blaster/back_lower";
+							item[12] = "syncdeath/playervsai/soldier_blaster/chainsaw/cut_front";
+							item[13] = "syncdeath/playervsai/soldier_blaster/berserk/berserk_front_upper";
+							item[14] = "syncdeath/playervsai/soldier_blaster/right_lower";
+							item[15] = "syncdeath/playervsai/soldier_blaster/back_upper";
+							item[16] = "syncdeath/playervsai/soldier_blaster/crucbile/crucible_front";
+							item[17] = "syncdeath/playervsai/soldier_blaster/crucbile/crucible_back";
+							item[18] = "syncdeath/playervsai/soldier_blaster/front_lower";
+						}
+					}
+				}
+			}
+			aiDeathStat = "STAT_HELL_SHOTGUNNER_KILLED";
+			positioningParms = {
+				num = 1;
+				item[0] = "soldier_chaingun/default";
+			}
+			componentList = "fodder/soldier_chaingun";
+			aiDeathCodex = "codex/hell/demon_soldier_chaingunner";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/soldier_chaingun";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 19.5070019;
+			}
+			behaviors = {
+				decl = "behaviors/soldier_chaingun/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/soldier_chaingun";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/soldier_blaster/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+				initialRole = "ROLE_DEFEND";
+			}
+			demonTeamInfo = {
+				canHostLostSouls = true;
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 500;
+					starting = 500;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/soldier_chaingun";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/soldier_blaster_auto";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/soldier_chaingunner/base/soldier_chaingunner.md6";
+			lightRigDecl = "soldier_chaingun/soldier_chaingun_default";
+			materialRemap = {
+				num = 5;
+				item[0] = {
+					from = "models/monsters/soldier/soldier_blaster_head";
+					to = "models/monsters/soldier_chaingunner/soldier_chaingunner_head";
+				}
+				item[1] = {
+					from = "models/monsters/soldier/soldier_blaster_body";
+					to = "models/monsters/soldier_chaingunner/soldier_chaingunner_body";
+				}
+				item[2] = {
+					from = "models/monsters/soldier/soldier_blaster_armor";
+					to = "models/monsters/soldier_chaingunner/soldier_chaingunner_armor";
+				}
+				item[3] = {
+					from = "models/monsters/soldier/soldier_blaster_legs";
+					to = "models/monsters/soldier_chaingunner/soldier_chaingunner_legs";
+				}
+				item[4] = {
+					from = "models/monsters/soldier/soldier_hair";
+					to = "models/monsters/soldier_chaingunner/soldier_chaingunner_hair";
+				}
+			}
+			showHideMeshInfo = {
+				bodyKit = "Chaingunner";
+			}
+		}
+		fxDecl = "character/hellified_soldier_chaingun/hellified_soldier_chaingun";
+		startingInventory = {
+			num = 2;
+			item[0] = {
+				startSlot = "EQUIPPED";
+				inventoryDecl = "weapon/ai/soldier_chaingun/chaingun";
+			}
+			item[1] = {
+				showHolstered = false;
+				inventoryDecl = "weapon/ai/soldier_chaingun/chaingun_volley";
+			}
+		}
+		walkIKDecl = "walkik/biped_base";
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_soldier_chaingunner";
+		}
+		spawnPosition = {
+			x = -1695.00012;
+			y = -219;
+			z = -165.999985;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_fodder_zombie_t1_screecher {
+	inherit = "ai/fodder/zombie_t1_screecher";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.400000006;
+				y = 0.400000006;
+				z = 1.5;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/zombie";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.63829994;
+				}
+				crouchedEyeOffset = {
+					z = 0.609600008;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/zombies/zombies_default";
+				sndPainSmall = "player/pain/small";
+				sndPainMedium = "player/pain/medium";
+				sndPainLarge = "player/pain/large";
+				sndRagdollStart = "play_zombie_death";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_zombie";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 200;
+				decayRate = 0;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 1;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_zombie_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_zombie";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_zombie";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_zombie_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_zombie_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_zombie";
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/zombie/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "arm_hand_lf";
+				item[3] = "arm_hand_rt";
+				item[4] = "leg_lower_lf";
+				item[5] = "leg_lower_rt";
+			}
+		}
+		factionName = "zombie_t1";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/zombie";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/zombie_tier1_berserk";
+					item[1] = "syncmelee/zombie_tier1_3p";
+				}
+				syncGroups = {
+					num = 0;
+				}
+			}
+			aiDeathStat = "STAT_ZOMBIE_KILLED";
+			componentList = "fodder/zombie_t1_screecher";
+			aiDeathCodex = "codex/hell/demon_zombie_screecher";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 14;
+				obstaclePerceptionRadius = 39;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 14;
+				senseUpdatesOnNonEnemies = false;
+				fieldOfView = {
+					value = 150;
+				}
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = true;
+				explosionDecl = NULL;
+				declTwitchPain = "twitchpain/zombie_t1";
+				deathAnim = "animweb/characters/monsters/zombie_tier_1/death/death_screecher";
+				notificationDecl = "hud/ai_screecher_killed";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+				preferredCombatWalkState = "WALKSTATE_WALKING";
+			}
+			cover = {
+				coverRadius = 0;
+			}
+			behaviors = {
+				decl = "behaviors/zombie/tier_1_screecher";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/zombie_tier_1";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/zombie_tier_1/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+			}
+			ambient = {
+				sndAmbient = "play_zombie_screecher_amb";
+				sndAmbientEnd = "stop_zombie_screecher_amb";
+			}
+			buffModifiers = {
+				num = 3;
+				item[0] = {
+					className = "idEntityModifier_Onslaught";
+					object = {
+						radius = 250;
+						ignoreMonsterTypes = "AI_MONSTER_CURSED_PROWLER";
+						durationInSeconds = {
+							minRange = 15;
+							maxRange = 15;
+						}
+						fxCondition = "FX_BUFF_SCREECHER";
+						checkSourceAlive = false;
+						damageScale = 1;
+						upgradesDecl = "screecher";
+					}
+				}
+				item[1] = {
+					className = "idEntityModifier_Overdrive";
+					object = {
+						radius = 250;
+						ignoreMonsterTypes = "AI_MONSTER_CURSED_PROWLER";
+						durationInSeconds = {
+							minRange = 15;
+							maxRange = 15;
+						}
+						fxCondition = "FX_BUFF_SCREECHER";
+						checkSourceAlive = false;
+						upgradesDecl = "screecher";
+					}
+				}
+				item[2] = {
+					className = "idEntityModifier_Berserk";
+					object = {
+						radius = 250;
+						ignoreMonsterTypes = "AI_MONSTER_CURSED_PROWLER";
+						durationInSeconds = {
+							minRange = 15;
+							maxRange = 15;
+						}
+						fxCondition = "FX_BUFF_SCREECHER";
+						checkSourceAlive = false;
+						painTakenScale = 1;
+						upgradesDecl = "screecher";
+						contextFlagsToApply = "AICONTEXT_BUFFED_BY_SCREECHER";
+					}
+				}
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 100;
+					starting = 100;
+					regenRate = 25;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/zombie_screecher";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/zombie_tier1";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/zombie_tier1/base/zombie_tier1_berserk.md6";
+			lightRigDecl = "zombie_tier1_screecher/zombie_tier1_screecher_default";
+			materialRemap = {
+				num = 2;
+				item[0] = {
+					from = "models/monsters/zombie_hell/zombie_hell_body";
+					to = "models/monsters/zombie_berserk/zombie_berserk_body";
+				}
+				item[1] = {
+					from = "models/monsters/zombie_hell/zombie_hell_head";
+					to = "models/monsters/zombie_berserk/zombie_berserk_head";
+				}
+			}
+			emissiveColor = {
+				g = 0;
+				b = 0.815686047;
+			}
+			emissiveScale = 10;
+		}
+		fxDecl = "character/zombie_tier1/zombie_tier1_screecher";
+		walkIKDecl = "walkik/zombie";
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_damage_zombie_GHOST81206";
+		}
+		spawnPosition = {
+			x = -1706.20007;
+			y = -350.75;
+			z = -163.999008;
+		}
+	}
+}
+}
+

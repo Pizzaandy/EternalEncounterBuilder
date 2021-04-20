@@ -11,19 +11,32 @@ from parsimonious.grammar import NodeVisitor
 import subprocess
 from pathlib import Path
 
-def decompress_entities(input_path, output_path, exe="idFileDeCompressor.exe"):
+def decompress(input_path, output_path, exe="idFileDeCompressor.exe"):
     if not Path(exe).exists():
         print("ERROR: idFileDeCompressor not in folder!")
         return False
-    subprocess.run(['idFileDeCompressor.exe',"-d", input_path, output_path])
+    if Path(input_path).suffix != ".entities":
+        print("ERROR: Input path is not an .entities file!")
+        return False
+    p = subprocess.run(['idFileDeCompressor.exe',"-d", input_path, output_path])
+    if p.stderr:
+        print(f"STINKY: {p.stderr}")
+        return False
     print(f"Decompressed {Path(input_path).name} to {Path(output_path).name}")
     return True
 
-def compress_entities(input_path, output_path, exe="idFileDeCompressor.exe"):
+def compress(input_path, output_path, exe="idFileDeCompressor.exe"):
     if not Path(exe).exists():
         print("ERROR: idFileDeCompressor not in folder!")
         return None
-    subprocess.run(['idFileDeCompressor.exe',"-c",input_path, output_path])
+    if Path(input_path).suffix != ".entities":
+        print("ERROR: Input path is not an .entities file!")
+        return False
+    p = subprocess.run(['idFileDeCompressor.exe',"-c", input_path, output_path])
+    if p.stderr:
+        print(f"ERROR: {p.stderr}")
+        return False
+    print(f"Compressed {Path(input_path).name} to {Path(output_path).name}")
     return True
 
 
@@ -49,7 +62,7 @@ entity_grammar = Grammar(r"""
     OBJECT     = LBRACE ASSIGNMENT+ RBRACE
     LITERAL    = (NUMBER / STRING / NULL / BOOL) SEMICOLON
 
-    VARIABLE = (INDEXED / VARNAME)
+    VARIABLE   = (INDEXED / VARNAME)
     INDEXED    = VARNAME "[" INTEGER "]"
 
     LBRACE    = SPACE? "{" SPACE?
@@ -176,32 +189,41 @@ def parse_entities(filename, class_filter):
             json.dump(data, fp, indent=4)
     return data
 
-# entities = parse_entities("Test Entities/e3m2_hell.entities", "idAI2")
-# for entity in entities:
-#     name = None
-#     key_list = list(entity)
-#     for key in key_list:
-#         if "entityDef" in key:
-#             name = key
-#             break
-#     if not name:
-#         print("ERROR: No entityDef")
-#         continue
-#     name = name.replace("entityDef ", "")
-#     print(name)
-
 fp = 'randomizer_example.txt'
 segments = generate_entity_segments(fp, "idAI2")
 output_str = ""
+names_str = ""
+filter_list = ["masterlevel", "_ai_", "cinematic"]
+entity_count = 0
 for seg in segments:
+    name = ""
+    skip_segment = False
+    for line in seg.splitlines():
+        if "entityDef" in line:
+            name = line.replace("{", "").replace("entityDef","").strip()
+            if name.startswith(tuple(filter_list)):
+                skip_segment = True
+            new_name = "custom" + name.rstrip("0123456789_").lstrip("gameplay").lstrip("game")
+            seg = seg.replace(name, new_name, 1)
+            break
+    if skip_segment:
+        continue
+    if name == "":
+        print("No entityDef found!")
+    names_str += "// " + new_name + "\n"
     output_str += seg + "\n"
-output_file = open("idAI2_entities.txt", "w")
+    entity_count += 1
+
+output_str = f"// Automatically added {entity_count} idAI2 entities from the base game:\n\n" + names_str + "\n" + output_str
+output_file = open("idAI2_base.txt", "w")
 output_file.write(output_str)
 output_file.close()
+
+print(names_str)
 
 # testing woo
 fp1 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\e3m2_hell.entities'
 fp2 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\funny_test.entities'
 fp3 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\test.entities'
 
-decompress_entities(fp2, fp3)
+#decompress(fp2, fp3)
