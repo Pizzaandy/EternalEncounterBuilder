@@ -50,7 +50,7 @@ entity_grammar = Grammar(r"""
     ASSIGNMENT      = VARIABLE EQUALS (OBJECT / LITERAL)
 
     OBJECT     = LBRACE ASSIGNMENT+ RBRACE
-    LITERAL    = (NUMBER / STRING / NULL / BOOL) SEMICOLON
+    LITERAL    = (NUMBER / INTEGER / STRING / NULL / BOOL) SEMICOLON
 
     VARIABLE   = (INDEXED / VARNAME)
     INDEXED    = VARNAME "[" INTEGER "]"
@@ -127,7 +127,10 @@ class EntityVisitor(NodeVisitor):
         return str(string.text)
 
     def visit_NUMBER(self, node, visited_children):
-        return float(node.text)
+        if float(node.text).is_integer():
+            return int(node.text)
+        else:
+            return float(node.text)
 
     def visit_INTEGER(self, node, visited_children):
         return int(node.text)
@@ -168,19 +171,47 @@ def generate_entity_segments(filename, clsname="idEncounterManager"):
 
 def parse_entities(filename, class_filter):
     tic = time.time()
-    data = []
-    if __name__ == '__main__':
-        print("Start processing")
-        with Pool(processes=mp.cpu_count()) as pool:
-            data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
-
-        print(f"Done processing in {time.time()-tic:.1f} seconds")
-        with open('testoutput.json', 'w') as fp:
-            json.dump(data, fp, indent=4)
+    print("Start processing")
+    with Pool(processes=mp.cpu_count()) as pool:
+        data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    print(f"Done processing in {time.time()-tic:.1f} seconds")
     return data
 
-def generate_entity(data):
-    pass
+
+def generate_entity(entity_dict):
+    no_equals_list = ['entityDef ', 'layers']
+    entity_json = json.dumps(entity_dict, indent=4)
+    entity_json = entity_json.replace(",", "")
+    res = "entity "
+    for line in entity_json.splitlines():
+        spaces = len(line) - len(line.lstrip())
+        if line.lstrip().startswith('"entityDef '):
+            tabs = max(int(spaces / 4), 0)
+        else:
+            tabs = max(int(spaces / 4) - 1, 0)
+        line = "\t" * tabs + line.lstrip()
+
+        if ": " in line:
+            var, other = tuple(line.split(": "))
+            var = var.replace('"', '')
+            print(var)
+            if not "{" in line:
+                other += ";"
+            if var.lstrip().startswith(tuple(no_equals_list)):
+                line = var + " " + other
+            else:
+                line = var + " = " + other
+        res += line + "\n"
+    return res
 
 fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m2_earth.entities"
-parse_entities(fp, "idTarget_Spawn")
+
+if __name__ == "__main__":
+    entities = parse_entities(fp, "idTarget_Spawn_Parent")
+    with open('testoutput.json', 'w') as fp:
+        json.dump(entities, fp, indent=4)
+    my_entity = generate_entity(entities[0])
+    output_file = open("test_generated_entity.txt", "w")
+    output_file.write(my_entity)
+    output_file.close()
+    print("success!")
