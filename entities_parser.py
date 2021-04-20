@@ -8,6 +8,23 @@ from multiprocessing import Pool
 import multiprocessing as mp
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
+import subprocess
+from pathlib import Path
+
+def decompress_entities(input_path, output_path, exe="idFileDeCompressor.exe"):
+    if not Path(exe).exists():
+        print("ERROR: idFileDeCompressor not in folder!")
+        return False
+    subprocess.run(['idFileDeCompressor.exe',"-d", input_path, output_path])
+    print(f"Decompressed {Path(input_path).name} to {Path(output_path).name}")
+    return True
+
+def compress_entities(input_path, output_path, exe="idFileDeCompressor.exe"):
+    if not Path(exe).exists():
+        print("ERROR: idFileDeCompressor not in folder!")
+        return None
+    subprocess.run(['idFileDeCompressor.exe',"-c",input_path, output_path])
+    return True
 
 
 def str_to_class(classname):
@@ -182,4 +199,9 @@ output_file = open("idAI2_entities.txt", "w")
 output_file.write(output_str)
 output_file.close()
 
+# testing woo
+fp1 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\e3m2_hell.entities'
+fp2 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\funny_test.entities'
+fp3 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\test.entities'
 
+decompress_entities(fp2, fp3)
