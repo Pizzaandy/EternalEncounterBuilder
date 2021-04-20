@@ -1,6 +1,4 @@
-#from eternalevents import *
-import eternalevents as ee
-#from eternalevents import ebl_to_event, encounter_spawn_names
+import eternalevents
 import json
 import re
 import time
@@ -38,14 +36,6 @@ def compress(input_path, output_path, exe="idFileDeCompressor.exe"):
         return False
     print(f"Compressed {Path(input_path).name} to {Path(output_path).name}")
     return True
-
-
-def str_to_class(classname):
-    return getattr(ee, classname)
-
-
-def get_event_args(classname):
-    return [i for i in classname.__dict__.keys() if not i.startswith('__') and not i.startswith('args')]
 
 
 entity_grammar = Grammar(r"""
@@ -173,7 +163,7 @@ def generate_entity_segments(filename, clsname="idEncounterManager"):
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
 
-    print(f"{segment_count} instances of {clsname} found!")
+    print(f"{segment_count} instances of {clsname} found")
 
 
 def parse_entities(filename, class_filter):
@@ -189,41 +179,8 @@ def parse_entities(filename, class_filter):
             json.dump(data, fp, indent=4)
     return data
 
-fp = 'randomizer_example.txt'
-segments = generate_entity_segments(fp, "idAI2")
-output_str = ""
-names_str = ""
-filter_list = ["masterlevel", "_ai_", "cinematic"]
-entity_count = 0
-for seg in segments:
-    name = ""
-    skip_segment = False
-    for line in seg.splitlines():
-        if "entityDef" in line:
-            name = line.replace("{", "").replace("entityDef","").strip()
-            if name.startswith(tuple(filter_list)):
-                skip_segment = True
-            new_name = "custom" + name.rstrip("0123456789_").lstrip("gameplay").lstrip("game")
-            seg = seg.replace(name, new_name, 1)
-            break
-    if skip_segment:
-        continue
-    if name == "":
-        print("No entityDef found!")
-    names_str += "// " + new_name + "\n"
-    output_str += seg + "\n"
-    entity_count += 1
+def generate_entity(data):
+    pass
 
-output_str = f"// Automatically added {entity_count} idAI2 entities from the base game:\n\n" + names_str + "\n" + output_str
-output_file = open("idAI2_base.txt", "w")
-output_file.write(output_str)
-output_file.close()
-
-print(names_str)
-
-# testing woo
-fp1 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\e3m2_hell.entities'
-fp2 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\funny_test.entities'
-fp3 = r'C:\_DEV\EternalEncounterDesigner\Test Entities\test.entities'
-
-#decompress(fp2, fp3)
+fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m2_earth.entities"
+parse_entities(fp, "idTarget_Spawn")

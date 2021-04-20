@@ -1,5 +1,6 @@
-import eternalevents as ee
+import eternalevents
 import EBL_grammar as EBL
+import entities_parser as parser
 from textwrap import indent
 from dataclasses import dataclass
 import re
@@ -168,7 +169,7 @@ encounter_spawn_aliases = {
 
 
 def str_to_class(classname):
-    return getattr(ee, classname)
+    return getattr(eternalevents, classname)
 
 
 def get_event_args(classname):
@@ -207,7 +208,7 @@ def format_args(args, arg_count):
     for i, arg in enumerate(args):
         if isinstance(arg, str):
             args[i] = ""
-            arg = arg.replace("^", "^ ").split()
+            arg = arg.replace(space_char, space_char + " ").split()
             for word in arg:
                 old_word = word
                 word = word.replace("^", "")
@@ -251,8 +252,8 @@ def create_events(data):
         if data["event"] == "waitFor":
             return create_events(data["args"])
 
-        if data["event"] in ee.ebl_to_event:
-            cls_name, arg_count = ee.ebl_to_event[data["event"]]
+        if data["event"] in eternalevents.ebl_to_event:
+            cls_name, arg_count = eternalevents.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
             print(f'''ERROR: undefined event {data["event"]}!''')
