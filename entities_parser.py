@@ -6,6 +6,7 @@ from multiprocessing import Pool
 import multiprocessing as mp
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
+from textwrap import indent
 import subprocess
 from pathlib import Path
 
@@ -97,7 +98,7 @@ class EntityVisitor(NodeVisitor):
 
     def visit_LAYERS_BLOCK(self, node, visited_children):
         nodename, _, string, _ = visited_children
-        return (nodename.text, string)
+        return (nodename.text, {"__layername__":string})
 
     def visit_ENTITYDEF_BLOCK(self, node, visited_children):
         nodename, _, varname, _, assignments, _ = visited_children
@@ -154,18 +155,23 @@ def strip_comments(string):
     return re.sub(pattern, "", string)
 
 
-def generate_entity_segments(filename, clsname="idEncounterManager"):
+def generate_entity_segments(filename, clsname="", version_numbers=False):
     with open(filename) as fp:
         segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
     segment_count = 0
-    for segment in segments[1:]:
+    start_index = 0 if version_numbers else 1
+    for i, segment in enumerate(segments[start_index:]):
         segment = strip_comments(segment)
-        # handle encounters only for now
-        if f'''class = "{clsname}";''' in segment:
+        # filter class name
+        if i == 0 and version_numbers:
+            yield segment
+            continue
+        if not clsname or f'''class = "{clsname}";''' in segment:
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
-
+    if not clsname:
+        clsname = "entity"
     print(f"{segment_count} instances of {clsname} found")
 
 
@@ -178,40 +184,43 @@ def parse_entities(filename, class_filter):
     return data
 
 
-def generate_entity(entity_dict):
+# I have hit a new low
+def generate_entity(entity_dict, unpack=None):
     no_equals_list = ['entityDef ', 'layers']
-    entity_json = json.dumps(entity_dict, indent=4)
-    entity_json = entity_json.replace(",", "")
+    entity_json = json.dumps(entity_dict, indent=4).replace(",", "")
     res = "entity "
     for line in entity_json.splitlines():
-        spaces = len(line) - len(line.lstrip())
-        if line.lstrip().startswith('"entityDef '):
-            tabs = max(int(spaces / 4), 0)
-        else:
-            tabs = max(int(spaces / 4) - 1, 0)
-        line = "\t" * tabs + line.lstrip()
-
+        line = line.replace(4*" ", "\t")
+        tabs = len(line) - len(line.lstrip("\t"))
+        # print(tabs)
+        if not line.lstrip().startswith('"entityDef '):
+            line = line[1:] if line.startswith("\t") else line
         if ": " in line:
             var, other = tuple(line.split(": "))
             var = var.replace('"', '')
-            print(var)
-            if not "{" in line:
+            if unpack and var.strip().startswith(unpack):
+                print("unpacked the string")
+                other = bytes(other, "utf-8").decode("unicode_escape").strip('"')
+                other = "{\n" + indent(other, tabs*"\t") + (tabs-1)*"\t" + "}"
+            elif not "{" in line:
                 other += ";"
             if var.lstrip().startswith(tuple(no_equals_list)):
                 line = var + " " + other
+                print(var)
             else:
                 line = var + " = " + other
+            if line.lstrip().startswith("__layername__ = "):
+                line = line.replace(";","").replace("__layername__ = ", "")
         res += line + "\n"
     return res
 
 fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m2_earth.entities"
 
 if __name__ == "__main__":
-    entities = parse_entities(fp, "idTarget_Spawn_Parent")
+    entities = parse_entities(fp, "idEncounterManager")
     with open('testoutput.json', 'w') as fp:
         json.dump(entities, fp, indent=4)
-    my_entity = generate_entity(entities[0])
-    output_file = open("test_generated_entity.txt", "w")
-    output_file.write(my_entity)
-    output_file.close()
+    my_entity = generate_entity(entities[1])
+    with open("test_generated_entity.txt", "w") as fp:
+        fp.write(my_entity)
     print("success!")

@@ -1,4 +1,7 @@
-REPLACE ENCOUNTER destroyed_rig_encounter_manager_dlc1_2
+SETTINGS
+
+
+REPLACE ENCOUNTER ai_encounter_manager_pit_01a
 
 // macros! whee
 my_prefix = destroyed_rig_encounter_spawn_group_zone_
@@ -7,7 +10,7 @@ lastname = Eternal
 
 spawn(Arachnotron, my_prefix + 6) // destroyed_rig_encounter_spawn_group_zone_6
 
-spawn(DreadKnight, my_prefix + seven) // destroyed_rig_encounter_spawn_group_zone_7
+spawn(DreadKnight, my_prefix + something) // destroyed_rig_encounter_spawn_group_zone_7
 print(firstname + lastname) // DesignerComment, prints "Doom Eternal" to console
 print(firstname+firstname+lastname) // prints "Doom Doom Eternal" to console
 
@@ -20,6 +23,12 @@ my_fodder = "
 rig = my_prefix
 
 // see previous comment
+maintain
+(my_fodder, 4, -1, 4, 3, rig+6, , 9.)
+(Spectre, 4, -1, 4, 3, rig+6, , 9.)
+
+
+REPLACE ENCOUNTER my_manager_dlcl_2
 maintain
 (my_fodder, 4, -1, 4, 3, rig+6, , 9.)
 (Spectre, 4, -1, 4, 3, rig+6, , 9.)

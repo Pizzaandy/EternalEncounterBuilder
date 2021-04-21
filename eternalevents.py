@@ -55,6 +55,29 @@ class EternalEvent:
             template=self.ev_template,
             data={"name": name, "items": items, "count": len(items)})
 
+    # def dictify(self):
+    #     items = [
+    #         {
+    #             "index": index,
+    #             "value": (f'"{val[1]}";' if isinstance(val[1], str)
+    #                       and val[1] not in ["NULL", "true", "false"]
+    #                       else f'{val[1]};'),
+    #             "var": var[1]
+    #         }
+    #         for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
+    #     ]
+    #     #print(items)
+    #     name = camelcase(type(self).__name__)
+    #     items_dict = {"num": len(items)}
+    #     for item in items:
+    #         if item["var"].startswith("decl"):
+    #             varname = item["var"].replace("decl:", "")
+    #             item["var"] = "decl"
+    #             item["value"] = {varname: item["value"]}
+    #         items_dict[f'item[{item["index"]}]'] = {f'{item["var"]}': f'{item["value"]}'}
+
+    #     return {"eventCall": {"eventDef": name, "args": items_dict}}
+
     # metaprogramming time
     def __init_subclass__(cls, alias="", **kwargs):
         super().__init_subclass__(**kwargs)

@@ -1,766 +1,258 @@
-[
-    {
-        "entityDef ai_encounter_spawn_group_parent_base": {
-            "inherit": "encounter/spawn_group/parent",
-            "class": "idTarget_Spawn_Parent",
-            "expandInheritance": false,
-            "poolCount": 0,
-            "poolGranularity": 2,
-            "networkReplicated": false,
-            "disableAIPooling": false,
-            "edit": {
-                "flags": {
-                    "noFlood": true
-                },
-                "spawnConditions": {
-                    "maxCount": 0,
-                    "reuseDelaySec": 0,
-                    "doBoundsTest": false,
-                    "boundsTestType": "BOUNDSTEST_NONE",
-                    "fovCheck": 0,
-                    "minDistance": 0,
-                    "maxDistance": 0,
-                    "neighborSpawnerDistance": -1,
-                    "LOS_Test": "LOS_NONE",
-                    "playerToTest": "PLAYER_SP",
-                    "conditionProxy": ""
-                },
-                "spawnEditableShared": {
-                    "groupName": "",
-                    "deathTrigger": "",
-                    "coverRadius": 0,
-                    "maxEnemyCoverDistance": 0
-                },
-                "entityDefs": {
-                    "num": 35,
-                    "item[0]": {
-                        "name": "ai_ai_heavy_painelemental_1"
-                    },
-                    "item[1]": {
-                        "name": "ai_ai_heavy_cacodemon_1"
-                    },
-                    "item[2]": {
-                        "name": "ai_ai_heavy_mancubus_fire_1"
-                    },
-                    "item[3]": {
-                        "name": "ai_ai_superheavy_baron_1"
-                    },
-                    "item[4]": {
-                        "name": "ai_ai_heavy_pinky_1"
-                    },
-                    "item[5]": {
-                        "name": "ai_ai_heavy_whiplash_1"
-                    },
-                    "item[6]": {
-                        "name": "ai_ai_superheavy_marauder_1"
-                    },
-                    "item[7]": {
-                        "name": "ai_ai_heavy_mancubus_goo_1"
-                    },
-                    "item[8]": {
-                        "name": "ai_ai_fodder_zombie_tier_3_1"
-                    },
-                    "item[9]": {
-                        "name": "ai_ai_heavy_hellknight_1"
-                    },
-                    "item[10]": {
-                        "name": "ai_ai_fodder_imp_1"
-                    },
-                    "item[11]": {
-                        "name": "ai_ai_fodder_gargoyle_1"
-                    },
-                    "item[12]": {
-                        "name": "ai_ai_ambient_buffpod_1"
-                    },
-                    "item[13]": {
-                        "name": "ai_ai_fodder_prowler_1"
-                    },
-                    "item[14]": {
-                        "name": "ai_ai_heavy_dreadknight_1"
-                    },
-                    "item[15]": {
-                        "name": "ai_ai_heavy_pinky_spectre_1"
-                    },
-                    "item[16]": {
-                        "name": "ai_ai_heavy_arachnotron_1"
-                    },
-                    "item[17]": {
-                        "name": "ai_ai_heavy_revenant_1"
-                    },
-                    "item[18]": {
-                        "name": "ai_ai_fodder_carcass_1"
-                    },
-                    "item[19]": {
-                        "name": "ai_ai_fodder_lostsoul_1"
-                    },
-                    "item[20]": {
-                        "name": "ai_ai_superheavy_doom_hunter_1"
-                    },
-                    "item[21]": {
-                        "name": "ai_ai_superheavy_baron_armored_1"
-                    },
-                    "item[22]": {
-                        "name": "ai_ai_ambient_turret_1"
-                    },
-                    "item[23]": {
-                        "name": "ai_ai_ambient_spirit_1"
-                    },
-                    "item[24]": {
-                        "name": "ai_ai_heavy_bloodangel_1"
-                    },
-                    "item[25]": {
-                        "name": "ai_ai_fodder_soldier_shield_1"
-                    },
-                    "item[26]": {
-                        "name": "ai_ai_fodder_soldier_blaster_1"
-                    },
-                    "item[27]": {
-                        "name": "ai_ai_fodder_zombie_tier_1_1"
-                    },
-                    "item[28]": {
-                        "name": "ai_ai_superheavy_archvile_1"
-                    },
-                    "item[29]": {
-                        "name": "ai_ai_superheavy_tyrant_1"
-                    },
-                    "item[30]": {
-                        "name": "ai_ai_ambient_zombie_cueball_1"
-                    },
-                    "item[31]": {
-                        "name": "ai_ai_fodder_soldier_chaingun_1"
-                    },
-                    "item[32]": {
-                        "name": "ai_ai_fodder_prowler_cursed_1"
-                    },
-                    "item[33]": {
-                        "name": "ai_ai_fodder_imp_stone_1"
-                    },
-                    "item[34]": {
-                        "name": "ai_ai_fodder_zombie_t1_screecher_1"
-                    }
-                },
-                "conductorEntityAIType": "SPAWN_AI_TYPE_ANY",
-                "initialEntityDefs": {
-                    "num": 0
-                },
-                "spawnPosition": {
-                    "x": 427,
-                    "y": -878,
-                    "z": -104
-                },
-                "targets": {
-                    "num": 35,
-                    "item[0]": "ai_ai_heavy_painelemental_1",
-                    "item[1]": "ai_ai_heavy_cacodemon_1",
-                    "item[2]": "ai_ai_heavy_mancubus_fire_1",
-                    "item[3]": "ai_ai_superheavy_baron_1",
-                    "item[4]": "ai_ai_heavy_pinky_1",
-                    "item[5]": "ai_ai_heavy_whiplash_1",
-                    "item[6]": "ai_ai_superheavy_marauder_1",
-                    "item[7]": "ai_ai_heavy_mancubus_goo_1",
-                    "item[8]": "ai_ai_fodder_zombie_tier_3_1",
-                    "item[9]": "ai_ai_heavy_hellknight_1",
-                    "item[10]": "ai_ai_fodder_imp_1",
-                    "item[11]": "ai_ai_fodder_gargoyle_1",
-                    "item[12]": "ai_ai_ambient_buffpod_1",
-                    "item[13]": "ai_ai_fodder_prowler_1",
-                    "item[14]": "ai_ai_heavy_dreadknight_1",
-                    "item[15]": "ai_ai_heavy_pinky_spectre_1",
-                    "item[16]": "ai_ai_heavy_arachnotron_1",
-                    "item[17]": "ai_ai_heavy_revenant_1",
-                    "item[18]": "ai_ai_fodder_carcass_1",
-                    "item[19]": "ai_ai_fodder_lostsoul_1",
-                    "item[20]": "ai_ai_superheavy_doom_hunter_1",
-                    "item[21]": "ai_ai_superheavy_baron_armored_1",
-                    "item[22]": "ai_ai_ambient_turret_1",
-                    "item[23]": "ai_ai_ambient_spirit_1",
-                    "item[24]": "ai_ai_heavy_bloodangel_1",
-                    "item[25]": "ai_ai_fodder_soldier_shield_1",
-                    "item[26]": "ai_ai_fodder_soldier_blaster_1",
-                    "item[27]": "ai_ai_fodder_zombie_tier_1_1",
-                    "item[28]": "ai_ai_superheavy_archvile_1",
-                    "item[29]": "ai_ai_superheavy_tyrant_1",
-                    "item[30]": "ai_ai_ambient_zombie_cueball_1",
-                    "item[31]": "ai_ai_fodder_soldier_chaingun_1",
-                    "item[32]": "ai_ai_fodder_prowler_cursed_1",
-                    "item[33]": "ai_ai_fodder_imp_stone_1",
-                    "item[34]": "ai_ai_fodder_zombie_t1_screecher_1"
-                }
-            }
-        }
+{
+    "layers": {
+        "__layername__": "game/sp/e3m2_hell/main_level"
     },
-    {
-        "entityDef ai_encounter_spawn_group_parent_scientist": {
-            "inherit": "encounter/spawn_group/parent",
-            "class": "idTarget_Spawn_Parent",
-            "expandInheritance": false,
-            "poolCount": 0,
-            "poolGranularity": 2,
-            "networkReplicated": false,
-            "disableAIPooling": false,
-            "edit": {
-                "flags": {
-                    "noFlood": true
-                },
-                "spawnConditions": {
-                    "maxCount": 0,
-                    "reuseDelaySec": 0,
-                    "doBoundsTest": false,
-                    "boundsTestType": "BOUNDSTEST_NONE",
-                    "fovCheck": 0,
-                    "minDistance": 0,
-                    "maxDistance": 0,
-                    "neighborSpawnerDistance": -1,
-                    "LOS_Test": "LOS_NONE",
-                    "playerToTest": "PLAYER_SP",
-                    "conditionProxy": ""
-                },
-                "spawnEditableShared": {
-                    "groupName": "",
-                    "deathTrigger": "",
-                    "coverRadius": 0,
-                    "maxEnemyCoverDistance": 0
-                },
-                "entityDefs": {
-                    "num": 35,
+    "entityDef ai_encounter_manager_pit_01a": {
+        "inherit": "encounter/manager",
+        "class": "idEncounterManager",
+        "expandInheritance": false,
+        "poolCount": 0,
+        "poolGranularity": 2,
+        "networkReplicated": true,
+        "disableAIPooling": false,
+        "edit": {
+            "enableAIHighlightOnFinish": true,
+            "disabledAITypeForHighlight": "AI_MONSTER_SPECTRE AI_MONSTER_BUFF_POD AI_MONSTER_TENTACLE",
+            "playerMetricDef": "encounter/player_metrics",
+            "chargeCombatGrouping": "encounter/combat_role/charge_command",
+            "aiTypeDefAssignments": "actorpopulation/default/default_complete",
+            "spawnPosition": {
+                "x": 102.5,
+                "y": -90,
+                "z": -34.5
+            },
+            "combatRatingScale": "COMBAT_RATING_SCALE_SMALL",
+            "encounterComponent": {
+                "entityEvents": {
+                    "num": 1,
                     "item[0]": {
-                        "name": "ai_ai_heavy_painelemental_1"
-                    },
-                    "item[1]": {
-                        "name": "ai_ai_heavy_cacodemon_1"
-                    },
-                    "item[2]": {
-                        "name": "ai_ai_heavy_mancubus_fire_1"
-                    },
-                    "item[3]": {
-                        "name": "ai_ai_superheavy_baron_1"
-                    },
-                    "item[4]": {
-                        "name": "ai_ai_heavy_pinky_1"
-                    },
-                    "item[5]": {
-                        "name": "ai_ai_heavy_whiplash_1"
-                    },
-                    "item[6]": {
-                        "name": "ai_ai_superheavy_marauder_1"
-                    },
-                    "item[7]": {
-                        "name": "ai_ai_heavy_mancubus_goo_1"
-                    },
-                    "item[8]": {
-                        "name": "ai_ai_fodder_zombie_tier_3_1"
-                    },
-                    "item[9]": {
-                        "name": "ai_ai_heavy_hellknight_1"
-                    },
-                    "item[10]": {
-                        "name": "ai_ai_fodder_imp_1"
-                    },
-                    "item[11]": {
-                        "name": "ai_ai_fodder_gargoyle_1"
-                    },
-                    "item[12]": {
-                        "name": "ai_ai_ambient_buffpod_1"
-                    },
-                    "item[13]": {
-                        "name": "ai_ai_fodder_prowler_1"
-                    },
-                    "item[14]": {
-                        "name": "ai_ai_heavy_dreadknight_1"
-                    },
-                    "item[15]": {
-                        "name": "ai_ai_heavy_pinky_spectre_1"
-                    },
-                    "item[16]": {
-                        "name": "ai_ai_heavy_arachnotron_1"
-                    },
-                    "item[17]": {
-                        "name": "ai_ai_heavy_revenant_1"
-                    },
-                    "item[18]": {
-                        "name": "ai_ai_fodder_carcass_1"
-                    },
-                    "item[19]": {
-                        "name": "ai_ai_fodder_lostsoul_1"
-                    },
-                    "item[20]": {
-                        "name": "ai_ai_superheavy_doom_hunter_1"
-                    },
-                    "item[21]": {
-                        "name": "ai_ai_superheavy_baron_armored_1"
-                    },
-                    "item[22]": {
-                        "name": "ai_ai_ambient_turret_1"
-                    },
-                    "item[23]": {
-                        "name": "ai_ai_ambient_spirit_1"
-                    },
-                    "item[24]": {
-                        "name": "ai_ai_heavy_bloodangel_1"
-                    },
-                    "item[25]": {
-                        "name": "ai_ai_fodder_soldier_shield_1"
-                    },
-                    "item[26]": {
-                        "name": "ai_ai_fodder_soldier_blaster_1"
-                    },
-                    "item[27]": {
-                        "name": "ai_ai_fodder_zombie_t1_scientist_1"
-                    },
-                    "item[28]": {
-                        "name": "ai_ai_superheavy_archvile_1"
-                    },
-                    "item[29]": {
-                        "name": "ai_ai_superheavy_tyrant_1"
-                    },
-                    "item[30]": {
-                        "name": "ai_ai_ambient_zombie_cueball_1"
-                    },
-                    "item[31]": {
-                        "name": "ai_ai_fodder_soldier_chaingun_1"
-                    },
-                    "item[32]": {
-                        "name": "ai_ai_fodder_prowler_cursed_1"
-                    },
-                    "item[33]": {
-                        "name": "ai_ai_fodder_imp_stone_1"
-                    },
-                    "item[34]": {
-                        "name": "ai_ai_fodder_zombie_t1_screecher_1"
+                        "entity": "ai_encounter_manager_pit_01a",
+                        "events": {
+                            "num": 12,
+                            "item[0]": {
+                                "eventCall": {
+                                    "eventDef": "waitForEventFlag",
+                                    "args": {
+                                        "num": 4,
+                                        "item[0]": {
+                                            "eEncounterEventFlags_t": "ENCOUNTER_EVENT_FLAG_COMMIT"
+                                        },
+                                        "item[1]": {
+                                            "string": ""
+                                        },
+                                        "item[2]": {
+                                            "bool": true
+                                        },
+                                        "item[3]": {
+                                            "bool": false
+                                        }
+                                    }
+                                }
+                            },
+                            "item[1]": {
+                                "eventCall": {
+                                    "eventDef": "spawnSingleAI",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_ZOMBIE_TIER_1"
+                                        },
+                                        "item[1]": {
+                                            "entity": "ai_target_spawn_66"
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        }
+                                    }
+                                }
+                            },
+                            "item[2]": {
+                                "eventCall": {
+                                    "eventDef": "spawnSingleAI",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_IMP"
+                                        },
+                                        "item[1]": {
+                                            "entity": "ai_target_spawn_67"
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        }
+                                    }
+                                }
+                            },
+                            "item[3]": {
+                                "eventCall": {
+                                    "eventDef": "spawnSingleAI",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_ZOMBIE_TIER_1"
+                                        },
+                                        "item[1]": {
+                                            "entity": "ai_target_spawn_68"
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        }
+                                    }
+                                }
+                            },
+                            "item[4]": {
+                                "eventCall": {
+                                    "eventDef": "spawnSingleAI",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_BARON"
+                                        },
+                                        "item[1]": {
+                                            "entity": "ai_target_spawn_69"
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        }
+                                    }
+                                }
+                            },
+                            "item[5]": {
+                                "eventCall": {
+                                    "eventDef": "makeAIAwareOfPlayer",
+                                    "args": {
+                                        "num": 4,
+                                        "item[0]": {
+                                            "bool": false
+                                        },
+                                        "item[1]": {
+                                            "bool": true
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        },
+                                        "item[3]": {
+                                            "bool": false
+                                        }
+                                    }
+                                }
+                            },
+                            "item[6]": {
+                                "eventCall": {
+                                    "eventDef": "setMusicState",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "entity": "sound_sound_musicentity_1"
+                                        },
+                                        "item[1]": {
+                                            "decl": {
+                                                "soundstate": "music_ghost_states/main_light"
+                                            }
+                                        },
+                                        "item[2]": {
+                                            "string": "Start light"
+                                        }
+                                    }
+                                }
+                            },
+                            "item[7]": {
+                                "eventCall": {
+                                    "eventDef": "waitAIRemaining",
+                                    "args": {
+                                        "num": 4,
+                                        "item[0]": {
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_ANY"
+                                        },
+                                        "item[1]": {
+                                            "int": 0
+                                        },
+                                        "item[2]": {
+                                            "string": ""
+                                        },
+                                        "item[3]": {
+                                            "bool": false
+                                        }
+                                    }
+                                }
+                            },
+                            "item[8]": {
+                                "eventCall": {
+                                    "eventDef": "setMusicState",
+                                    "args": {
+                                        "num": 3,
+                                        "item[0]": {
+                                            "entity": "sound_sound_musicentity_1"
+                                        },
+                                        "item[1]": {
+                                            "decl": {
+                                                "soundstate": "music_ghost_states/main_ambient"
+                                            }
+                                        },
+                                        "item[2]": {
+                                            "string": "End Light"
+                                        }
+                                    }
+                                }
+                            },
+                            "item[9]": {
+                                "eventCall": {
+                                    "eventDef": "activateTarget",
+                                    "args": {
+                                        "num": 2,
+                                        "item[0]": {
+                                            "entity": "game_func_mover_297"
+                                        },
+                                        "item[1]": {
+                                            "string": "Show Shoot trigger"
+                                        }
+                                    }
+                                }
+                            },
+                            "item[10]": {
+                                "eventCall": {
+                                    "eventDef": "activateTarget",
+                                    "args": {
+                                        "num": 2,
+                                        "item[0]": {
+                                            "entity": "game_target_relay_17"
+                                        },
+                                        "item[1]": {
+                                            "string": "Turn on Shoot Trigger and Green Light"
+                                        }
+                                    }
+                                }
+                            },
+                            "item[11]": {
+                                "eventCall": {
+                                    "eventDef": "wait",
+                                    "args": {
+                                        "num": 2,
+                                        "item[0]": {
+                                            "float": 1
+                                        },
+                                        "item[1]": {
+                                            "bool": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                },
-                "conductorEntityAIType": "SPAWN_AI_TYPE_ANY",
-                "initialEntityDefs": {
-                    "num": 0
-                },
-                "spawnPosition": {
-                    "x": 427,
-                    "y": -874,
-                    "z": -104
-                },
-                "targets": {
-                    "num": 35,
-                    "item[0]": "ai_ai_heavy_painelemental_1",
-                    "item[1]": "ai_ai_heavy_cacodemon_1",
-                    "item[2]": "ai_ai_heavy_mancubus_fire_1",
-                    "item[3]": "ai_ai_superheavy_baron_1",
-                    "item[4]": "ai_ai_heavy_pinky_1",
-                    "item[5]": "ai_ai_heavy_whiplash_1",
-                    "item[6]": "ai_ai_superheavy_marauder_1",
-                    "item[7]": "ai_ai_heavy_mancubus_goo_1",
-                    "item[8]": "ai_ai_fodder_zombie_tier_3_1",
-                    "item[9]": "ai_ai_heavy_hellknight_1",
-                    "item[10]": "ai_ai_fodder_imp_1",
-                    "item[11]": "ai_ai_fodder_gargoyle_1",
-                    "item[12]": "ai_ai_ambient_buffpod_1",
-                    "item[13]": "ai_ai_fodder_prowler_1",
-                    "item[14]": "ai_ai_heavy_dreadknight_1",
-                    "item[15]": "ai_ai_heavy_pinky_spectre_1",
-                    "item[16]": "ai_ai_heavy_arachnotron_1",
-                    "item[17]": "ai_ai_heavy_revenant_1",
-                    "item[18]": "ai_ai_fodder_carcass_1",
-                    "item[19]": "ai_ai_fodder_lostsoul_1",
-                    "item[20]": "ai_ai_superheavy_doom_hunter_1",
-                    "item[21]": "ai_ai_superheavy_baron_armored_1",
-                    "item[22]": "ai_ai_ambient_turret_1",
-                    "item[23]": "ai_ai_ambient_spirit_1",
-                    "item[24]": "ai_ai_heavy_bloodangel_1",
-                    "item[25]": "ai_ai_fodder_soldier_shield_1",
-                    "item[26]": "ai_ai_fodder_soldier_blaster_1",
-                    "item[27]": "ai_ai_fodder_zombie_t1_scientist_1",
-                    "item[28]": "ai_ai_superheavy_archvile_1",
-                    "item[29]": "ai_ai_superheavy_tyrant_1",
-                    "item[30]": "ai_ai_ambient_zombie_cueball_1",
-                    "item[31]": "ai_ai_fodder_soldier_chaingun_1",
-                    "item[32]": "ai_ai_fodder_prowler_cursed_1",
-                    "item[33]": "ai_ai_fodder_imp_stone_1",
-                    "item[34]": "ai_ai_fodder_zombie_t1_screecher_1"
                 }
-            }
-        }
-    },
-    {
-        "entityDef ai_encounter_spawn_group_parent_whiplashspectre": {
-            "inherit": "encounter/spawn_group/parent",
-            "class": "idTarget_Spawn_Parent",
-            "expandInheritance": false,
-            "poolCount": 0,
-            "poolGranularity": 2,
-            "networkReplicated": false,
-            "disableAIPooling": false,
-            "edit": {
-                "flags": {
-                    "noFlood": true
-                },
-                "spawnConditions": {
-                    "maxCount": 0,
-                    "reuseDelaySec": 0,
-                    "doBoundsTest": false,
-                    "boundsTestType": "BOUNDSTEST_NONE",
-                    "fovCheck": 0,
-                    "minDistance": 0,
-                    "maxDistance": 0,
-                    "neighborSpawnerDistance": -1,
-                    "LOS_Test": "LOS_NONE",
-                    "playerToTest": "PLAYER_SP",
-                    "conditionProxy": ""
-                },
-                "spawnEditableShared": {
-                    "groupName": "",
-                    "deathTrigger": "",
-                    "coverRadius": 0,
-                    "maxEnemyCoverDistance": 0
-                },
-                "entityDefs": {
-                    "num": 35,
-                    "item[0]": {
-                        "name": "ai_ai_heavy_painelemental_1"
-                    },
-                    "item[1]": {
-                        "name": "ai_ai_heavy_cacodemon_1"
-                    },
-                    "item[2]": {
-                        "name": "ai_ai_heavy_mancubus_fire_1"
-                    },
-                    "item[3]": {
-                        "name": "ai_ai_superheavy_baron_1"
-                    },
-                    "item[4]": {
-                        "name": "ai_ai_heavy_pinky_1"
-                    },
-                    "item[5]": {
-                        "name": "ai_ai_superheavy_marauder_1"
-                    },
-                    "item[6]": {
-                        "name": "ai_ai_heavy_mancubus_goo_1"
-                    },
-                    "item[7]": {
-                        "name": "ai_ai_fodder_zombie_tier_3_1"
-                    },
-                    "item[8]": {
-                        "name": "ai_ai_heavy_hellknight_1"
-                    },
-                    "item[9]": {
-                        "name": "ai_ai_fodder_imp_1"
-                    },
-                    "item[10]": {
-                        "name": "ai_ai_fodder_gargoyle_1"
-                    },
-                    "item[11]": {
-                        "name": "ai_ai_ambient_buffpod_1"
-                    },
-                    "item[12]": {
-                        "name": "ai_ai_fodder_prowler_1"
-                    },
-                    "item[13]": {
-                        "name": "ai_ai_heavy_dreadknight_1"
-                    },
-                    "item[14]": {
-                        "name": "ai_ai_heavy_pinky_spectre_1"
-                    },
-                    "item[15]": {
-                        "name": "ai_ai_heavy_arachnotron_1"
-                    },
-                    "item[16]": {
-                        "name": "ai_ai_heavy_revenant_1"
-                    },
-                    "item[17]": {
-                        "name": "ai_ai_fodder_carcass_1"
-                    },
-                    "item[18]": {
-                        "name": "ai_ai_fodder_lostsoul_1"
-                    },
-                    "item[19]": {
-                        "name": "ai_ai_superheavy_doom_hunter_1"
-                    },
-                    "item[20]": {
-                        "name": "ai_ai_superheavy_baron_armored_1"
-                    },
-                    "item[21]": {
-                        "name": "ai_ai_ambient_turret_1"
-                    },
-                    "item[22]": {
-                        "name": "ai_ai_ambient_spirit_1"
-                    },
-                    "item[23]": {
-                        "name": "ai_ai_heavy_bloodangel_1"
-                    },
-                    "item[24]": {
-                        "name": "ai_ai_fodder_soldier_shield_1"
-                    },
-                    "item[25]": {
-                        "name": "ai_ai_fodder_soldier_blaster_1"
-                    },
-                    "item[26]": {
-                        "name": "ai_ai_fodder_zombie_t1_scientist_1"
-                    },
-                    "item[27]": {
-                        "name": "ai_ai_superheavy_archvile_1"
-                    },
-                    "item[28]": {
-                        "name": "ai_ai_superheavy_tyrant_1"
-                    },
-                    "item[29]": {
-                        "name": "ai_ai_ambient_zombie_cueball_1"
-                    },
-                    "item[30]": {
-                        "name": "ai_ai_fodder_soldier_chaingun_1"
-                    },
-                    "item[31]": {
-                        "name": "ai_ai_fodder_prowler_cursed_1"
-                    },
-                    "item[32]": {
-                        "name": "ai_ai_fodder_imp_stone_1"
-                    },
-                    "item[33]": {
-                        "name": "ai_ai_fodder_zombie_t1_screecher_1"
-                    },
-                    "item[34]": {
-                        "name": "ai_ai_heavy_whiplash_spectre_1"
-                    }
-                },
-                "conductorEntityAIType": "SPAWN_AI_TYPE_ANY",
-                "initialEntityDefs": {
-                    "num": 0
-                },
-                "spawnPosition": {
-                    "x": 427,
-                    "y": -870.119934,
-                    "z": -104
-                },
-                "targets": {
-                    "num": 35,
-                    "item[0]": "ai_ai_heavy_painelemental_1",
-                    "item[1]": "ai_ai_heavy_cacodemon_1",
-                    "item[2]": "ai_ai_heavy_mancubus_fire_1",
-                    "item[3]": "ai_ai_superheavy_baron_1",
-                    "item[4]": "ai_ai_heavy_pinky_1",
-                    "item[5]": "ai_ai_superheavy_marauder_1",
-                    "item[6]": "ai_ai_heavy_mancubus_goo_1",
-                    "item[7]": "ai_ai_fodder_zombie_tier_3_1",
-                    "item[8]": "ai_ai_heavy_hellknight_1",
-                    "item[9]": "ai_ai_fodder_imp_1",
-                    "item[10]": "ai_ai_fodder_gargoyle_1",
-                    "item[11]": "ai_ai_ambient_buffpod_1",
-                    "item[12]": "ai_ai_fodder_prowler_1",
-                    "item[13]": "ai_ai_heavy_dreadknight_1",
-                    "item[14]": "ai_ai_heavy_pinky_spectre_1",
-                    "item[15]": "ai_ai_heavy_arachnotron_1",
-                    "item[16]": "ai_ai_heavy_revenant_1",
-                    "item[17]": "ai_ai_fodder_carcass_1",
-                    "item[18]": "ai_ai_fodder_lostsoul_1",
-                    "item[19]": "ai_ai_superheavy_doom_hunter_1",
-                    "item[20]": "ai_ai_superheavy_baron_armored_1",
-                    "item[21]": "ai_ai_ambient_turret_1",
-                    "item[22]": "ai_ai_ambient_spirit_1",
-                    "item[23]": "ai_ai_heavy_bloodangel_1",
-                    "item[24]": "ai_ai_fodder_soldier_shield_1",
-                    "item[25]": "ai_ai_fodder_soldier_blaster_1",
-                    "item[26]": "ai_ai_fodder_zombie_t1_scientist_1",
-                    "item[27]": "ai_ai_superheavy_archvile_1",
-                    "item[28]": "ai_ai_superheavy_tyrant_1",
-                    "item[29]": "ai_ai_ambient_zombie_cueball_1",
-                    "item[30]": "ai_ai_fodder_soldier_chaingun_1",
-                    "item[31]": "ai_ai_fodder_prowler_cursed_1",
-                    "item[32]": "ai_ai_fodder_imp_stone_1",
-                    "item[33]": "ai_ai_fodder_zombie_t1_screecher_1",
-                    "item[34]": "ai_ai_heavy_whiplash_spectre_1"
-                }
-            }
-        }
-    },
-    {
-        "entityDef mod_encounter_spawn_group_parent_base": {
-            "inherit": "encounter/spawn_group/parent",
-            "class": "idTarget_Spawn_Parent",
-            "expandInheritance": false,
-            "poolCount": 0,
-            "poolGranularity": 2,
-            "networkReplicated": false,
-            "disableAIPooling": false,
-            "edit": {
-                "flags": {
-                    "noFlood": true
-                },
-                "spawnConditions": {
-                    "maxCount": 0,
-                    "reuseDelaySec": 0,
-                    "doBoundsTest": false,
-                    "boundsTestType": "BOUNDSTEST_NONE",
-                    "fovCheck": 0,
-                    "minDistance": 0,
-                    "maxDistance": 0,
-                    "neighborSpawnerDistance": -1,
-                    "LOS_Test": "LOS_NONE",
-                    "playerToTest": "PLAYER_SP",
-                    "conditionProxy": ""
-                },
-                "spawnEditableShared": {
-                    "groupName": "",
-                    "deathTrigger": "",
-                    "coverRadius": 0,
-                    "maxEnemyCoverDistance": 0
-                },
-                "entityDefs": {
-                    "num": 36,
-                    "item[0]": {
-                        "name": "ai_ai_heavy_painelemental_1"
-                    },
-                    "item[1]": {
-                        "name": "ai_ai_heavy_cacodemon_1"
-                    },
-                    "item[2]": {
-                        "name": "ai_ai_heavy_mancubus_fire_1"
-                    },
-                    "item[3]": {
-                        "name": "ai_ai_superheavy_baron_1"
-                    },
-                    "item[4]": {
-                        "name": "ai_ai_heavy_pinky_1"
-                    },
-                    "item[5]": {
-                        "name": "ai_ai_heavy_whiplash_1"
-                    },
-                    "item[6]": {
-                        "name": "ai_ai_superheavy_marauder_1"
-                    },
-                    "item[7]": {
-                        "name": "ai_ai_heavy_mancubus_goo_1"
-                    },
-                    "item[8]": {
-                        "name": "ai_ai_fodder_zombie_tier_3_1"
-                    },
-                    "item[9]": {
-                        "name": "ai_ai_heavy_hellknight_1"
-                    },
-                    "item[10]": {
-                        "name": "ai_ai_fodder_imp_1"
-                    },
-                    "item[11]": {
-                        "name": "ai_ai_fodder_gargoyle_1"
-                    },
-                    "item[12]": {
-                        "name": "ai_ai_ambient_buffpod_1"
-                    },
-                    "item[13]": {
-                        "name": "ai_ai_fodder_prowler_1"
-                    },
-                    "item[14]": {
-                        "name": "ai_ai_heavy_dreadknight_1"
-                    },
-                    "item[15]": {
-                        "name": "ai_ai_heavy_pinky_spectre_1"
-                    },
-                    "item[16]": {
-                        "name": "ai_ai_heavy_arachnotron_1"
-                    },
-                    "item[17]": {
-                        "name": "ai_ai_heavy_revenant_1"
-                    },
-                    "item[18]": {
-                        "name": "ai_ai_fodder_carcass_1"
-                    },
-                    "item[19]": {
-                        "name": "ai_ai_fodder_lostsoul_1"
-                    },
-                    "item[20]": {
-                        "name": "ai_ai_superheavy_doom_hunter_1"
-                    },
-                    "item[21]": {
-                        "name": "ai_ai_superheavy_baron_armored_1"
-                    },
-                    "item[22]": {
-                        "name": "ai_ai_ambient_turret_1"
-                    },
-                    "item[23]": {
-                        "name": "ai_ai_ambient_spirit_1"
-                    },
-                    "item[24]": {
-                        "name": "ai_ai_heavy_bloodangel_1"
-                    },
-                    "item[25]": {
-                        "name": "ai_ai_fodder_soldier_shield_1"
-                    },
-                    "item[26]": {
-                        "name": "ai_ai_fodder_soldier_blaster_1"
-                    },
-                    "item[27]": {
-                        "name": "ai_ai_fodder_zombie_tier_1_1"
-                    },
-                    "item[28]": {
-                        "name": "ai_ai_superheavy_archvile_1"
-                    },
-                    "item[29]": {
-                        "name": "ai_ai_superheavy_tyrant_1"
-                    },
-                    "item[30]": {
-                        "name": "ai_ai_ambient_zombie_cueball_1"
-                    },
-                    "item[31]": {
-                        "name": "ai_ai_fodder_soldier_chaingun_1"
-                    },
-                    "item[32]": {
-                        "name": "ai_ai_fodder_prowler_cursed_1"
-                    },
-                    "item[33]": {
-                        "name": "ai_ai_fodder_imp_stone_1"
-                    },
-                    "item[34]": {
-                        "name": "ai_ai_fodder_zombie_t1_screecher_1"
-                    },
-                    "item[35]": {
-                        "name": "mod_ai_heavy_whiplash_spectre"
-                    }
-                },
-                "conductorEntityAIType": "SPAWN_AI_TYPE_ANY",
-                "initialEntityDefs": {
-                    "num": 0
-                },
-                "spawnPosition": {
-                    "x": 427,
-                    "y": -878,
-                    "z": -104
-                },
-                "targets": {
-                    "num": 36,
-                    "item[0]": "ai_ai_heavy_painelemental_1",
-                    "item[1]": "ai_ai_heavy_cacodemon_1",
-                    "item[2]": "ai_ai_heavy_mancubus_fire_1",
-                    "item[3]": "ai_ai_superheavy_baron_1",
-                    "item[4]": "ai_ai_heavy_pinky_1",
-                    "item[5]": "ai_ai_heavy_whiplash_1",
-                    "item[6]": "ai_ai_superheavy_marauder_1",
-                    "item[7]": "ai_ai_heavy_mancubus_goo_1",
-                    "item[8]": "ai_ai_fodder_zombie_tier_3_1",
-                    "item[9]": "ai_ai_heavy_hellknight_1",
-                    "item[10]": "ai_ai_fodder_imp_1",
-                    "item[11]": "ai_ai_fodder_gargoyle_1",
-                    "item[12]": "ai_ai_ambient_buffpod_1",
-                    "item[13]": "ai_ai_fodder_prowler_1",
-                    "item[14]": "ai_ai_heavy_dreadknight_1",
-                    "item[15]": "ai_ai_heavy_pinky_spectre_1",
-                    "item[16]": "ai_ai_heavy_arachnotron_1",
-                    "item[17]": "ai_ai_heavy_revenant_1",
-                    "item[18]": "ai_ai_fodder_carcass_1",
-                    "item[19]": "ai_ai_fodder_lostsoul_1",
-                    "item[20]": "ai_ai_superheavy_doom_hunter_1",
-                    "item[21]": "ai_ai_superheavy_baron_armored_1",
-                    "item[22]": "ai_ai_ambient_turret_1",
-                    "item[23]": "ai_ai_ambient_spirit_1",
-                    "item[24]": "ai_ai_heavy_bloodangel_1",
-                    "item[25]": "ai_ai_fodder_soldier_shield_1",
-                    "item[26]": "ai_ai_fodder_soldier_blaster_1",
-                    "item[27]": "ai_ai_fodder_zombie_tier_1_1",
-                    "item[28]": "ai_ai_superheavy_archvile_1",
-                    "item[29]": "ai_ai_superheavy_tyrant_1",
-                    "item[30]": "ai_ai_ambient_zombie_cueball_1",
-                    "item[31]": "ai_ai_fodder_soldier_chaingun_1",
-                    "item[32]": "ai_ai_fodder_prowler_cursed_1",
-                    "item[33]": "ai_ai_fodder_imp_stone_1",
-                    "item[34]": "ai_ai_fodder_zombie_t1_screecher_1",
-                    "item[35]": "mod_ai_heavy_whiplash_spectre"
-                }
+            },
+            "commitTriggers": {
+                "num": 1,
+                "item[0]": "ai_encounter_trigger_commit_2"
+            },
+            "exitTriggers": {
+                "num": 1,
+                "item[0]": "ai_encounter_trigger_exit_pit_01a"
+            },
+            "spawnGroupTouchOverride": {
+                "num": 1,
+                "item[0]": "ai_encounter_spawn_group_zone_pit_01a"
             }
         }
     }
-]
+}

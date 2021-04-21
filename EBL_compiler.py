@@ -3,8 +3,10 @@ import EBL_grammar as EBL
 import entities_parser as parser
 from textwrap import indent
 from dataclasses import dataclass
+import itertools
 import re
 import time
+import json
 
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
@@ -185,22 +187,22 @@ def strip_comments(string):
 
 # Splits EBL file into segments at REPLACE ENCOUNTER headers
 # and also handles SETTINGS flags
+# returns a tuple with EBL code and encounter name
 def generate_EBL_segments(filename, format_file=True):
     with open(filename) as fp:
         segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
-    start_index = 0
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
-        start_index = 1
         if format_file:
             format_entities_file(filename, segments[0])
         else:
             print("Settings Ignored lol")
     else:
         print("No SETTINGS found")
-    for segment in segments[start_index:]:
+    for segment in segments[1:]:
+        name = segment.split("\n")[0].strip()
         segment = "\n".join(segment.split("\n")[1:])
-        yield strip_comments(segment)
+        yield (name, strip_comments(segment))
 
 
 # Handles macros and fills in missing arguments
@@ -273,17 +275,42 @@ def create_events(data):
     return data
 
 
-def format_targets(filename, do_all):
-    if do_all:
-        print("Formatting all spawn targets")
-    else:
-        print("Formatting modified spawn targets")
+def add_idAI2s(filename, do_all):
+    # check if dlc
+    with open(filename) as fp:
+        head = list(itertools.islice(fp, 30))
+
+    include_dlc1 = "dlc1" in head
+    include_dlc2 = "dlc2" in head
+    file = open(filename)
+
+    fp_base = open("idAI2_base.txt")
+    print("Added base game demons")
+    file.write(fp_base.read())
+    fp_base.close()
+
+    if include_dlc1:
+        fp_dlc1 = open("idAI2_dlc1.txt")
+        file.write(fp_dlc1.read())
+        fp_dlc1.close()
+        print("Added DLC1 demons")
+
+    if include_dlc2:
+        fp_dlc2 = open("idAI2_dlc2.txt")
+        file.write(fp_dlc2.read())
+        fp_dlc2.close()
+        print("Added DLC2 demons")
+
+    file.close()
+
+
+def auto_format(filename):
+    add_idAI2s(filename)
 
 
 # SETTINGS flags: (function, parameters)
 setting_to_func = {
-    "formatModifiedSpawnTargets": (format_targets, [False]),
-    "formatAllSpawnTargets": (format_targets, [True])
+    "autoFormat": (auto_format, []),
 }
 
 
@@ -312,7 +339,7 @@ def is_number(s):
 
 # Concatenate strings (jank)
 # TODO: make less jank, this is ugly as hell
-def concat_macros(event_string):
+def concat_strings(event_string):
     output_str = ""
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
@@ -347,31 +374,65 @@ def concat_macros(event_string):
     return output_str.replace(space_char, " ")
 
 
-# The Big One:tm:
-def compile_EBL(ebl_file):
-    tic = time.time()
-    segments = generate_EBL_segments(ebl_file, format_file=True)
-    encounters = map(ebl.parse, segments)
-    output_file = open("test_encounter.txt", "w")
-    for encounter in list(encounters):
-        output_str = ""
-        item_index = 0
-        events = create_events(encounter)
-        if events is None:
+def nextword(target, source):
+    s = source.split()
+    for i, w in enumerate(s):
+        if w == target:
+            return s[i+1]
+
+
+# converts EBL string to encounterComponent events
+def compile_EBL(s):
+    output_str = ""
+    item_index = 0
+    events = create_events(ebl.parse(s))
+    if events is None:
+        return output_str
+    output_str += f"num = {len(events)};\n"
+    for event in events:
+        if isinstance(event, EBL_Assignment):
+            add_variable(event.name, event.value)
             continue
-        for event in events:
-            # print(f"{vars(event)}")
-            if isinstance(event, EBL_Assignment):
-                add_variable(event.name, event.value)
-                continue
+        event_string = concat_strings(str(event))
+        output_str += (f"item[{item_index}]" + " = {\n" +
+                       indent(event_string, "\t") + "}\n")
+        item_index += 1
+    #print(output_str)
+    return output_str
 
-            event_string = concat_macros(str(event))
 
-            output_str += (f"item[{item_index}]" + " = {\n" +
-                           indent(event_string, "\t") + "}\n")
-            item_index += 1
-        output_file.write(output_str)
-    output_file.close()
-    print(f"Done compiling in {time.time()-tic:.1f} seconds")
+def replace_encounter(name, entity_string, entity_events):
+    entity = parser.ev.parse(entity_string)
+    with open('testoutput.json', 'w') as fp:
+        json.dump(entity, fp, indent=4)
+    for key in entity:
+        if key.startswith("entityDef"):
+            entitydef = key
+    if not key:
+        print("ERROR: no entityDef component!")
+        return entity_string
+    entity[entitydef]["edit"]["encounterComponent"]["entityEvents"] = entity_events
+    print(f"Replaced encounter {name}")
+    return parser.generate_entity(entity, unpack="entityEvents")
 
-compile_EBL("Test EBL Files/test_EBL_3.txt")
+# Apply all changes in ebl_file to modded_file, copied from base_file
+def apply_EBL(ebl_file, base_file, modded_file):
+    # generate segments + format target file
+    segments = generate_EBL_segments(ebl_file, format_file=True)
+    encounters = dict(segments)
+    for key, val in encounters.items():
+        encounters[key] = compile_EBL(val)
+    entities = parser.generate_entity_segments(base_file, version_numbers=True)
+    with open(modded_file, "w") as fp:
+        for entity in entities:
+            for name in encounters.keys():
+                if f"entityDef {name}" in entity:
+                    print("found encounter {name}")
+                    entity = replace_encounter(name, entity, encounters[name])
+                    break
+            fp.write(entity)
+
+
+base_file = "Test Entities/e3m2_hell.entities"
+modded_file = "Test Entities/e3m2_hell_modded.entities"
+apply_EBL("Test EBL Files/test_EBL_3.txt", base_file, modded_file)
