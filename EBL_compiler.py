@@ -3,7 +3,6 @@ import EBL_grammar as EBL
 import entities_parser as parser
 from textwrap import indent
 from dataclasses import dataclass
-import itertools
 import re
 import time
 import json
@@ -12,6 +11,7 @@ ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
 variables = {}
 debug_vars = False
+Settings = ""
 space_char = "^"
 
 
@@ -45,7 +45,6 @@ def add_variable(varname, value):
             continue
         if not isinstance(value, str):
             continue
-        #val = val.replace(space_char, " ")
         val = format_args([val], 1)[0]
         old_value = value
         value = value.replace(f'{var}', str(val))
@@ -169,6 +168,59 @@ encounter_spawn_aliases = {
     "SuperTentacle": "SUPER_TENTACLE",
 }
 
+base_entitydefs = [
+    "custom_ai_fodder_imp",
+    "custom_ai_fodder_soldier_blaster",
+    "custom_ai_fodder_gargoyle",
+    "custom_ai_fodder_zombie_tier_3",
+    "custom_ai_heavy_hellknight",
+    "custom_ai_heavy_revenant",
+    "custom_ai_fodder_lostsoul",
+    "custom_ai_fodder_soldier_shield",
+    "custom_ai_heavy_whiplash",
+    "custom_ai_heavy_arachnotron",
+    "custom_ai_heavy_cacodemon",
+    "custom_ai_ambient_zombie_cueball",
+    "custom_ai_fodder_zombie_t1_scientist",
+    "custom_ai_heavy_mancubus_fire",
+    "custom_ai_ambient_tentacle",
+    "custom_ai_ambient_zombie_worshipper",
+    "custom_ai_fodder_carcass",
+    "custom_ai_fodder_prowler",
+    "custom_ai_heavy_dreadknight",
+    "custom_ai_heavy_mancubus_goo",
+    "custom_ai_heavy_painelemental",
+    "custom_ai_heavy_pinky",
+    "custom_ai_heavy_pinky_spectre",
+    "custom_ai_superheavy_archvile",
+    "custom_ai_superheavy_baron",
+    "custom_ai_superheavy_doom_hunter",
+    "custom_ai_superheavy_marauder",
+    "custom_ai_superheavy_tyrant",
+    "custom_ai_ambient_buffpod",
+]
+
+dlc1_entitydefs = [
+    "custom_ai_ambient_turret",
+    "custom_ai_heavy_bloodangel",
+    "custom_ai_ambient_super_tentacle",
+]
+
+dlc2_entitydefs = [
+    "custom_ai_superheavy_baron_armored",
+    "custom_ai_fodder_prowler_cursed",
+    "custom_ai_fodder_imp_stone",
+    "custom_ai_fodder_soldier_chaingun",
+    "custom_ai_fodder_zombie_t1_screecher",
+]
+
+
+def list_entitydefs(entitydefs):
+    res = f"num = {len(entitydefs)};\n"
+    for i, name in enumerate(entitydefs):
+        res += f'item[{i}] = {{\n\tname = "{name}";\n}}\n'
+    return res
+
 
 def str_to_class(classname):
     return getattr(eternalevents, classname)
@@ -193,10 +245,7 @@ def generate_EBL_segments(filename, format_file=True):
         segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
-        if format_file:
-            format_entities_file(filename, segments[0])
-        else:
-            print("Settings Ignored lol")
+        Settings = segments[0]
     else:
         print("No SETTINGS found")
     for segment in segments[1:]:
@@ -275,31 +324,37 @@ def create_events(data):
     return data
 
 
-def add_idAI2s(filename, do_all):
-    # check if dlc
+# TODO: can you dont
+def is_dlc(filename):
+     # check for "dlc1" and "dlc2"
+    head = ""
     with open(filename) as fp:
-        head = list(itertools.islice(fp, 30))
+        for i in range(1,50):
+            head += fp.readline()
+    dlc1 = "dlc1" in head
+    dlc2 = "dlc2" in head
+    print(f"dlc1: {dlc1}, dlc2: {dlc2}")
+    return (dlc1, dlc2)
 
-    include_dlc1 = "dlc1" in head
-    include_dlc2 = "dlc2" in head
-    file = open(filename)
 
-    fp_base = open("idAI2_base.txt")
-    print("Added base game demons")
-    file.write(fp_base.read())
-    fp_base.close()
+def add_idAI2s(filename, include_dlc1, include_dlc2):
+    file = open(filename, "a")
 
-    if include_dlc1:
-        fp_dlc1 = open("idAI2_dlc1.txt")
-        file.write(fp_dlc1.read())
-        fp_dlc1.close()
-        print("Added DLC1 demons")
+    with open("idAI2_base.txt", "r") as fp_base:
+        print("Added base game demons")
+        file.write(fp_base.read())
 
     if include_dlc2:
-        fp_dlc2 = open("idAI2_dlc2.txt")
-        file.write(fp_dlc2.read())
-        fp_dlc2.close()
+        with open("idAI2_dlc1.txt") as fp_dlc1:
+            file.write(fp_dlc1.read())
+        print("Added DLC1 demons")
+        with open("idAI2_dlc2.txt") as fp_dlc2:
+            file.write(fp_dlc2.read())
         print("Added DLC2 demons")
+    elif include_dlc1:
+        with open("idAI2_dlc1.txt") as fp_dlc1:
+            file.write(fp_dlc1.read())
+        print("Added DLC1 demons")
 
     file.close()
 
@@ -318,7 +373,6 @@ setting_to_func = {
 # also make sure we don't miss any variables
 def format_entities_file(filename, settings):
     for line in settings.splitlines():
-        #print(line)
         if line in setting_to_func:
             func, args = setting_to_func[line]
             func(filename, *args)
@@ -374,13 +428,6 @@ def concat_strings(event_string):
     return output_str.replace(space_char, " ")
 
 
-def nextword(target, source):
-    s = source.split()
-    for i, w in enumerate(s):
-        if w == target:
-            return s[i+1]
-
-
 # converts EBL string to encounterComponent events
 def compile_EBL(s):
     output_str = ""
@@ -415,10 +462,36 @@ def replace_encounter(name, entity_string, entity_events):
     print(f"Replaced encounter {name}")
     return parser.generate_entity(entity, unpack="entityEvents")
 
+
+def add_entitydefs(entity_string, entitydefs):
+    entitydefs = list_entitydefs(entitydefs)
+    # print(entity_string)
+    entity = parser.ev.parse(entity_string)
+    for key in entity:
+        if key.startswith("entityDef"):
+            entitydef = key
+    if not key:
+        print("ERROR: no entityDef component!")
+        return entity_string
+    entity[entitydef]["edit"]["entityDefs"] = entitydefs
+    #print("Added entitydefs")
+    return parser.generate_entity(entity, unpack="entityDefs")
+
 # Apply all changes in ebl_file to modded_file, copied from base_file
 def apply_EBL(ebl_file, base_file, modded_file):
     # generate segments + format target file
-    segments = generate_EBL_segments(ebl_file, format_file=True)
+    tic = time.time()
+    modified_entities = 0
+    parser.decompress(base_file, base_file)
+
+    dlc1, dlc2 = is_dlc(base_file)
+    entitydefs = base_entitydefs
+    if dlc2:
+        entitydefs += dlc1_entitydefs + dlc2_entitydefs
+    elif dlc1:
+        entitydefs += dlc1_entitydefs
+
+    segments = generate_EBL_segments(ebl_file)
     encounters = dict(segments)
     for key, val in encounters.items():
         encounters[key] = compile_EBL(val)
@@ -427,12 +500,21 @@ def apply_EBL(ebl_file, base_file, modded_file):
         for entity in entities:
             for name in encounters.keys():
                 if f"entityDef {name}" in entity:
-                    print("found encounter {name}")
+                    print("Found encounter {name}")
                     entity = replace_encounter(name, entity, encounters[name])
+                    modified_entities += 1
                     break
+            if 'class = "idTarget_Spawn";' in entity:
+                entity = add_entitydefs(entity, entitydefs)
+                modified_entities += 1
             fp.write(entity)
 
+    add_idAI2s(modded_file, dlc1, dlc2)
+    parser.compress(modded_file, modded_file)
+    print(f"{modified_entities} entities modified!")
+    print(f"Done processing in {time.time() - tic:.1f} seconds")
 
-base_file = "Test Entities/e3m2_hell.entities"
-modded_file = "Test Entities/e3m2_hell_modded.entities"
-apply_EBL("Test EBL Files/test_EBL_3.txt", base_file, modded_file)
+if __name__ == "__main__":
+    base_file = "Test Entities/e5m3_hell.entities"
+    modded_file = "Test Entities/e5m3_hell_modded.entities"
+    apply_EBL("Test EBL Files/test_EBL_3.txt", base_file, modded_file)

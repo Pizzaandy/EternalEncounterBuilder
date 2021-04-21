@@ -10,12 +10,24 @@ from textwrap import indent
 import subprocess
 from pathlib import Path
 
+def is_binary(filename):
+    try:
+        with open(filename, 'tr') as check_file:  # try to open file in text mode
+            check_file.read()
+            return False
+    except:  # if fail, then file is non-text (binary)
+        return True
+
+
 def decompress(input_path, output_path, exe="idFileDeCompressor.exe"):
     if not Path(exe).exists():
         print("ERROR: idFileDeCompressor not in folder!")
         return False
     if Path(input_path).suffix != ".entities":
         print("ERROR: Input path is not an .entities file!")
+        return False
+    if not is_binary(input_path):
+        print("File is already decompressed!")
         return False
     p = subprocess.run(['idFileDeCompressor.exe',"-d", input_path, output_path])
     if p.stderr:
@@ -30,6 +42,9 @@ def compress(input_path, output_path, exe="idFileDeCompressor.exe"):
         return None
     if Path(input_path).suffix != ".entities":
         print("ERROR: Input path is not an .entities file!")
+        return False
+    if is_binary(input_path):
+        print("File is already compressed!")
         return False
     p = subprocess.run(['idFileDeCompressor.exe',"-c", input_path, output_path])
     if p.stderr:
@@ -184,6 +199,7 @@ def parse_entities(filename, class_filter):
     return data
 
 
+# TODO: make Chrispy less mad
 # I have hit a new low
 def generate_entity(entity_dict, unpack=None):
     no_equals_list = ['entityDef ', 'layers']
@@ -192,21 +208,20 @@ def generate_entity(entity_dict, unpack=None):
     for line in entity_json.splitlines():
         line = line.replace(4*" ", "\t")
         tabs = len(line) - len(line.lstrip("\t"))
-        # print(tabs)
         if not line.lstrip().startswith('"entityDef '):
             line = line[1:] if line.startswith("\t") else line
         if ": " in line:
             var, other = tuple(line.split(": "))
             var = var.replace('"', '')
             if unpack and var.strip().startswith(unpack):
-                print("unpacked the string")
+                # print("unpacked the string")
                 other = bytes(other, "utf-8").decode("unicode_escape").strip('"')
                 other = "{\n" + indent(other, tabs*"\t") + (tabs-1)*"\t" + "}"
             elif not "{" in line:
                 other += ";"
             if var.lstrip().startswith(tuple(no_equals_list)):
                 line = var + " " + other
-                print(var)
+                #print(var)
             else:
                 line = var + " = " + other
             if line.lstrip().startswith("__layername__ = "):
