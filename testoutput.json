@@ -1,67 +1,57 @@
 {
-    "layers": {
-        "__layername__": "game/sp/e3m2_hell/main_level"
-    },
-    "entityDef ai_encounter_manager_pit_01a": {
+    "entityDef oscar_encounter_manager_dragon_runners": {
         "inherit": "encounter/manager",
         "class": "idEncounterManager",
         "expandInheritance": false,
         "poolCount": 0,
         "poolGranularity": 2,
-        "networkReplicated": true,
+        "networkReplicated": false,
         "disableAIPooling": false,
         "edit": {
             "enableAIHighlightOnFinish": true,
             "disabledAITypeForHighlight": "AI_MONSTER_SPECTRE AI_MONSTER_BUFF_POD AI_MONSTER_TENTACLE",
             "playerMetricDef": "encounter/player_metrics",
             "chargeCombatGrouping": "encounter/combat_role/charge_command",
-            "aiTypeDefAssignments": "actorpopulation/default/default_complete",
+            "aiTypeDefAssignments": "actorpopulation/default/default_no_bosses",
             "spawnPosition": {
-                "x": 102.5,
-                "y": -90,
-                "z": -34.5
+                "x": -1542.00049,
+                "y": -280,
+                "z": -96.9998398
             },
-            "combatRatingScale": "COMBAT_RATING_SCALE_SMALL",
             "encounterComponent": {
                 "entityEvents": {
                     "num": 1,
                     "item[0]": {
-                        "entity": "ai_encounter_manager_pit_01a",
+                        "entity": "oscar_encounter_manager_dragon_runners",
                         "events": {
-                            "num": 12,
+                            "num": 5,
                             "item[0]": {
                                 "eventCall": {
-                                    "eventDef": "waitForEventFlag",
+                                    "eventDef": "spawnSingleAI",
                                     "args": {
-                                        "num": 4,
+                                        "num": 3,
                                         "item[0]": {
-                                            "eEncounterEventFlags_t": "ENCOUNTER_EVENT_FLAG_COMMIT"
+                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_IMP"
                                         },
                                         "item[1]": {
-                                            "string": ""
+                                            "entity": "oscar_target_spawn_1"
                                         },
                                         "item[2]": {
-                                            "bool": true
-                                        },
-                                        "item[3]": {
-                                            "bool": false
+                                            "string": "dragon_runners"
                                         }
                                     }
                                 }
                             },
                             "item[1]": {
                                 "eventCall": {
-                                    "eventDef": "spawnSingleAI",
+                                    "eventDef": "wait",
                                     "args": {
-                                        "num": 3,
+                                        "num": 2,
                                         "item[0]": {
-                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_ZOMBIE_TIER_1"
+                                            "float": 0.150000006
                                         },
                                         "item[1]": {
-                                            "entity": "ai_target_spawn_66"
-                                        },
-                                        "item[2]": {
-                                            "string": ""
+                                            "bool": false
                                         }
                                     }
                                 }
@@ -75,88 +65,29 @@
                                             "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_IMP"
                                         },
                                         "item[1]": {
-                                            "entity": "ai_target_spawn_67"
+                                            "entity": "oscar_target_spawn_2"
                                         },
                                         "item[2]": {
-                                            "string": ""
+                                            "string": "dragon_runners"
                                         }
                                     }
                                 }
                             },
                             "item[3]": {
                                 "eventCall": {
-                                    "eventDef": "spawnSingleAI",
+                                    "eventDef": "wait",
                                     "args": {
-                                        "num": 3,
+                                        "num": 2,
                                         "item[0]": {
-                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_ZOMBIE_TIER_1"
+                                            "float": 2
                                         },
                                         "item[1]": {
-                                            "entity": "ai_target_spawn_68"
-                                        },
-                                        "item[2]": {
-                                            "string": ""
+                                            "bool": false
                                         }
                                     }
                                 }
                             },
                             "item[4]": {
-                                "eventCall": {
-                                    "eventDef": "spawnSingleAI",
-                                    "args": {
-                                        "num": 3,
-                                        "item[0]": {
-                                            "eEncounterSpawnType_t": "ENCOUNTER_SPAWN_BARON"
-                                        },
-                                        "item[1]": {
-                                            "entity": "ai_target_spawn_69"
-                                        },
-                                        "item[2]": {
-                                            "string": ""
-                                        }
-                                    }
-                                }
-                            },
-                            "item[5]": {
-                                "eventCall": {
-                                    "eventDef": "makeAIAwareOfPlayer",
-                                    "args": {
-                                        "num": 4,
-                                        "item[0]": {
-                                            "bool": false
-                                        },
-                                        "item[1]": {
-                                            "bool": true
-                                        },
-                                        "item[2]": {
-                                            "string": ""
-                                        },
-                                        "item[3]": {
-                                            "bool": false
-                                        }
-                                    }
-                                }
-                            },
-                            "item[6]": {
-                                "eventCall": {
-                                    "eventDef": "setMusicState",
-                                    "args": {
-                                        "num": 3,
-                                        "item[0]": {
-                                            "entity": "sound_sound_musicentity_1"
-                                        },
-                                        "item[1]": {
-                                            "decl": {
-                                                "soundstate": "music_ghost_states/main_light"
-                                            }
-                                        },
-                                        "item[2]": {
-                                            "string": "Start light"
-                                        }
-                                    }
-                                }
-                            },
-                            "item[7]": {
                                 "eventCall": {
                                     "eventDef": "waitAIRemaining",
                                     "args": {
@@ -175,67 +106,6 @@
                                         }
                                     }
                                 }
-                            },
-                            "item[8]": {
-                                "eventCall": {
-                                    "eventDef": "setMusicState",
-                                    "args": {
-                                        "num": 3,
-                                        "item[0]": {
-                                            "entity": "sound_sound_musicentity_1"
-                                        },
-                                        "item[1]": {
-                                            "decl": {
-                                                "soundstate": "music_ghost_states/main_ambient"
-                                            }
-                                        },
-                                        "item[2]": {
-                                            "string": "End Light"
-                                        }
-                                    }
-                                }
-                            },
-                            "item[9]": {
-                                "eventCall": {
-                                    "eventDef": "activateTarget",
-                                    "args": {
-                                        "num": 2,
-                                        "item[0]": {
-                                            "entity": "game_func_mover_297"
-                                        },
-                                        "item[1]": {
-                                            "string": "Show Shoot trigger"
-                                        }
-                                    }
-                                }
-                            },
-                            "item[10]": {
-                                "eventCall": {
-                                    "eventDef": "activateTarget",
-                                    "args": {
-                                        "num": 2,
-                                        "item[0]": {
-                                            "entity": "game_target_relay_17"
-                                        },
-                                        "item[1]": {
-                                            "string": "Turn on Shoot Trigger and Green Light"
-                                        }
-                                    }
-                                }
-                            },
-                            "item[11]": {
-                                "eventCall": {
-                                    "eventDef": "wait",
-                                    "args": {
-                                        "num": 2,
-                                        "item[0]": {
-                                            "float": 1
-                                        },
-                                        "item[1]": {
-                                            "bool": false
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
@@ -243,15 +113,15 @@
             },
             "commitTriggers": {
                 "num": 1,
-                "item[0]": "ai_encounter_trigger_commit_2"
+                "item[0]": "oscar_encounter_trigger_commit_dragon_runners"
             },
             "exitTriggers": {
                 "num": 1,
-                "item[0]": "ai_encounter_trigger_exit_pit_01a"
+                "item[0]": "oscar_encounter_trigger_exit_1"
             },
             "spawnGroupTouchOverride": {
                 "num": 1,
-                "item[0]": "ai_encounter_spawn_group_zone_pit_01a"
+                "item[0]": "oscar_encounter_spawn_group_zone_1"
             }
         }
     }

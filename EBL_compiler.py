@@ -347,21 +347,21 @@ def add_idAI2s(filename, include_dlc1, include_dlc2):
     file = open(filename, "a")
 
     with open("idAI2_base.txt", "r") as fp_base:
-        print("Added base game demons")
+        print("Added base game idAI2s")
         file.write(fp_base.read())
 
     if include_dlc2:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
-        print("Added DLC1 demons")
+        print("Added DLC1 idAI2s")
         with open("idAI2_dlc2.txt") as fp_dlc2:
             file.write(fp_dlc2.read())
-        print("Added DLC2 demons")
+        print("Added DLC2 idAI2s")
 
     elif include_dlc1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
-        print("Added DLC1 demons")
+        print("Added DLC1 idAI2s")
 
     file.close()
 
@@ -465,8 +465,12 @@ def replace_encounter(name, entity_string, entity_events):
     if not key:
         print("ERROR: no entityDef component!")
         return entity_string
-    entity[entitydef]["edit"]["encounterComponent"]["entityEvents"] = entity_events
-    print(f"Replaced encounter {name}")
+    try:
+        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"] = entity_events
+    except:
+        print("Unable to replace encounter")
+        print(entity[entitydef]["edit"])
+    print(f"Replaced {name}")
     return parser.generate_entity(entity, unpack="entityEvents")
 
 
@@ -508,8 +512,8 @@ def apply_EBL(ebl_file, base_file, modded_file):
     with open(modded_file, "w") as fp:
         for entity in entities:
             for name in encounters.keys():
-                if f"entityDef {name}" in entity:
-                    print("Found encounter {name}")
+                if f"entityDef {name} " in entity:
+                    print(f"Found encounter {name}")
                     entity = replace_encounter(name, entity, encounters[name])
                     modified_entities += 1
                     break
@@ -520,11 +524,11 @@ def apply_EBL(ebl_file, base_file, modded_file):
             fp.write(entity)
 
     add_idAI2s(modded_file, dlc1, dlc2)
-    parser.compress(modded_file, modded_file)
+    #parser.compress(modded_file, modded_file)
     print(f"{modified_entities} entities modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
 
 if __name__ == "__main__":
     base_file = "Test Entities/e5m3_hell.entities"
     modded_file = "C:\AndyStuff\DoomModding\_MYMODS_\TestEBLImmora\e5m3_hell\maps\game\dlc2\e5m3_hell\e5m3_hell.entities"
-    apply_EBL("Test EBL Files/test_EBL_3.txt", base_file, modded_file)
+    apply_EBL("Test EBL Files/ImmoraEBL.txt", base_file, modded_file)

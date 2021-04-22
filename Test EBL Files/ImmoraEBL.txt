@@ -1,0 +1,989 @@
+
+REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+activate(hangar_target_relay_hangar_entrance_blocker_on, Turn on blocker / Lock door)
+spawn(Gargoyle, hangar_target_spawn_68, )
+
+waitFor wait(0.5, false)
+spawn(Gargoyle, hangar_target_spawn_70, )
+
+waitFor wait(0.5, false)
+spawn(Imp, hangar_target_spawn_69, )
+
+waitFor wait(1, false)
+spawn(HellKnight, hangar_target_spawn_27, )
+
+waitFor wait(1, false)
+spawn(HellKnight, hangar_target_spawn_49, )
+
+waitFor wait(1, false)
+spawn(Tyrant, hangar_target_spawn_2, )
+maintainAI
+(Imp, 3, -1, 3, 2, hangar_encounter_spawn_group_zone_1, , 5)
+(HellSoldier, 3, -1, 5, 2, hangar_encounter_spawn_group_zone_1, , 2)
+(ZombieTier1, 3, -1, 2, 2, hangar_encounter_spawn_group_zone_1, , 5)
+
+waitFor wait(3, false)
+spawn(CursedProwler, hangar_target_spawn_35, )
+
+waitFor AIHealthLevel(Tyrant, 0.600000024, , false)
+spawn
+(BloodAngel, hangar_target_spawn_26, )
+(Mancubus, hangar_target_spawn_34, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(BloodAngel, 0, , false)
+(Tyrant, 0, , false)
+
+spawnPossessed(Baron, hangar_target_spawn_49, , hangar_target_spawn_73, Carcass CyberMancubus Arachnotron Baron, , false)
+
+waitFor wait(0.25, false)
+spawn(Arachnotron, hangar_target_spawn_21, )
+
+waitFor wait(0.25, false)
+spawn(Arachnotron, hangar_target_spawn_40, )
+
+waitFor wait(3, false)
+spawnMultiple(Carcass, 2, hangar_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Arachnotron, 0, , false)
+(Baron, 0, , false)
+
+spawn(CyberMancubus, hangar_target_spawn_3, )
+
+waitFor wait(1, false)
+spawn(CyberMancubus, hangar_target_spawn_34, )
+
+waitFor wait(1, false)
+spawnMultiple(ArmoredBaron, 1, hangar_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(CyberMancubus, 0, , false)
+(ArmoredBaron, 0, , false)
+
+stopMaintainAI
+(Imp, )
+(HellSoldier, )
+(ZombieTier1, )
+
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1, )
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Stop Heavy)
+activate
+(hangar_trigger_trigger_dark_lord_pursuit_start, Start Cin)
+(automap_target_automap_group_unlock_2, Activate Last Automap Group)
+(checkpoint_target_relay_cp_10, Checkpoint)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER hangar_encounter_manager_dlc2_2
+spawnMultiple(StoneImp, 5, hangar_encounter_spawn_group_zone_2, )
+
+waitFor wait(2, false)
+maintainAI(StoneImp, 5, 20, 1, 3, hangar_encounter_spawn_group_zone_2, , 3)
+
+waitFor AIRemaining(StoneImp, 0, , false)
+stopMaintainAI(ZombieTier1, )
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Any, 0, , false)
+activate
+(hangar_target_relay_4, Remvoe Blockers)
+(hangar_target_relay_checkpoint, Checkpoint)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_1
+spawn
+(ZombieTier3, breach_wasteland_target_spawn_7, )
+(ZombieTier3, breach_wasteland_target_spawn_10, )
+(HellSoldier, breach_wasteland_target_spawn_6, )
+(HellSoldier, breach_wasteland_target_spawn_8, )
+(ZombieTier3, breach_wasteland_target_spawn_36, )
+(HellSoldier, breach_wasteland_target_spawn_34, )
+
+setFactionRelation(HellSoldier, , ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_breach_intro, true, false)
+
+waitFor AIHealthLevel(Any, 0.899999976, , false)
+spawn(Mancubus, breach_wasteland_target_spawn_1, opening_mancubus)
+clearFactionOverrides()
+alertAI(false, false, , false)
+
+waitFor wait(1, false)
+spawn
+(ShotgunSoldier, breach_wasteland_target_spawn_30, )
+(ShotgunSoldier, breach_wasteland_target_spawn_31, )
+
+waitFor wait(1, false)
+spawn(ShotgunSoldier, breach_wasteland_target_spawn_32, )
+
+waitFor wait(0.25, false)
+spawn
+(ShotgunSoldier, breach_wasteland_target_spawn_33, )
+(ShotgunSoldier, breach_wasteland_target_spawn_28, )
+
+alertAI(true, false, , false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_intro_p2, true, false)
+
+waitFor wait(1, false)
+spawn(Revenant, breach_wasteland_target_spawn_29, )
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_2
+spawn
+(Tentacle, breach_wasteland_target_spawn_15, )
+(Tentacle, breach_wasteland_target_spawn_16, )
+(Tentacle, breach_wasteland_target_spawn_17, )
+(Tentacle, breach_wasteland_target_spawn_18, )
+(Tentacle, breach_wasteland_target_spawn_19, )
+(Tentacle, breach_wasteland_target_spawn_20, )
+(Tentacle, breach_wasteland_target_spawn_21, )
+(Tentacle, breach_wasteland_target_spawn_22, )
+(Tentacle, breach_wasteland_target_spawn_23, )
+
+spawnMultiple(Gargoyle, 1, breach_wasteland_spawn_group_opening_ledge_gargoyles, open_ledge_gargoyle)
+spawn
+(HellSoldier, breach_wasteland_target_spawn_11, )
+(HellSoldier, breach_wasteland_target_spawn_12, )
+
+waitFor wait(2, false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+staggeredAISpawn(Gargoyle, 2, breach_wasteland_spawn_group_opening_ledge_imps, open_ledge_imps, 1, 4)
+alertAI(true, true, , false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_arena_encounter_manager_dlc2_1
+setFactionRelation
+(StoneImp, , DreadKnight, EMOTION_DESTROY_AT_ALL_COSTS)
+(DreadKnight, , StoneImp, EMOTION_DESTROY_AT_ALL_COSTS)
+(Gargoyle, , Revenant, EMOTION_DESTROY_AT_ALL_COSTS)
+(Revenant, , Gargoyle, EMOTION_DESTROY_AT_ALL_COSTS)
+
+spawn
+(Revenant, breach_wasteland_arena_target_spawn_1, )
+(Revenant, breach_wasteland_arena_target_spawn_14, )
+(DreadKnight, breach_wasteland_arena_target_spawn_9, )
+(DreadKnight, breach_wasteland_arena_target_spawn_4, )
+(Imp, breach_wasteland_arena_target_spawn_43, )
+(Imp, breach_wasteland_arena_target_spawn_16, )
+(Imp, breach_wasteland_arena_target_spawn_9, )
+(Gargoyle, breach_wasteland_arena_target_spawn_5, )
+(Gargoyle, breach_wasteland_arena_target_spawn_50, )
+(Gargoyle, breach_wasteland_arena_target_spawn_37, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+
+waitFor AIHealthLevel(Any, 0.899999976, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
+clearFactionOverrides()
+alertAI(true, true, , false)
+maintainAI
+(Imp, 2, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
+(Gargoyle, 2, -1, 1, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 4)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(DreadKnight, 0, , false)
+(Revenant, 0, , false)
+
+spawn(DoomHunter, breach_wasteland_arena_target_spawn_28, )
+
+waitFor wait(1, false)
+maintainAI(Whiplash, 2, 4, 2, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 3)
+
+waitFor wait(1, false)
+maintainAI(CursedProwler, 1, 1, 1, 0, breach_wasteland_arena_encounter_spawn_group_zone_1, , 2)
+
+waitFor wait(1, false)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Whiplash, 0, , false)
+(DoomHunter, 0, , false)
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+spawn(ArmoredBaron, breach_wasteland_arena_target_spawn_54, )
+
+waitFor wait(1, false)
+spawnMultiple(Carcass, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining(ArmoredBaron, 0, , false)
+
+waitFor AIHealthLevel(ArmoredBaron, 0.649999976, , false)
+spawn(BloodAngel, breach_wasteland_arena_target_spawn_39, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining
+(BloodAngel, 0, , false)
+(ArmoredBaron, 0, , false)
+
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
+
+waitFor wait(1, false)
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(BloodAngel, 0, , false)
+(ArmoredBaron, 0, , false)
+
+forceChargeOnAllAI()
+stopMaintainAI
+(Imp, )
+(Gargoyle, )
+
+waitFor AIRemaining(Any, 0, , false)
+activate(breach_wasteland_arena_target_relay_combat_end_start_camera, Start Camera)
+
+waitFor wait(2, false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Stop Heavy)
+activate
+(breach_wasteland_arena_target_relay_arena_complete, remove dmc gate)
+(checkpoint_target_relay_cp_03, checkpoint)
+(objective_target_relay_4, show new poi)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER _example_encounter_manager_0
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
+
+waitFor wait(1, false)
+activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
+activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, , 0)
+spawnMultiple(DreadKnight, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(1, false)
+spawnMultiple
+(Imp, 3, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+(ZombieMaykr, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(1, false)
+spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(1, false)
+alertAI(true, true, , false)
+
+waitFor wait(2, false)
+spawnMultiple(Prowler, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+maintainAI
+(Imp, 3, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
+(ZombieMaykr, 1, 10, 8, 0, breach_wasteland_arena_encounter_spawn_group_zone_1, , 10)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(DreadKnight, 0, , false)
+(Revenant, 0, , false)
+
+spawn(DoomHunter, breach_wasteland_arena_target_spawn_28, )
+
+waitFor wait(1, false)
+maintainAI(Whiplash, 2, 4, 2, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 3)
+
+waitFor wait(1, false)
+spawnMultiple(CursedProwler, 1, breach_wasteland_arena_encounter_spawn_group_zone_2, )
+
+waitFor wait(1, false)
+
+waitFor AIHealthLevel(DoomHunter, 0.300000012, , false)
+spawn(DoomHunter, breach_wasteland_arena_target_spawn_10, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Whiplash, 0, , false)
+(DoomHunter, 0, , false)
+
+spawnMultiple(Baron, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(1, false)
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_61, )
+
+waitFor wait(0.25, false)
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_62, )
+
+waitFor wait(0.25, false)
+spawnMultiple(Carcass, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Cacodemon, 0, , false)
+(Baron, 0, , false)
+
+forceChargeOnAllAI()
+stopMaintainAI
+(Imp, )
+(ZombieMaykr, )
+
+waitFor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Light)
+activate
+(breach_wasteland_arena_target_relay_flame_traps_off, Stop traps)
+(breach_wasteland_arena_target_relay_combat_end_start_camera, start camera)
+(breach_wasteland_arena_target_relay_arena_complete, remove dmc gate)
+(target_relay_checkpoint_1, Checkpoint)
+
+waitFor wait(6, false)
+activate(target_relay_escalation_1_done, Wave 1 Done)
+
+waitFor wait(1, false)
+activate(func_emitter_3, Second gore nest effect)
+
+waitFor wait(1, false)
+activate(breach_wasteland_arena_target_relay_3, replace ammo)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_arena_encounter_manager_dlc2_2
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+activate
+(breach_wasteland_arena_target_relay_esculation_second_wave_blocker_show, Show Blockers)
+(target_relay_escalation_2_done, Wave 2 Done)
+(pickups_target_relay_wave_1_ammo_hide, Hide Wave 1 Ammo)
+(pickups_target_relay_wave_2_ammo_show, Show WAve 2 Ammo)
+
+waitFor wait(1, false)
+activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
+
+waitFor wait(1, false)
+activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, , 0)
+spawn(ArmoredBaron, breach_wasteland_arena_target_spawn_54, )
+
+waitFor wait(1, false)
+spawnMultiple
+(ZombieMaykr, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+(Gargoyle, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+maintainAI
+(ZombieMaykr, 1, 10, 10, 0, breach_wasteland_arena_encounter_spawn_group_zone_1, , 15)
+(Gargoyle, 2, -1, 4, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 6)
+
+waitFor wait(1, false)
+spawnMultiple(Carcass, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining(ArmoredBaron, 0, , false)
+
+waitFor AIHealthLevel(ArmoredBaron, 0.649999976, , false)
+spawnMultiple(Baron, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(0.25, false)
+spawnMultiple(Prowler, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Baron, 0, , false)
+(ArmoredBaron, 0, , false)
+
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
+
+waitFor wait(1, false)
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
+
+waitFor wait(1, false)
+spawnMultiple(Marauder, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(0.25, false)
+
+waitFor AIRemaining(Marauder, 0, , false)
+spawn(Tyrant, breach_wasteland_arena_target_spawn_9, )
+
+waitFor wait(1, false)
+spawn(Tyrant, breach_wasteland_arena_target_spawn_21, )
+
+waitFor wait(1, false)
+spawnMultiple(Prowler, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Tyrant, 1, , false)
+spawnMultiple(Marauder, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Marauder, 0, , false)
+(Tyrant, 0, , false)
+
+forceChargeOnAllAI()
+stopMaintainAI
+(ZombieMaykr, )
+(Gargoyle, )
+
+waitFor AIRemaining(Any, 0, , false)
+activate(breach_wasteland_arena_target_relay_flame_traps_off, Stop traps)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Stop Heavy)
+activate
+(breach_wasteland_arena_target_relay_combat_end_start_camera, Start Camera)
+(breach_wasteland_arena_target_relay_esculation_second_wave_blocker_remove, remove dmc gate)
+
+waitFor wait(6, false)
+activate
+(sound_target_relay_1, Encounter End V/O)
+(checkpoint_target_relay_cp_03, checkpoint)
+(objective_target_relay_4, show new poi)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER breach_wall_deck_encounter_manager_dlc2_1
+spawn
+(Prowler, breach_wall_deck_target_spawn_1, )
+(ChaingunSoldier, breach_wall_deck_target_spawn_3, )
+
+waitFor wait(0.100000001, false)
+spawn(ChaingunSoldier, breach_wall_deck_target_spawn_20, )
+
+waitFor wait(0.100000001, false)
+spawn(ChaingunSoldier, breach_wall_deck_target_spawn_21, )
+
+waitFor wait(0.100000001, false)
+spawn(ChaingunSoldier, breach_wall_deck_target_spawn_22, )
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wall_deck_gargs, false, false)
+
+waitFor AIRemaining(Any, 0, , false)
+activate(breach_wall_deck_target_relay_dmc_gate, Remove Blockers)
+
+
+
+REPLACE ENCOUNTER breach_wall_deck_encounter_manager_dlc2_2
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
+spawn
+(Turret, breach_wall_deck_target_spawn_8, )
+(Turret, breach_wall_deck_target_spawn_7, )
+(Tentacle, breach_wall_deck_target_spawn_24, )
+
+alertAI(true, false, , false)
+spawnMultiple(ZombieTier1, 4, breach_wall_deck_spawn_group_zone_wall_deck_gargs1, )
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+spawnPossessed(HellKnight, breach_wall_deck_target_spawn_10, , breach_wall_deck_target_spawn_15, HellKnight, , true)
+
+waitFor wait(2, false)
+maintainAI(ZombieTier1, 2, -1, 2, 1, breach_wall_deck_spawn_group_zone_wall_deck_gargs1, , 3)
+
+waitFor AIHealthLevel(HellKnight, 0.25, , false)
+spawn(HellKnight, breach_wall_deck_target_spawn_10, )
+
+waitFor AIRemaining(HellKnight, 0, , false)
+stopMaintainAI(ZombieTier1, )
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1 Tentacle, )
+
+waitFor AIRemaining(Any, 0, , false)
+activate(checkpoint_target_relay_1, checkpoint)
+
+waitFor wait(1, false)
+activate(breach_wall_deck_target_relay_swamp_combat_complete, Combat Complete)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER breach_wall_base_encounter_manager_wallbase_runners_02
+spawnMultiple
+(ZombieTier3, 4, breach_wall_base_spawn_group_wallbase_ruuners_02_t3s, walls_base_zombies_t3)
+(HellSoldier, 2, breach_wall_base_spawn_group_wallbase_ruuners_02_soldiers, wall_base_soldiers)
+
+setFactionRelation
+(ZombieTier3, walls_base_zombies_t3, HellSoldier, EMOTION_DESTROY_AT_ALL_COSTS)
+(HellSoldier, wall_base_soldiers, ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor wait(3, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_1
+spawnMultiple
+(ZombieTier3, 3, breach_wall_base_encounter_spawn_group_zone_garg1, )
+(Gargoyle, 3, breach_wall_base_encounter_spawn_group_zone_garg1, )
+
+setFactionRelation
+(ZombieTier3, , Gargoyle, EMOTION_DESTROY_AT_ALL_COSTS)
+(Gargoyle, , ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+
+waitFor AIRemaining(Any, 5, , false)
+clearFactionOverrides()
+alertAI(true, false, , false)
+
+waitFor wait(3, false)
+spawn(DreadKnight, breach_wall_base_target_spawn_19, )
+
+waitFor AIRemaining(DreadKnight, 0, , false)
+spawn(Arachnotron, breach_wall_base_target_spawn_44, )
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_2
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , true, false)
+spawn
+(Imp, breach_wall_base_target_spawn_21, )
+(Imp, breach_wall_base_target_spawn_20, )
+(HellSoldier, breach_wall_base_target_spawn_1, )
+(HellSoldier, breach_wall_base_target_spawn_2, )
+
+setFactionRelation
+(Imp, , HellSoldier, EMOTION_DESTROY_AT_ALL_COSTS)
+(HellSoldier, , Imp, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wall_base_pt_1, true, false)
+clearFactionOverrides()
+spawn(SuperTentacle, breach_wall_base_target_spawn_45, )
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wall_base_part_2, true, false)
+spawn(HellKnight, breach_wall_base_target_spawn_26, )
+alertAI(true, true, , false)
+
+waitFor wait(2, false)
+maintainAI(ZombieTier1, 3, 10, 2, 3, breach_wall_base_encounter_spawn_group_zone_garg2, , 5)
+
+waitFor AIRemaining(SuperTentacle, 0, , false)
+stopMaintainAI(Any, )
+
+
+
+REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_3
+spawnMultiple(ZombieTier1, 7, breach_wall_base_encounter_spawn_group_zone_1, )
+spawn
+(Tentacle, breach_wall_base_target_spawn_42, )
+(Tentacle, breach_wall_base_target_spawn_43, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIHealthLevel(Any, 0.899999976, , false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+alertAI(false, false, , false)
+maintainAI(ZombieTier1, 2, -1, 1, 1, breach_wall_base_encounter_spawn_group_zone_1, , 3)
+spawn
+(HellKnight, breach_wall_base_target_spawn_34, )
+(Mancubus, breach_wall_base_target_spawn_40, )
+
+waitFor wait(1, false)
+spawn(HellKnight, breach_wall_base_target_spawn_47, )
+
+waitFor wait(1, false)
+spawn(Mancubus, breach_wall_base_target_spawn_38, )
+
+waitFor wait(1, false)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Mancubus, 0, , false)
+(HellKnight, 0, , false)
+
+stopMaintainAI(ZombieTier1, )
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Whiplash, 0, , false)
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1, )
+activate(breach_wall_base_target_relay_2, Removed DMC Gate)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Heavy)
+activate(checkpoint_target_relay_15, checkpoint)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_4
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
+spawn(StoneImp, breach_wall_base_target_spawn_29, )
+
+waitFor wait(0.5, false)
+spawn(StoneImp, breach_wall_base_target_spawn_28, )
+
+waitFor wait(0.5, false)
+spawn(StoneImp, breach_wall_base_target_spawn_27, )
+
+waitFor wait(0.5, false)
+activate(breach_wall_base_target_relay_arach_wall_break, arachnatron_wall_break)
+spawn(Arachnotron, breach_wall_base_target_spawn_3, )
+spawnMultiple(ZombieTier1, 2, breach_wall_base_spawn_group_wall_base_arachnatron, )
+maintainAI(ZombieTier1, 2, 20, 2, 1, breach_wall_base_spawn_group_wall_base_arachnatron, , 5)
+
+waitFor AIRemaining(Arachnotron, 0, , false)
+spawn
+(PainElemental, breach_wall_base_target_spawn_50, )
+(StoneImp, breach_wall_base_target_spawn_29, )
+
+waitFor wait(0.5, false)
+spawn(StoneImp, breach_wall_base_target_spawn_28, )
+
+waitFor wait(0.5, false)
+spawn(StoneImp, breach_wall_base_target_spawn_27, )
+
+waitFor wait(3, false)
+spawn(PainElemental, breach_wall_base_target_spawn_51, )
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(PainElemental, 0, , false)
+stopMaintainAI(ZombieTier1, )
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1, )
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Any, 0, , false)
+activate(breach_wall_base_target_relay_1, Removed blockers)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Light)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_2
+
+waitFor wait(1, false)
+spawn(DreadKnight, city_lower_target_spawn_9, )
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_lower_city_entrance
+spawnMultiple(Generic, 5, city_lower_encounter_spawn_group_front_runners, city_front_troops)
+
+waitFor wait(1, false)
+activate(city_lower_target_relay_trooper_route_a1, start_path_a1)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, city_front_troops, true, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_dlc2_2
+spawnMultiple(HellSoldier, 3, city_lower_encounter_spawn_group_zone_3, )
+spawn(Mancubus, city_lower_target_spawn_28, )
+staggeredAISpawn(HellSoldier ShotgunSoldier, 3, city_lower_encounter_spawn_group_lower_int_soldiers, city_int_lower_soldiers, 0, 1)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, city_int_whiplash, false, false)
+spawn(Whiplash, city_lower_target_spawn_68, city_int_whiplash)
+
+waitFor wait(3, false)
+spawn(ArmoredBaron, city_lower_target_spawn_80, city_int_arm_baron)
+
+waitFor wait(1, false)
+maintainAI(ZombieTier3 Imp Gargoyle HellSoldier, 1, -1, 0.25, 0, city_lower_encounter_spawn_group_lower_int_upper_fodder, city_int_upper_fodder, 1)
+
+waitFor AIRemaining(ArmoredBaron, 0, city_int_arm_baron, false)
+stopMaintainAI(Any, city_int_upper_fodder)
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_b_deck_unlock
+staggeredAISpawn(Generic, 4, city_lower_encounter_spawn_b_deck_unlock_demon_troops, b_deck_troops, 0.5, 2)
+
+waitFor wait(1, false)
+spawn(DoomHunter, city_lower_target_spawn_39, b_deck_unlock_dhunter)
+
+waitFor wait(0.5, false)
+maintainAI(ZombieMaykr Imp StoneImp Gargoyle Prowler HellSoldier ShotgunSoldier ChaingunSoldier Generic, 3, -1, 1, 1, city_lower_encounter_spawn_b_deck_unlock_fodder, city_unlock_fodder, 3)
+
+waitFor staggeredSpawnComplete(Any, 0, , false)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining(DoomHunter, 0, b_deck_unlock_dhunter, false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, unlock_fodder_stop, false, false)
+stopMaintainAI(Any, city_unlock_fodder)
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_dlc2_3
+
+waitFor wait(2, false)
+spawnMultiple
+(ShotgunSoldier, 1, city_lower_encounter_spawn_group_a_deck_soldiers_lower, deck_a_soldiers_lower)
+(Imp, 2, city_lower_encounter_spawn_group_a_deck_imps, deck_a_imps_lower)
+
+setFactionRelation
+(ShotgunSoldier, deck_a_soldiers_lower, Imp, EMOTION_DESTROY_AT_ALL_COSTS)
+(Imp, deck_a_imps_lower, ShotgunSoldier, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, city_deck_a_front_aware, true, false)
+clearFactionOverrides()
+
+waitFor wait(0.25, false)
+alertAI(true, false, , false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_dlc2_deck_landing
+spawn(Generic, city_lower_target_spawn_45, city_deck_landing)
+
+waitFor wait(1.5, false)
+spawn(Generic, city_lower_target_spawn_47, city_deck_landing)
+
+waitFor wait(0.75, false)
+spawn(Generic, city_lower_target_spawn_46, city_deck_landing)
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_lower_city_main
+spawn(Arachnotron, city_lower_target_spawn_37, b_deck_arachnatron)
+activateCombatGrouping(city_lower_encounter_combat_role_b_deck_arach_defend, b_deck_arachnatron, 0)
+
+waitFor Flag
+(ENCOUNTER_EVENT_FLAG_USER_EVENT, mid_city_aware, false, false)
+(ENCOUNTER_EVENT_FLAG_USER_EVENT, bridge_main, false, false)
+
+spawn
+(Generic, city_lower_target_spawn_20, back_main_fodder)
+(Generic, city_lower_target_spawn_21, back_main_fodder)
+
+waitFor wait(0.25, false)
+maintainAI(Imp StoneImp Gargoyle Prowler Carcass Generic, 2, -1, 0, 1, city_lower_encounter_spawn_group_main_back_fodder_a, back_main_fodder, 2)
+spawn(Generic, city_lower_target_spawn_17, back_main_fodder_b)
+
+waitFor wait(1, false)
+spawn(Generic, city_lower_target_spawn_15, back_main_fodder_b)
+maintainAI(Imp StoneImp Gargoyle Carcass Generic, 2, -1, 0, 1, city_lower_encounter_spawn_group_main_back_fodder_b, back_main_fodder_b, 2)
+spawn(ArmoredBaron, city_lower_target_spawn_38, bridge_baron)
+
+waitFor wait(0.25, false)
+
+waitFor AIHealthLevel(ArmoredBaron, 0.25, bridge_baron, false)
+activateCombatGrouping(city_lower_encounter_combat_role_b_deck_arach_release, b_deck_arachnatron, 10)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining
+(Arachnotron, 0, b_deck_arachnatron, false)
+(ArmoredBaron, 0, bridge_baron, false)
+
+waitFor wait(1, false)
+stopMaintainAI
+(Any, back_main_fodder)
+(Any, back_main_fodder_b)
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Any, 1, , false)
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Any, 0, , false)
+activate
+(city_lower_func_spectacle_camera_console_camera, console camera)
+(checkpoint_target_change_layer_15, save checkpoint)
+
+waitFor wait(1.75, false)
+activate(city_lower_target_relay_activate_console, activate console)
+
+waitFor wait(4, false)
+
+
+
+REPLACE ENCOUNTER city_lower_encounter_manager_dlc2_4
+spawn(Revenant, city_lower_target_spawn_77, city_porch_rev)
+
+waitFor wait(1.5, false)
+spawnMultiple(ChaingunSoldier, 2, city_lower_encounter_spawn_group_zone_5, city_porch_soldiers)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_reveal_encounter_manager_dlc2_1
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, post_city_cam, false, false)
+spawn(PainElemental, city_reveal_target_spawn_13, reveal_pain_elem)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIHealthLevel(PainElemental, 0.100000001, reveal_pain_elem, false)
+
+waitFor wait(6, false)
+staggeredAISpawn(Generic, 6, city_reveal_encounter_spawn_group_post_cam_troops, , 1, 3)
+
+waitFor staggeredSpawnComplete(Any, 0, , false)
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+
+waitFor AIRemaining(Any, 3, , false)
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, reveal_deck_lower_spawns, true, false)
+staggeredAISpawn(Generic, 6, city_reveal_encounter_spawn_group_zone_1, , 0.25, 1)
+
+waitFor staggeredSpawnComplete(Any, 0, reveal_deck_troops_secondary, false)
+
+waitFor AIRemaining(Any, 0, reveal_deck_troops_secondary, false)
+spawnMultiple(Generic, 2, city_reveal_encounter_spawn_group_zone_2, reveal_deck_troops_tres)
+
+waitFor wait(2, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER city_rooftop_encounter_manager_dlc2_1
+
+waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+alertAI(true, false, , false)
+spawnMultiple
+(Imp, 2, city_rooftop_encounter_spawn_group_zone_1, )
+(ZombieTier1, 2, city_rooftop_encounter_spawn_group_zone_1, )
+
+maintainAI
+(Imp, 1, 10, 35, 0, city_rooftop_encounter_spawn_group_zone_1, , 40)
+(ZombieTier1, 2, -1, 2, 1, city_rooftop_encounter_spawn_group_zone_1, , 5)
+
+spawn(Marauder, city_rooftop_target_spawn_2, )
+
+waitFor wait(1, false)
+spawn(Marauder, city_rooftop_target_spawn_1, )
+
+waitFor wait(1, false)
+maintainAI(ZombieT1Screecher, 1, -1, 3, 0, city_rooftop_encounter_spawn_group_zone_2, left_screecher, 6)
+
+waitFor wait(1, false)
+maintainAI(ZombieT1Screecher, 1, -1, 3, 0, city_rooftop_encounter_spawn_group_zone_3, middle_screecher, 6)
+
+waitFor wait(1, false)
+maintainAI(ZombieT1Screecher, 1, -1, 3, 0, city_rooftop_encounter_spawn_group_zone_4, right_screecher, 6)
+
+waitFor wait(1, false)
+
+waitFor AIRemaining(Marauder, 1, , false)
+
+waitFor wait(1, false)
+
+waitFor AIHealthLevel(Marauder, 0.25, , false)
+spawn(Baron, city_rooftop_target_spawn_12, )
+
+waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+
+waitFor AIRemaining
+(Marauder, 0, , false)
+(Baron, 0, , false)
+
+stopMaintainAI
+(ZombieT1Screecher, )
+(ZombieTier1, )
+(Imp, )
+
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1 ZombieT1Screecher, )
+forceChargeOnAllAI()
+
+waitFor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Heavy)
+activate
+(target_relay_roof_post_off, Turn off Traps)
+(city_rooftop_target_remove_1, remove fade volume)
+
+waitFor wait(1, false)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_war_ambient_ledge_group_01
+spawnMultiple
+(HellSoldier, 2, breach_wasteland_war_ambient_ledge_group_01_soldiers, tunnel_soldiers)
+(Imp, 2, breach_wasteland_war_ambient_ledge_group_01_imps, tunnel_imps)
+
+setFactionRelation
+(HellSoldier, tunnel_soldiers, Imp, EMOTION_DESTROY_AT_ALL_COSTS)
+(Imp, tunnel_imps, HellSoldier, EMOTION_DESTROY_AT_ALL_COSTS)
+
+waitFor wait(3, false)
+spawnMultiple(HellKnight, 1, breach_wasteland_war_ambient_ledge_group_01_hk, tunnel_hk)
+
+waitFor wait(3, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER breach_wasteland_war_ambient_ledge_group_02
+spawn(Imp, breach_wasteland_war_target_spawn_6, amb_imp_01)
+
+waitFor wait(0.5, false)
+spawn(Imp, breach_wasteland_war_target_spawn_7, amb_imp_02)
+
+waitFor wait(1, false)
+spawn(Imp, breach_wasteland_war_target_spawn_25, amb_imp_03)
+
+waitFor wait(0.75, false)
+spawn(Imp, breach_wasteland_war_target_spawn_26, amb_imp_04)
+
+waitFor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER oscar_encounter_manager_dragon_runners
+spawn(Imp, oscar_target_spawn_1, dragon_runners)
+
+waitFor wait(0.150000006, false)
+spawn(Imp, oscar_target_spawn_2, dragon_runners)
+
+waitFor wait(2, false)
+
+waitFor AIRemaining(Any, 0, , false)
+
+

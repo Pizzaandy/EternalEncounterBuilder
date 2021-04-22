@@ -79,6 +79,7 @@ class EternalEvent:
     #     return {"eventCall": {"eventDef": name, "args": items_dict}}
 
     # metaprogramming time
+    # TODO: figure out which arguments are *actually* optional
     def __init_subclass__(cls, alias="", **kwargs):
         super().__init_subclass__(**kwargs)
         # initialize fields
@@ -139,6 +140,17 @@ class SpawnAI(EternalEvent, alias="spawnMultiple"):
     spawnGroup = "entity"
     group_label = "string"
 
+class SpawnSingleAI(EternalEvent, alias="spawn"):
+    spawnType = "eEncounterSpawnType_t"
+    spawnTarget = "entity"
+    group_label = "string*"
+
+class SpawnArchvile(EternalEvent):
+    spawnTarget = "entity"
+    archvileTemplate = "entity*"
+    archvile_label = "string*"
+    group_label = "string*"
+
 class SpawnPossessedAI(EternalEvent, alias=["spawnPossessed","spawnSpirit"]):
     spawnType = "eEncounterSpawnType_t"
     spawnTarget = "entity"
@@ -154,11 +166,6 @@ class SpawnSpirit(EternalEvent):
     group_label = "string*"
     somebool = "bool"
 
-class SpawnSingleAI(EternalEvent, alias="spawn"):
-    spawnType = "eEncounterSpawnType_t"
-    spawnTarget = "entity"
-    group_label = "string*"
-
 class SetMusicState(EternalEvent):
     target = "entity"
     stateDecl = "decl:soundstate"
@@ -170,9 +177,22 @@ class MakeAIAwareOfPlayer(EternalEvent, alias="alertAI"):
     groupLabel = "string*"
     restorePerception = "bool"
 
+class RestoreDefaultPerception(EternalEvent):
+    spawnType = "eEncounterSpawnType_t"
+    group_label = "string*"
+
 class ActivateTarget(EternalEvent, alias="activate"):
     targetEntity = "entity"
     command = "string"
+
+class ActivateCombatGrouping(EternalEvent):
+    combatGrouping = "entity"
+    group_label = "string*"
+    assignmentDelaySec = "float"
+
+class ClearCombatRoles(EternalEvent):
+    spawnType = "eEncounterSpawnType_t"
+    group_label = "string*"
 
 class SetFactionRelation(EternalEvent):
     instigatorSpawnType = "eEncounterSpawnType_t"
@@ -206,10 +226,40 @@ class WaitAIRemaining(EternalEvent, alias="AIRemaining"):
     desired_count = "int"
     group_label = "string"
 
+class WaitKillCount(EternalEvent, alias="killCount"):
+    ai_type = "eEncounterSpawnType_t"
+    desired_kill_count = "int"
+    group_label = "string*"
+    disableAIHighlight = "bool"
+
+class WaitKillCountOrSyncStart(EternalEvent, alias="killCountOrSyncStart"):
+    ai_type = "eEncounterSpawnType_t"
+    desired_kill_count = "int"
+    group_label = "string*"
+    disableAIHighlight = "bool"
+
+class WaitRandomKillCount(EternalEvent, alias="randomKillCount"):
+    ai_type = "eEncounterSpawnType_t"
+    kill_count_min = "int"
+    kill_count_max = "int"
+    group_label = "string*"
+    disableAIHighlight = "bool"
+
 class WaitMaintainComplete(EternalEvent, alias="maintainComplete"):
     aiType = "eEncounterSpawnType_t"
     remaining_spawn_couunt = "int"
     group_label = "string"
+
+class WaitStaggeredSpawnComplete(EternalEvent, alias="staggeredSpawnComplete"):
+    aiType = "eEncounterSpawnType_t"
+    remaining_spawn_count = "int"
+    group_label = "string*"
+    disableAIHighlight = "bool"
+
+class WaitForStatCount(EternalEvent, alias="statCount"):
+    trackedStat = "gameStat_t"
+    stat_hit_count = "int"
+    disableAIHighlight = "bool"
 
 class WaitForEventFlag(EternalEvent, alias="Flag"):
     eventFlag = "eEncounterEventFlags_t"
@@ -221,6 +271,13 @@ class DamageAI(EternalEvent):
     damageType = "decl:damage"
     aiType = "eEncounterSpawnType_t"
     group_label = "string*"
+
+class SetNextScriptIndex(EternalEvent):
+    nextScriptIndex = "int"
+
+class ProceedToNextScript(EternalEvent):
+    bypassNextWaitForCommit = "bool"
+    carryOverExistingUserFlags = "bool"
 
 class DesignerComment(EternalEvent, alias="print"):
     designerComment = "string*"
