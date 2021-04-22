@@ -213,7 +213,7 @@ def generate_entity(entity_dict, unpack=None):
         if ": " in line:
             var, other = tuple(line.split(": "))
             var = var.replace('"', '')
-            if unpack and var.strip().startswith(unpack):
+            if unpack and var.strip().startswith(tuple(unpack)):
                 # print("unpacked the string")
                 other = bytes(other, "utf-8").decode("unicode_escape").strip('"')
                 other = "{\n" + indent(other, tabs*"\t") + (tabs-1)*"\t" + "}"

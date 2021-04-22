@@ -97,7 +97,7 @@ class EternalEvent:
         aliases = alias if alias else [camelcase(cls.__name__)]
         if not isinstance(aliases, list):
             aliases = [aliases]
-        event_to_ebl[cls.__name__] = (aliases[0], len(args), optional_args)
+        event_to_ebl[default_alias] = aliases[0]
 
         for item in aliases:
             ebl_to_event[item] = (cls.__name__, len(args))
@@ -138,6 +138,21 @@ class SpawnAI(EternalEvent, alias="spawnMultiple"):
     spawn_count = "int"
     spawnGroup = "entity"
     group_label = "string"
+
+class SpawnPossessedAI(EternalEvent, alias=["spawnPossessed","spawnSpirit"]):
+    spawnType = "eEncounterSpawnType_t"
+    spawnTarget = "entity"
+    group_label = "string*"
+    spawnTarget2 = "entity"
+    spawnType2 = "eEncounterSpawnType_t"
+    group_label2 = "string*"
+    somebool = "bool"
+
+class SpawnSpirit(EternalEvent):
+    spawnTarget = "entity"
+    spawnType = "eEncounterSpawnType_t"
+    group_label = "string*"
+    somebool = "bool"
 
 class SpawnSingleAI(EternalEvent, alias="spawn"):
     spawnType = "eEncounterSpawnType_t"

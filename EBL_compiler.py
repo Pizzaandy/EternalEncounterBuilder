@@ -184,7 +184,6 @@ base_entitydefs = [
     "custom_ai_fodder_zombie_t1_scientist",
     "custom_ai_heavy_mancubus_fire",
     "custom_ai_ambient_tentacle",
-    "custom_ai_ambient_zombie_worshipper",
     "custom_ai_fodder_carcass",
     "custom_ai_fodder_prowler",
     "custom_ai_heavy_dreadknight",
@@ -219,6 +218,13 @@ def list_entitydefs(entitydefs):
     res = f"num = {len(entitydefs)};\n"
     for i, name in enumerate(entitydefs):
         res += f'item[{i}] = {{\n\tname = "{name}";\n}}\n'
+    return res
+
+
+def list_targets(entitydefs):
+    res = f"num = {len(entitydefs)};\n"
+    for i, name in enumerate(entitydefs):
+        res += f'item[{i}] = "{name}";\n'
     return res
 
 
@@ -351,6 +357,7 @@ def add_idAI2s(filename, include_dlc1, include_dlc2):
         with open("idAI2_dlc2.txt") as fp_dlc2:
             file.write(fp_dlc2.read())
         print("Added DLC2 demons")
+
     elif include_dlc1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
@@ -464,6 +471,7 @@ def replace_encounter(name, entity_string, entity_events):
 
 
 def add_entitydefs(entity_string, entitydefs):
+    targets = list_targets(entitydefs)
     entitydefs = list_entitydefs(entitydefs)
     # print(entity_string)
     entity = parser.ev.parse(entity_string)
@@ -474,8 +482,9 @@ def add_entitydefs(entity_string, entitydefs):
         print("ERROR: no entityDef component!")
         return entity_string
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
+    entity[entitydef]["edit"]["targets"] = targets
     #print("Added entitydefs")
-    return parser.generate_entity(entity, unpack="entityDefs")
+    return parser.generate_entity(entity, unpack=["entityDefs", "targets"])
 
 # Apply all changes in ebl_file to modded_file, copied from base_file
 def apply_EBL(ebl_file, base_file, modded_file):
@@ -504,7 +513,8 @@ def apply_EBL(ebl_file, base_file, modded_file):
                     entity = replace_encounter(name, entity, encounters[name])
                     modified_entities += 1
                     break
-            if 'class = "idTarget_Spawn";' in entity:
+            if ('class = "idTarget_Spawn";' in entity
+                or 'class = "idTarget_Spawn_Parent";' in entity):
                 entity = add_entitydefs(entity, entitydefs)
                 modified_entities += 1
             fp.write(entity)
@@ -516,5 +526,5 @@ def apply_EBL(ebl_file, base_file, modded_file):
 
 if __name__ == "__main__":
     base_file = "Test Entities/e5m3_hell.entities"
-    modded_file = "Test Entities/e5m3_hell_modded.entities"
+    modded_file = "C:\AndyStuff\DoomModding\_MYMODS_\TestEBLImmora\e5m3_hell\maps\game\dlc2\e5m3_hell\e5m3_hell.entities"
     apply_EBL("Test EBL Files/test_EBL_3.txt", base_file, modded_file)
