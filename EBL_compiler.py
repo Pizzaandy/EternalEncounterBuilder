@@ -457,8 +457,6 @@ def compile_EBL(s):
 
 def replace_encounter(name, entity_string, entity_events):
     entity = parser.ev.parse(entity_string)
-    with open('testoutput.json', 'w') as fp:
-        json.dump(entity, fp, indent=4)
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
@@ -466,12 +464,12 @@ def replace_encounter(name, entity_string, entity_events):
         print("ERROR: no entityDef component!")
         return entity_string
     try:
-        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"] = entity_events
+        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
     except:
-        print("Unable to replace encounter")
+        print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
     print(f"Replaced {name}")
-    return parser.generate_entity(entity, unpack="entityEvents")
+    return parser.generate_entity(entity, unpack=["events"])
 
 
 def add_entitydefs(entity_string, entitydefs):
@@ -494,8 +492,9 @@ def add_entitydefs(entity_string, entitydefs):
 def apply_EBL(ebl_file, base_file, modded_file):
     # generate segments + format target file
     tic = time.time()
-    modified_entities = 0
-    parser.decompress(base_file, base_file)
+    modified_count = 0
+    entity_count = 0
+    parser.decompress(base_file)
 
     dlc1, dlc2 = is_dlc(base_file)
     entitydefs = base_entitydefs
@@ -511,24 +510,25 @@ def apply_EBL(ebl_file, base_file, modded_file):
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
     with open(modded_file, "w") as fp:
         for entity in entities:
+            entity_count += 1
             for name in encounters.keys():
                 if f"entityDef {name} " in entity:
                     print(f"Found encounter {name}")
                     entity = replace_encounter(name, entity, encounters[name])
-                    modified_entities += 1
+                    modified_count += 1
                     break
             if ('class = "idTarget_Spawn";' in entity
                 or 'class = "idTarget_Spawn_Parent";' in entity):
                 entity = add_entitydefs(entity, entitydefs)
-                modified_entities += 1
+                modified_count += 1
             fp.write(entity)
 
     add_idAI2s(modded_file, dlc1, dlc2)
-    #parser.compress(modded_file, modded_file)
-    print(f"{modified_entities} entities modified!")
+    parser.compress(modded_file)
+    print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
 
 if __name__ == "__main__":
     base_file = "Test Entities/e5m3_hell.entities"
-    modded_file = "C:\AndyStuff\DoomModding\_MYMODS_\TestEBLImmora\e5m3_hell\maps\game\dlc2\e5m3_hell\e5m3_hell.entities"
+    modded_file = "Test Entities/e5m3_hell_modded.entities"
     apply_EBL("Test EBL Files/ImmoraEBL.txt", base_file, modded_file)

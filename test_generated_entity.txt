@@ -1,0 +1,972 @@
+entity {
+	entityDef hangar_encounter_manager_dlc2_1 {
+	inherit = "encounter/manager_dlc2";
+	class = "idEncounterManager";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		enableAIHighlightOnFinish = true;
+		disabledAITypeForHighlight = "AI_MONSTER_SPECTRE AI_MONSTER_BUFF_POD AI_MONSTER_TENTACLE";
+		playerMetricDef = "encounter/player_metrics";
+		chargeCombatGrouping = "encounter/combat_role/charge_command";
+		aiTypeDefAssignments = "actorpopulation/default/dlc2";
+		spawnPosition = {
+			x = 1149;
+			y = 484;
+			z = 57;
+		}
+		combatRatingScale = "COMBAT_RATING_SCALE_LARGE";
+		encounterComponent = {
+			entityEvents = {
+				num = 1;
+				item[0] = {
+					entity = "hangar_encounter_manager_dlc2_1";
+					events = {
+						num = 53;
+						item[0] = {
+							eventCall = {
+								eventDef = "setMusicState";
+								args = {
+									num = 3;
+									item[0] = {
+										entity = "sound_sound_musicentity_1";
+									}
+									item[1] = {
+										decl = {
+											soundstate = "music_ghost_states/main_heavy";
+										}
+									}
+									item[2] = {
+										string = "Start Heavy";
+									}
+								}
+							}
+						}
+						item[1] = {
+							eventCall = {
+								eventDef = "activateTarget";
+								args = {
+									num = 2;
+									item[0] = {
+										entity = "hangar_target_relay_hangar_entrance_blocker_on";
+									}
+									item[1] = {
+										string = "Turn on blocker / Lock door";
+									}
+								}
+							}
+						}
+						item[2] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_68";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[3] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 0.5;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[4] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_GARGOYLE";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_70";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[5] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 0.5;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[6] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_IMP";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_69";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[7] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[8] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_27";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[9] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[10] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_49";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[11] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[12] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_TYRANT ENCOUNTER_DO_NOT_USE_MAX_SUPER";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_2";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[13] = {
+							eventCall = {
+								eventDef = "maintainAICount";
+								args = {
+									num = 8;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_IMP";
+									}
+									item[1] = {
+										int = 3;
+									}
+									item[2] = {
+										int = -1;
+									}
+									item[3] = {
+										float = 3;
+									}
+									item[4] = {
+										int = 2;
+									}
+									item[5] = {
+										entity = "hangar_encounter_spawn_group_zone_1";
+									}
+									item[6] = {
+										string = "";
+									}
+									item[7] = {
+										float = 5;
+									}
+								}
+							}
+						}
+						item[14] = {
+							eventCall = {
+								eventDef = "maintainAICount";
+								args = {
+									num = 8;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_SOLDIER";
+									}
+									item[1] = {
+										int = 3;
+									}
+									item[2] = {
+										int = -1;
+									}
+									item[3] = {
+										float = 5;
+									}
+									item[4] = {
+										int = 2;
+									}
+									item[5] = {
+										entity = "hangar_encounter_spawn_group_zone_1";
+									}
+									item[6] = {
+										string = "";
+									}
+									item[7] = {
+										float = 2;
+									}
+								}
+							}
+						}
+						item[15] = {
+							eventCall = {
+								eventDef = "maintainAICount";
+								args = {
+									num = 8;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ZOMBIE_TIER_1";
+									}
+									item[1] = {
+										int = 3;
+									}
+									item[2] = {
+										int = -1;
+									}
+									item[3] = {
+										float = 2;
+									}
+									item[4] = {
+										int = 2;
+									}
+									item[5] = {
+										entity = "hangar_encounter_spawn_group_zone_1";
+									}
+									item[6] = {
+										string = "";
+									}
+									item[7] = {
+										float = 5;
+									}
+								}
+							}
+						}
+						item[16] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 3;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[17] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CURSED_PROWLER";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_35";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[18] = {
+							eventCall = {
+								eventDef = "waitAIHealthLevel";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_TYRANT ENCOUNTER_DO_NOT_USE_MAX_SUPER";
+									}
+									item[1] = {
+										float = 0.600000024;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[19] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BLOOD_ANGEL";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_26";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[20] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_MANCUBUS";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_34";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[21] = {
+							eventCall = {
+								eventDef = "waitMulitpleConditions";
+								args = {
+									num = 3;
+									item[0] = {
+										int = 2;
+									}
+									item[1] = {
+										encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+									}
+									item[2] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[22] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BLOOD_ANGEL";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[23] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_TYRANT ENCOUNTER_DO_NOT_USE_MAX_SUPER";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[24] = {
+							eventCall = {
+								eventDef = "spawnPossessedAI";
+								args = {
+									num = 7;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_49";
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										entity = "hangar_target_spawn_73";
+									}
+									item[4] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CARCASS ENCOUNTER_SPAWN_CYBER_MANCUBUS ENCOUNTER_SPAWN_ARACHNOTRON ENCOUNTER_SPAWN_BARON";
+									}
+									item[5] = {
+										string = "";
+									}
+									item[6] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[25] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 0.25;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[26] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_21";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[27] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 0.25;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[28] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_40";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[29] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 3;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[30] = {
+							eventCall = {
+								eventDef = "spawnAI";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CARCASS";
+									}
+									item[1] = {
+										int = 2;
+									}
+									item[2] = {
+										entity = "hangar_encounter_spawn_group_zone_1";
+									}
+									item[3] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[31] = {
+							eventCall = {
+								eventDef = "waitMulitpleConditions";
+								args = {
+									num = 3;
+									item[0] = {
+										int = 2;
+									}
+									item[1] = {
+										encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+									}
+									item[2] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[32] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARACHNOTRON";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[33] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_BARON";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[34] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CYBER_MANCUBUS";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_3";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[35] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[36] = {
+							eventCall = {
+								eventDef = "spawnSingleAI";
+								args = {
+									num = 3;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CYBER_MANCUBUS";
+									}
+									item[1] = {
+										entity = "hangar_target_spawn_34";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[37] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[38] = {
+							eventCall = {
+								eventDef = "spawnAI";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARMORED_BARON";
+									}
+									item[1] = {
+										int = 1;
+									}
+									item[2] = {
+										entity = "hangar_encounter_spawn_group_zone_1";
+									}
+									item[3] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[39] = {
+							eventCall = {
+								eventDef = "waitMulitpleConditions";
+								args = {
+									num = 3;
+									item[0] = {
+										int = 2;
+									}
+									item[1] = {
+										encounterLogicOperator_t = "ENCOUNTER_LOGICAL_OP_AND";
+									}
+									item[2] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[40] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_CYBER_MANCUBUS";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[41] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ARMORED_BARON";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[42] = {
+							eventCall = {
+								eventDef = "stopMaintainingAICount";
+								args = {
+									num = 2;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_IMP";
+									}
+									item[1] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[43] = {
+							eventCall = {
+								eventDef = "stopMaintainingAICount";
+								args = {
+									num = 2;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_HELL_SOLDIER";
+									}
+									item[1] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[44] = {
+							eventCall = {
+								eventDef = "stopMaintainingAICount";
+								args = {
+									num = 2;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ZOMBIE_TIER_1";
+									}
+									item[1] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[45] = {
+							eventCall = {
+								eventDef = "damageAI";
+								args = {
+									num = 3;
+									item[0] = {
+										decl = {
+											damage = "damage/triggerhurt/triggerhurt1000_instagib";
+										}
+									}
+									item[1] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ZOMBIE_TIER_1";
+									}
+									item[2] = {
+										string = "";
+									}
+								}
+							}
+						}
+						item[46] = {
+							eventCall = {
+								eventDef = "forceChargeOnAllAI";
+								args = {
+									num = 0;
+								}
+							}
+						}
+						item[47] = {
+							eventCall = {
+								eventDef = "waitAIRemaining";
+								args = {
+									num = 4;
+									item[0] = {
+										eEncounterSpawnType_t = "ENCOUNTER_SPAWN_ANY";
+									}
+									item[1] = {
+										int = 0;
+									}
+									item[2] = {
+										string = "";
+									}
+									item[3] = {
+										bool = false;
+									}
+								}
+							}
+						}
+						item[48] = {
+							eventCall = {
+								eventDef = "setMusicState";
+								args = {
+									num = 3;
+									item[0] = {
+										entity = "sound_sound_musicentity_1";
+									}
+									item[1] = {
+										decl = {
+											soundstate = "music_ghost_states/main_ambient";
+										}
+									}
+									item[2] = {
+										string = "Stop Heavy";
+									}
+								}
+							}
+						}
+						item[49] = {
+							eventCall = {
+								eventDef = "activateTarget";
+								args = {
+									num = 2;
+									item[0] = {
+										entity = "hangar_trigger_trigger_dark_lord_pursuit_start";
+									}
+									item[1] = {
+										string = "Start Cin";
+									}
+								}
+							}
+						}
+						item[50] = {
+							eventCall = {
+								eventDef = "activateTarget";
+								args = {
+									num = 2;
+									item[0] = {
+										entity = "automap_target_automap_group_unlock_2";
+									}
+									item[1] = {
+										string = "Activate Last Automap Group";
+									}
+								}
+							}
+						}
+						item[51] = {
+							eventCall = {
+								eventDef = "activateTarget";
+								args = {
+									num = 2;
+									item[0] = {
+										entity = "checkpoint_target_relay_cp_10";
+									}
+									item[1] = {
+										string = "Checkpoint";
+									}
+								}
+							}
+						}
+						item[52] = {
+							eventCall = {
+								eventDef = "wait";
+								args = {
+									num = 2;
+									item[0] = {
+										float = 1;
+									}
+									item[1] = {
+										bool = false;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		commitTriggers = {
+			num = 1;
+			item[0] = "hangar_encounter_trigger_commit_hangar_arena";
+		}
+		exitTriggers = {
+			num = 1;
+			item[0] = "hangar_encounter_trigger_exit_2";
+		}
+		enableBountySpawns = false;
+	}
+}
+}
