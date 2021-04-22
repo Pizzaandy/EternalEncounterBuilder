@@ -969,4 +969,3 @@ entity {
 		enableBountySpawns = false;
 	}
 }
-}

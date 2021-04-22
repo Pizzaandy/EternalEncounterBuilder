@@ -15,7 +15,8 @@ grammar = Grammar(r"""
 
     REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING / STRINGLITERAL) SPACE? ("," / &RPARENTHESES)
     NULLPARAM = SPACE? ("," / &RPARENCHAR)
-    MULTISTRING = (SPACE? STRING)+ SPACE? ("," / &RPARENTHESES)
+    MULTISTRING = (SPACE? ANYSTRING)+ SPACE? ("," / &RPARENTHESES)
+    ANYSTRING = (STRING / STRINGLITERAL)
 
     EVENT = STRING SPACE? PARAM_LIST
 
@@ -119,6 +120,10 @@ class NodeVisitor(NodeVisitor):
     def visit_TIMER(self, node, visited_children):
         duration, _, _ = visited_children
         return {"event": "wait", "args": [duration, "false"]}
+
+    def visit_ANYSTRING(self, node, visited_children):
+        string = visited_children
+        return string[0]
 
     def visit_STRING(self, node, visited_children):
         #print(str(node.text))

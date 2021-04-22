@@ -1,6 +1,6 @@
-
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
-setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+
+setMusicState("sound_sound_musicentity"+bruh, music_ghost_states/main_heavy, Start Heavy)
 activate(hangar_target_relay_hangar_entrance_blocker_on, Turn on blocker / Lock door)
 spawn(Gargoyle, hangar_target_spawn_68, )
 

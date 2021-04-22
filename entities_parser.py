@@ -204,9 +204,8 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
         if not clsname or f'''class = "{clsname}";''' in segment:
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
-    if not clsname:
-        clsname = "entity"
-    #print(f"{segment_count} instances of {clsname} found")
+    if clsname:
+        print(f"{segment_count} instances of {clsname} found")
 
 
 def parse_entities(filename, class_filter):
@@ -218,35 +217,28 @@ def parse_entities(filename, class_filter):
     return data
 
 
-# TODO: make Chrispy less mad
-# I have hit a new low
-def generate_entity(entity_dict, unpack=[]):
-    no_equals_list = ['entityDef ', 'layers']
-    entity_json = json.dumps(entity_dict, indent=4).replace(",", "")
-    res = "entity "
-    for line in entity_json.splitlines():
-        line = line.replace(4*" ", "\t")
-        tabs = len(line) - len(line.lstrip("\t"))
-        if not line.lstrip().startswith('"entityDef '):
-            line = line[1:] if line.startswith("\t") else line
-        if ": " in line:
-            var, other = line.split(": ")
-            var = var.replace('"', '')
-            if unpack and var.strip().startswith(tuple(unpack)):
-                #print("unpacked the string")
-                other = bytes(other, "utf-8").decode("unicode_escape").strip('"')
-                other = "{\n" + indent(other, tabs*"\t") + (tabs-1)*"\t" + "}"
-                #print(other)
-            elif not "{" in line:
-                other += ";"
-            if var.lstrip().startswith(tuple(no_equals_list)):
-                line = var + " " + other
-            else:
-                line = var + " = " + other
-            if line.lstrip().startswith("__layername__ = "):
-                line = line.replace(";","").replace("__layername__ = ", "")
-        res += line + "\n"
-    return res
+# converts a parsed event back to .entities
+# shoutout to Chrispy
+no_equals = ('entityDef', 'layers')
+def generate_entity(parsed_entity, depth=0):
+    s = "entity {\n\t" if depth == 0 else ""
+    for key, val in parsed_entity.items():
+        if isinstance(val, dict):
+            s += key
+            if not key.startswith(no_equals):
+                s += " ="
+            s += " {\n" + generate_entity(val, depth+1) + "}\n"
+        else:
+            if isinstance(val, bool):
+                val = "true" if val else "false"
+            elif isinstance(val, str):
+                if "\n" not in val:
+                    val = f'"{val}"'
+            s += f"{key} = {str(val)}"
+            if "\n" not in str(val):
+                s += ";\n"
+    return indent(s, "\t") if depth > 0 else s
+
 
 fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m3_hell.entities"
 

@@ -26,6 +26,7 @@ def debug_print(string):
         print(string)
 
 
+# not technically variables
 def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified variable {varname} = {value}")
@@ -404,7 +405,7 @@ def concat_strings(event_string):
     output_str = ""
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
-    #print(sorted_variables)
+
     if "+" in event_string:
         segments = event_string.split("+")
         for i, seg in enumerate(segments):
@@ -431,7 +432,7 @@ def concat_strings(event_string):
                 val = f'"{val}"'
             event_string = event_string.replace(f'"{var}"', str(val))
         output_str = event_string
-    #print(output_str)
+
     return output_str.replace(space_char, " ")
 
 
@@ -451,12 +452,13 @@ def compile_EBL(s):
         output_str += (f"item[{item_index}]" + " = {\n" +
                        indent(event_string, "\t") + "}\n")
         item_index += 1
-    #print(output_str)
+
     return output_str
 
 
 def replace_encounter(name, entity_string, entity_events):
     entity = parser.ev.parse(entity_string)
+    entity_events = "{\n" + indent(entity_events, "\t") + "}\n"
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
@@ -469,12 +471,14 @@ def replace_encounter(name, entity_string, entity_events):
         print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
     print(f"Replaced {name}")
-    return parser.generate_entity(entity, unpack=["events"])
+    return parser.generate_entity(entity)
 
 
 def add_entitydefs(entity_string, entitydefs):
     targets = list_targets(entitydefs)
     entitydefs = list_entitydefs(entitydefs)
+    targets = "{\n" + indent(targets, "\t") + "}\n"
+    entitydefs = "{\n" + indent(entitydefs, "\t") + "}\n"
     # print(entity_string)
     entity = parser.ev.parse(entity_string)
     for key in entity:
@@ -486,7 +490,7 @@ def add_entitydefs(entity_string, entitydefs):
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
     entity[entitydef]["edit"]["targets"] = targets
     #print("Added entitydefs")
-    return parser.generate_entity(entity, unpack=["entityDefs", "targets"])
+    return parser.generate_entity(entity)
 
 # Apply all changes in ebl_file to modded_file, copied from base_file
 def apply_EBL(ebl_file, base_file, modded_file):
@@ -496,6 +500,7 @@ def apply_EBL(ebl_file, base_file, modded_file):
     entity_count = 0
     parser.decompress(base_file)
 
+    # if they ever make more DLC I'll change this
     dlc1, dlc2 = is_dlc(base_file)
     entitydefs = base_entitydefs
     if dlc2:
@@ -524,7 +529,7 @@ def apply_EBL(ebl_file, base_file, modded_file):
             fp.write(entity)
 
     add_idAI2s(modded_file, dlc1, dlc2)
-    parser.compress(modded_file)
+    #parser.compress(modded_file)
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
 
