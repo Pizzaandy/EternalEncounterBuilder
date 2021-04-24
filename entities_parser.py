@@ -240,6 +240,28 @@ def generate_entity(parsed_entity, depth=0):
     return indent(s, "\t") if depth > 0 else s
 
 
+def minify(s):
+    return s.replace("\t","").replace("\n","")
+
+
+def unminify(s):
+    # add newlines
+    s = s.replace("{", "{\n")
+    s = s.replace("}","}\n")
+    s = s.replace(";",";\n")
+
+    # add tabs
+    res = ""
+    indent_level = 0
+    for line in s.splitlines():
+        if "}" in line:
+            indent_level -= 1
+        res += indent_level * "\t" + line + "\n"
+        if "{" in line:
+            indent_level += 1
+    return res
+
+
 fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m3_hell.entities"
 
 if __name__ == "__main__":
@@ -247,6 +269,7 @@ if __name__ == "__main__":
     with open('testoutput.json', 'w') as fp:
         json.dump(entities, fp, indent=4)
     my_entity = generate_entity(entities[0])
+    my_entity = my_entity.replace("\t","").replace("\n","")
     with open("test_generated_entity.txt", "w") as fp:
         fp.write(my_entity)
     print("success!")

@@ -1,4 +1,4 @@
-// Automatically added 4 idAI2 entities from DLC 2:
+// Automatically added 5 idAI2 entities from DLC 2:
 
 // custom_ai_superheavy_baron_armored
 // custom_ai_fodder_prowler_cursed

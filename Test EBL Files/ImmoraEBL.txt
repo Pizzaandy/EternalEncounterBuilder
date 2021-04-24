@@ -1,3 +1,6 @@
+SETTINGS
+
+
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
 
 setMusicState("sound_sound_musicentity"+bruh, music_ghost_states/main_heavy, Start Heavy)
@@ -86,6 +89,36 @@ activate
 waitFor wait(1, false)
 
 
+REPLACE objective_target_remove_1
+
+entity {
+	entityDef objective_target_remove_1 {
+	inherit = "target/remove";
+	class = "idTarget_Remove";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {
+			x = -507;
+			y = -742;
+			z = -159.5;
+		}
+		targets = {
+			num = 1;
+			item[0] = "objective_target_poi_teleport";
+		}
+	}
+}
+}
+
+ADD myentity
+
 
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_2
 spawnMultiple(StoneImp, 5, hangar_encounter_spawn_group_zone_2, )
@@ -152,15 +185,15 @@ waitFor AIRemaining(Any, 0, , false)
 
 REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_2
 spawn
-(Tentacle, breach_wasteland_target_spawn_15, )
-(Tentacle, breach_wasteland_target_spawn_16, )
-(Tentacle, breach_wasteland_target_spawn_17, )
-(Tentacle, breach_wasteland_target_spawn_18, )
-(Tentacle, breach_wasteland_target_spawn_19, )
-(Tentacle, breach_wasteland_target_spawn_20, )
-(Tentacle, breach_wasteland_target_spawn_21, )
-(Tentacle, breach_wasteland_target_spawn_22, )
-(Tentacle, breach_wasteland_target_spawn_23, )
+(HellKnight, breach_wasteland_target_spawn_15, )
+(HellKnight, breach_wasteland_target_spawn_16, )
+(HellKnight, breach_wasteland_target_spawn_17, )
+(HellKnight, breach_wasteland_target_spawn_18, )
+(HellKnight, breach_wasteland_target_spawn_19, )
+(HellKnight, breach_wasteland_target_spawn_20, )
+(HellKnight, breach_wasteland_target_spawn_21, )
+(HellKnight, breach_wasteland_target_spawn_22, )
+(HellKnight, breach_wasteland_target_spawn_23, )
 
 spawnMultiple(Gargoyle, 1, breach_wasteland_spawn_group_opening_ledge_gargoyles, open_ledge_gargoyle)
 spawn

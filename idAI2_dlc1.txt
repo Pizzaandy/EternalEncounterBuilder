@@ -1,8 +1,9 @@
-// Automatically added 2 idAI2 entities from DLC 1:
+// Automatically added 3 idAI2 entities from DLC 1:
 
 // custom_ai_ambient_turret
 // custom_ai_heavy_bloodangel
 // custom_ai_ambient_super_tentacle
+// custom_ai_heavy_whiplash_spectre
 
 entity {
 	layers {
@@ -702,6 +703,266 @@ entity {
 			x = -1650.40051;
 			y = -224.599884;
 			z = -149.884201;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_heavy_whiplash_spectre {
+	inherit = "ai/heavy/whiplash_spectre";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.600000024;
+				y = 0.600000024;
+				z = 1.829;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/whiplash_spectre";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_walk_s";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 2000;
+				decayRate = -200;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/whiplash/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 8;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "arm_hand_lf";
+				item[3] = "arm_hand_rt";
+				item[4] = "tail_part03_md";
+				item[5] = "tail_part05_md";
+				item[6] = "tail_part09_md";
+				item[7] = "tail_part13_md";
+			}
+		}
+		factionName = "whiplash";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/default_heavy";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_heavy_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[7] = {
+						componentDecl = "whiplash";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/whiplash/base";
+					}
+					ptr[13] = {
+						componentDecl = "aicomponent/whiplash";
+					}
+					ptr[15] = {
+						componentDecl = "aicomponent/waveblast/whiplash/lashes";
+					}
+					ptr[28] = {
+						componentDecl = "aicomponent/whiplash/whiplash";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/whiplash";
+					item[1] = "syncmelee/whiplash_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 12;
+							item[0] = "syncdeath/playervsai/whiplash/right_upper";
+							item[1] = "syncdeath/playervsai/whiplash/back_upper";
+							item[2] = "syncdeath/playervsai/whiplash/above_front";
+							item[3] = "syncdeath/playervsai/whiplash/above_back";
+							item[4] = "syncdeath/playervsai/whiplash/crucbile/crucible_front";
+							item[5] = "syncdeath/playervsai/whiplash/crucbile/crucible_back";
+							item[6] = "syncdeath/playervsai/whiplash/front_upper";
+							item[7] = "syncdeath/playervsai/whiplash/chainsaw/cut_front";
+							item[8] = "syncdeath/playervsai/whiplash/chainsaw/cut_back";
+							item[9] = "syncdeath/playervsai/whiplash/left_upper";
+							item[10] = "syncdeath/playervsai/whiplash/berserk/berserk_above_front";
+							item[11] = "syncdeath/playervsai/whiplash/berserk/berserk_front_upper";
+						}
+					}
+				}
+			}
+			aiDeathCodex = "codex/hell/demon_whiplash";
+			positioningParms = {
+				num = 1;
+				item[0] = "whiplash/default";
+			}
+			defaultHitJoint = "spine_part01_md";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				deathSounds = {
+					num = 1;
+					item[0] = {
+						soundShader = "stop_whiplash_flank_loop_1";
+					}
+				}
+				declTwitchPain = "twitchpain/whiplash";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 39.0139999;
+				maxEnemyCoverDistance = 39.0139999;
+			}
+			behaviors = {
+				decl = "behaviors/whiplash/spectre";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/whiplash";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/whiplash/combat/idle";
+				spawnFXEntityDef = NULL;
+				teleportDelayMS = 0;
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 2000;
+					starting = 2000;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/heavy/whiplash";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_heavy";
+			articulatedFigure = "characters/monsters/whiplash";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/whiplash/base/whiplash_spectre.md6";
+			lightRigDecl = "whiplash/whiplash_default";
+		}
+		fxDecl = "character/whiplash/whiplash_spectre";
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_damage_whiplash_spectre_GHOST81207";
+		}
+		spawnPosition = {
+			x = 109.000038;
+			y = -25.900013;
+			z = -13;
+		}
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = -4.76837101e-07;
+					y = -1;
+				}
+				mat[1] = {
+					x = 1;
+					y = -4.76837101e-07;
+				}
+			}
 		}
 	}
 }

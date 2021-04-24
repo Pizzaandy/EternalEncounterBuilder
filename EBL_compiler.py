@@ -5,7 +5,7 @@ from textwrap import indent
 from dataclasses import dataclass
 import re
 import time
-import json
+
 
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
@@ -13,6 +13,8 @@ variables = {}
 debug_vars = False
 Settings = ""
 space_char = "^"
+added_entities = []
+blacklist_entities = []
 
 
 @dataclass
@@ -247,18 +249,32 @@ def strip_comments(string):
 # Splits EBL file into segments at REPLACE ENCOUNTER headers
 # and also handles SETTINGS flags
 # returns a tuple with EBL code and encounter name
-def generate_EBL_segments(filename, format_file=True):
+
+ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE )"
+
+def generate_EBL_segments(filename):
     with open(filename) as fp:
-        segments = re.split(r"^REPLACE ENCOUNTER", fp.read(), flags=re.MULTILINE)
+        segments = re.split(ebl_headers_regex, fp.read(), flags=re.MULTILINE)
     if segments[0].startswith("SETTINGS"):
+        # handle assignments written before REPLACE ENCOUNTERs
         print("SETTINGS header found!")
         Settings = segments[0]
+        for line in Settings.splitlines():
+            if line.count('=') == 1:
+                var = line.split("=")
+                add_variable(var[0].strip(), var[1].strip())
     else:
         print("No SETTINGS found")
-    for segment in segments[1:]:
+    for i, segment in enumerate(segments[1:]):
+        if i % 2 == 0:
+            cmd = segment.strip()
+            continue
         name = segment.split("\n")[0].strip()
+        if not name:
+            print("ERROR: No name in header!")
+            continue
         segment = "\n".join(segment.split("\n")[1:])
-        yield (name, strip_comments(segment))
+        yield (name, (cmd, strip_comments(segment)))
 
 
 # Handles macros and fills in missing arguments
@@ -367,27 +383,20 @@ def add_idAI2s(filename, include_dlc1, include_dlc2):
     file.close()
 
 
-def auto_format(filename):
-    add_idAI2s(filename)
-
-
 # SETTINGS flags: (function, parameters)
 setting_to_func = {
-    "autoFormat": (auto_format, []),
+
 }
 
 
 # Read SETTINGS flags and format entities file
 # also make sure we don't miss any variables
-def format_entities_file(filename, settings):
+def apply_settings(filename, settings):
     for line in settings.splitlines():
         if line in setting_to_func:
             func, args = setting_to_func[line]
             func(filename, *args)
-        # Handle assignments written before REPLACE ENCOUNTERs
-        if line.count('=') == 1:
-            var = line.split("=")
-            add_variable(var[0].strip(), var[1].strip())
+
 
 
 # cringe
@@ -456,7 +465,7 @@ def compile_EBL(s):
     return output_str
 
 
-def replace_encounter(name, entity_string, entity_events):
+def replace_encounter(entity_string, entity_events):
     entity = parser.ev.parse(entity_string)
     entity_events = "{\n" + indent(entity_events, "\t") + "}\n"
     for key in entity:
@@ -466,11 +475,11 @@ def replace_encounter(name, entity_string, entity_events):
         print("ERROR: no entityDef component!")
         return entity_string
     try:
-        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
+        entity[entitydef]["edit"]["encounterComponent"]\
+            ["entityEvents"]["item[0]"]["events"] = entity_events
     except:
         print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
-    print(f"Replaced {name}")
     return parser.generate_entity(entity)
 
 
@@ -492,6 +501,21 @@ def add_entitydefs(entity_string, entitydefs):
     #print("Added entitydefs")
     return parser.generate_entity(entity)
 
+
+def modify_entity(name, entity_string, params):
+    cmd = params[0]
+    text = params[1]
+    if cmd == "REPLACE ENCOUNTER":
+        print(f"Replaced encounter {name}")
+        return replace_encounter(entity_string, text)
+    if cmd == "REPLACE":
+        print(f"Replaced entity {name}")
+        return text
+    if cmd == "REMOVE":
+        print(f"Removed entity {name}")
+        return ""
+
+
 # Apply all changes in ebl_file to modded_file, copied from base_file
 def apply_EBL(ebl_file, base_file, modded_file):
     # generate segments + format target file
@@ -509,17 +533,27 @@ def apply_EBL(ebl_file, base_file, modded_file):
         entitydefs += dlc1_entitydefs
 
     segments = generate_EBL_segments(ebl_file)
-    encounters = dict(segments)
-    for key, val in encounters.items():
-        encounters[key] = compile_EBL(val)
+
+    deltas = dict(segments)
+
+    # compile EBL segments to eternalevents
+    new_entities = ""
+    for key, val in deltas.items():
+        if val[0] == "REPLACE ENCOUNTER":
+            deltas[key] = (val[0], compile_EBL(val[1]))
+        if val[0] == "ADD":
+            print (f"Added entity {key}")
+            new_entities += val[1].strip() + "\n"
+
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
+
     with open(modded_file, "w") as fp:
         for entity in entities:
             entity_count += 1
-            for name in encounters.keys():
-                if f"entityDef {name} " in entity:
-                    print(f"Found encounter {name}")
-                    entity = replace_encounter(name, entity, encounters[name])
+            for name, params in deltas.items():
+                if f"entityDef {name} {{" in entity:
+                    print(f"Found entity {name}")
+                    entity = modify_entity(name, entity, params)
                     modified_count += 1
                     break
             if ('class = "idTarget_Spawn";' in entity
@@ -528,8 +562,13 @@ def apply_EBL(ebl_file, base_file, modded_file):
                 modified_count += 1
             fp.write(entity)
 
+        fp.write(new_entities)
+
     add_idAI2s(modded_file, dlc1, dlc2)
-    #parser.compress(modded_file)
+    apply_settings(modded_file, Settings)
+
+    parser.compress(modded_file)
+
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
 
