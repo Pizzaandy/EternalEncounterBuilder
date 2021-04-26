@@ -1,10 +1,12 @@
-// Automatically added 5 idAI2 entities from DLC 2:
+
+// Automatically added 6 idAI2 entities from DLC 2:
 
 // custom_ai_superheavy_baron_armored
 // custom_ai_fodder_prowler_cursed
 // custom_ai_fodder_imp_stone
 // custom_ai_fodder_soldier_chaingun
 // custom_ai_fodder_zombie_t1_screecher
+// custom_ai_ambient_demonic_trooper
 
 entity {
 	layers {
@@ -1539,6 +1541,251 @@ entity {
 			x = -1706.20007;
 			y = -350.75;
 			z = -163.999008;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_ambient_demonic_trooper {
+	inherit = "ai/ambient/demonic_trooper";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.600000024;
+				y = 0.600000024;
+				z = 1.829;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/demonic_trooper";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/hellified_soldier/hs_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_soldier";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 400;
+				decayRate = -20;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_soldier_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_soldier";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_soldier";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_soldier_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_soldier_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_soldier";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_soldier";
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/demonic_trooper/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 6;
+						item[0] = {
+							damageGroupName = "head";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[1] = {
+							damageGroupName = "chest";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[2] = {
+							damageGroupName = "right_arm";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[3] = {
+							damageGroupName = "left_arm";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[4] = {
+							damageGroupName = "right_leg";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+						item[5] = {
+							damageGroupName = "left_leg";
+							maxGoreLevel = "GORELEVEL_TATTERED";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "arm_hand_lf";
+				item[3] = "arm_hand_rt";
+				item[4] = "leg_lower_lf";
+				item[5] = "leg_lower_rt";
+			}
+		}
+		factionName = "demonic_trooper";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/ambient/demonic_trooper";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/demonic_trooper/base";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+			}
+			aiDeathStat = "STAT_HELL_MARINE_KILLED";
+			aiDeathCodex = "codex/hell/demon_demonic_trooper";
+			positioningParms = {
+				num = 1;
+				item[0] = "demonic_trooper/default";
+			}
+			defaultHitJoint = "spine_part01_md";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/demonic_trooper";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = false;
+				allowWander = true;
+			}
+			cover = {
+				coverRadius = 19.5070019;
+			}
+			behaviors = {
+				decl = "behaviors/demonic_trooper/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/demonic_trooper";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/demonic_trooper/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+			demonTeamInfo = {
+				canHostLostSouls = true;
+			}
+			tempMemoryData = {
+				num = 1;
+				item[0] = {
+					key = "chainsaw_invalid_target";
+					value = 1;
+				}
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 35;
+					starting = 35;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/ambient/demonic_trooper";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/demonic_troops/base/demonic_troops.md6";
+			lightRigDecl = "demonic_troops/default";
+		}
+		fxDecl = "character/demonic_trooper/demonic_trooper";
+		afProperties = {
+			articulatedFigure = "characters/ambient/demonic_trooper";
+		}
+		startingInventory = {
+			num = 1;
+			item[0] = {
+				startSlot = "EQUIPPED";
+				inventoryDecl = "weapon/ai/demonic_trooper/energy_assault_rifle";
+			}
+		}
+		walkIKDecl = "walkik/biped_base";
+		spawnPosition = {
+			x = -594.000061;
+			y = -605.000122;
+			z = -66;
 		}
 	}
 }

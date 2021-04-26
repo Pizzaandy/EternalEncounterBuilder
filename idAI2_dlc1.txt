@@ -1,9 +1,11 @@
-// Automatically added 3 idAI2 entities from DLC 1:
+
+// Automatically added 5 idAI2 entities from DLC 1:
 
 // custom_ai_ambient_turret
 // custom_ai_heavy_bloodangel
 // custom_ai_ambient_super_tentacle
 // custom_ai_heavy_whiplash_spectre
+// custom_ai_ambient_spirit
 
 entity {
 	layers {
@@ -329,7 +331,7 @@ entity {
 			lootDropDataDecl = "ai/heavy/bloodangel";
 		}
 		pvpLootDropComponent = {
-			lootDropDataDecl = "ai/heavy/bloodangel_pvp";
+			lootDropDataDecl = NULL;
 		}
 		aiConstants = {
 			components = {
@@ -380,7 +382,7 @@ entity {
 					}
 				}
 			}
-			aiDeathCodex = "";
+			aiDeathCodex = "codex/hell/demon_bloodangel";
 			positioningParms = {
 				num = 2;
 				item[0] = "bloodangel/default";
@@ -426,6 +428,7 @@ entity {
 				entranceAnimPath = "animweb/characters/monsters/bloodangel/spawn/teleport_entrance";
 				spawnFXEntityDef = "fx/spawn_in_heavy";
 				teleportDelayMS = 1250;
+				initialState = "AIOVERRIDE_TELEPORT";
 			}
 		}
 		aiHealth = {
@@ -437,8 +440,8 @@ entity {
 					}
 				}
 				components[0] = {
-					max = 8000;
-					starting = 8000;
+					max = 5000;
+					starting = 5000;
 				}
 			}
 		}
@@ -484,9 +487,9 @@ entity {
 			}
 		}
 		spawnPosition = {
-			x = 141.900009;
-			y = 3261;
-			z = -2883.04834;
+			x = 1164.05005;
+			y = 482.000092;
+			z = 57.0999985;
 		}
 	}
 }
@@ -963,6 +966,238 @@ entity {
 					y = -4.76837101e-07;
 				}
 			}
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_ambient_spirit {
+	inherit = "ai/ambient/spirit";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.600000024;
+				y = 0.600000024;
+				z = 1.829;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/spirit";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.71500003;
+				}
+				crouchedEyeOffset = {
+					z = 1.06700003;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "play_md6_editor_footstep";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_walk_s";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 150;
+				decayRate = 0;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 0.75;
+			}
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/spirit/default";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 6;
+				item[0] = "head";
+				item[1] = "spine2";
+				item[2] = "rightforearm";
+				item[3] = "leftforearm";
+				item[4] = "rightleg";
+				item[5] = "leftleg";
+			}
+		}
+		factionName = "spirit";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/ambient/spirit";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/base";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+			}
+			componentList = "ambient/spirit";
+			aiDeathCodex = "codex/hell/demon_spirit";
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = false;
+				explosionDecl = "ai/default";
+				declTwitchPain = "twitchpain/spirit";
+				allowInvalidSuicide = false;
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+			}
+			cover = {
+				coverRadius = 0;
+			}
+			behaviors = {
+				decl = "behaviors/spirit/default";
+				declBehaviorEvents = "behaviorevents/default";
+			}
+			vsAIDamageMask = "PAIN";
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/ambient/spirit/spawn/teleport_entrance";
+				timers_setOnSpawn = {
+					num = 1;
+					item[0] = {
+						name = "spawn";
+					}
+				}
+				initialState = "AIOVERRIDE_TELEPORT";
+			}
+			buffModifiers = {
+				num = 3;
+				item[0] = {
+					className = "idEntityModifier_Onslaught";
+					object = {
+						radius = 250;
+						durationInSeconds = {
+							minRange = -1;
+							maxRange = -1;
+						}
+						fxCondition = "FX_BUFF_SPIRIT";
+						damageScale = 1;
+						upgradesDecl = "spirit";
+					}
+				}
+				item[1] = {
+					className = "idEntityModifier_Overdrive";
+					object = {
+						radius = 250;
+						durationInSeconds = {
+							minRange = -1;
+							maxRange = -1;
+						}
+						fxCondition = "FX_BUFF_SPIRIT";
+						upgradesDecl = "spirit";
+					}
+				}
+				item[2] = {
+					className = "idEntityModifier_Berserk";
+					object = {
+						radius = 250;
+						durationInSeconds = {
+							minRange = -1;
+							maxRange = -1;
+						}
+						fxCondition = "FX_BUFF_SPIRIT";
+						painTakenScale = 1;
+						upgradesDecl = "spirit";
+						contextFlagsToApply = "AICONTEXT_POSSESSED_BY_SPIRIT";
+					}
+				}
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 2750;
+					starting = 2750;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/ambient/spirit";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/ambient/spirit/base/spirit.md6";
+			lightRigDecl = "spirit/spirit_default";
+		}
+		fxDecl = "character/spirit/spirit";
+		spawnPosition = {
+			x = -1470.09998;
+			y = -371.800018;
+			z = -85;
 		}
 	}
 }

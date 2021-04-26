@@ -5,6 +5,7 @@ from textwrap import indent
 from dataclasses import dataclass
 import re
 import time
+import shutil
 
 
 ebl = EBL.NodeVisitor()
@@ -13,7 +14,6 @@ variables = {}
 debug_vars = False
 Settings = ""
 space_char = "^"
-added_entities = []
 blacklist_entities = []
 
 
@@ -200,12 +200,14 @@ base_entitydefs = [
     "custom_ai_superheavy_marauder",
     "custom_ai_superheavy_tyrant",
     "custom_ai_ambient_buffpod",
+    "custom_ai_fodder_zombie_maykr",
 ]
 
 dlc1_entitydefs = [
     "custom_ai_ambient_turret",
     "custom_ai_heavy_bloodangel",
     "custom_ai_ambient_super_tentacle",
+    "custom_ai_ambient_spirit",
 ]
 
 dlc2_entitydefs = [
@@ -214,6 +216,7 @@ dlc2_entitydefs = [
     "custom_ai_fodder_imp_stone",
     "custom_ai_fodder_soldier_chaingun",
     "custom_ai_fodder_zombie_t1_screecher",
+    "custom_ai_ambient_demonic_trooper",
 ]
 
 
@@ -320,7 +323,6 @@ def create_events(data):
                 "event": "waitMulitpleConditions",
                 "args": [length, waitFor_keywords[data["keyword"]], "false"]
             }
-            print(f'{data["keyword"]}: {waitFor_keywords[data["keyword"]]}')
             return create_events([waitevent] + data["args"])
 
         if data["event"] == "waitFor":
@@ -347,7 +349,7 @@ def create_events(data):
     return data
 
 
-# TODO: can you dont
+# TODO: this is just dumb, find a better way
 def is_dlc(filename):
      # check for "dlc1" and "dlc2"
     head = ""
@@ -396,7 +398,6 @@ def apply_settings(filename, settings):
         if line in setting_to_func:
             func, args = setting_to_func[line]
             func(filename, *args)
-
 
 
 # cringe
@@ -465,7 +466,16 @@ def compile_EBL(s):
     return output_str
 
 
-def replace_encounter(entity_string, entity_events):
+
+actorpopulation = [
+    "actorpopulation/default/default_no_bosses",
+    "actorpopulation/default/dlc1",
+    "actorpopulation/default/dlc2_demonic_soldier",
+]
+
+
+# TODO: actual error handling
+def replace_encounter(entity_string, entity_events, dlc_level):
     entity = parser.ev.parse(entity_string)
     entity_events = "{\n" + indent(entity_events, "\t") + "}\n"
     for key in entity:
@@ -475,8 +485,9 @@ def replace_encounter(entity_string, entity_events):
         print("ERROR: no entityDef component!")
         return entity_string
     try:
-        entity[entitydef]["edit"]["encounterComponent"]\
-            ["entityEvents"]["item[0]"]["events"] = entity_events
+        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
+        entity[entitydef]["edit"]["aiTypeDefAssignments"] = actorpopulation[dlc_level]
+        #print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
     except:
         print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
@@ -484,10 +495,6 @@ def replace_encounter(entity_string, entity_events):
 
 
 def add_entitydefs(entity_string, entitydefs):
-    targets = list_targets(entitydefs)
-    entitydefs = list_entitydefs(entitydefs)
-    targets = "{\n" + indent(targets, "\t") + "}\n"
-    entitydefs = "{\n" + indent(entitydefs, "\t") + "}\n"
     # print(entity_string)
     entity = parser.ev.parse(entity_string)
     for key in entity:
@@ -496,18 +503,39 @@ def add_entitydefs(entity_string, entitydefs):
     if not key:
         print("ERROR: no entityDef component!")
         return entity_string
+
+    old_entitydefs = entity[entitydef]["edit"]["entityDefs"]
+    old_entitydefs.pop('num')
+
+    if len(old_entitydefs) > 0:
+        names = []
+        for assignment in list(old_entitydefs.values()):
+            names += list(assignment.values())
+        entitydefs = entitydefs + names
+    try:
+        spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
+    except KeyError:
+        pass
+    else:
+        if not spawn_editable["spawnAnim"]:
+            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = "AIOVERRIDE_TELEPORT";
+
+    targets = list_targets(entitydefs)
+    entitydefs = list_entitydefs(entitydefs)
+    targets = "{\n" + indent(targets, "\t") + "}\n"
+    entitydefs = "{\n" + indent(entitydefs, "\t") + "}\n"
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
     entity[entitydef]["edit"]["targets"] = targets
     #print("Added entitydefs")
     return parser.generate_entity(entity)
 
 
-def modify_entity(name, entity_string, params):
+def modify_entity(name, entity_string, params, dlc_level):
     cmd = params[0]
     text = params[1]
     if cmd == "REPLACE ENCOUNTER":
         print(f"Replaced encounter {name}")
-        return replace_encounter(entity_string, text)
+        return replace_encounter(entity_string, text, dlc_level)
     if cmd == "REPLACE":
         print(f"Replaced entity {name}")
         return text
@@ -516,7 +544,7 @@ def modify_entity(name, entity_string, params):
         return ""
 
 
-# Apply all changes in ebl_file to modded_file, copied from base_file
+# Apply all changes in ebl_file to modded_file created from base_file
 def apply_EBL(ebl_file, base_file, modded_file):
     # generate segments + format target file
     tic = time.time()
@@ -524,26 +552,28 @@ def apply_EBL(ebl_file, base_file, modded_file):
     entity_count = 0
     parser.decompress(base_file)
 
-    # if they ever make more DLC I'll change this
+    # if they ever make more DLC I'll change this shit lol
     dlc1, dlc2 = is_dlc(base_file)
     entitydefs = base_entitydefs
     if dlc2:
         entitydefs += dlc1_entitydefs + dlc2_entitydefs
+        dlc_level = 2
     elif dlc1:
         entitydefs += dlc1_entitydefs
+        dlc_level = 1
 
     segments = generate_EBL_segments(ebl_file)
 
     deltas = dict(segments)
 
     # compile EBL segments to eternalevents
-    new_entities = ""
+    added_entities = ""
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
             deltas[key] = (val[0], compile_EBL(val[1]))
         if val[0] == "ADD":
             print (f"Added entity {key}")
-            new_entities += val[1].strip() + "\n"
+            added_entities += val[1].strip() + "\n"
 
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
@@ -553,7 +583,7 @@ def apply_EBL(ebl_file, base_file, modded_file):
             for name, params in deltas.items():
                 if f"entityDef {name} {{" in entity:
                     print(f"Found entity {name}")
-                    entity = modify_entity(name, entity, params)
+                    entity = modify_entity(name, entity, params, dlc_level)
                     modified_count += 1
                     break
             if ('class = "idTarget_Spawn";' in entity
@@ -561,18 +591,15 @@ def apply_EBL(ebl_file, base_file, modded_file):
                 entity = add_entitydefs(entity, entitydefs)
                 modified_count += 1
             fp.write(entity)
-
-        fp.write(new_entities)
+        fp.write(added_entities)
 
     add_idAI2s(modded_file, dlc1, dlc2)
     apply_settings(modded_file, Settings)
+    parser.verify_file(modded_file)
+    parser.list_checkpoints(modded_file)
 
     parser.compress(modded_file)
 
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
 
-if __name__ == "__main__":
-    base_file = "Test Entities/e5m3_hell.entities"
-    modded_file = "Test Entities/e5m3_hell_modded.entities"
-    apply_EBL("Test EBL Files/ImmoraEBL.txt", base_file, modded_file)

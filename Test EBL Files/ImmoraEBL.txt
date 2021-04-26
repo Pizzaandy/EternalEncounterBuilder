@@ -1,9 +1,12 @@
 SETTINGS
 
+//Playtesters:
+// Daeker
+// MilkyQuesadilla
 
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
 
-setMusicState("sound_sound_musicentity"+bruh, music_ghost_states/main_heavy, Start Heavy)
+setMusicState("sound_sound_musicentity", music_ghost_states/main_heavy, Start Heavy)
 activate(hangar_target_relay_hangar_entrance_blocker_on, Turn on blocker / Lock door)
 spawn(Gargoyle, hangar_target_spawn_68, )
 
@@ -89,37 +92,6 @@ activate
 waitFor wait(1, false)
 
 
-REPLACE objective_target_remove_1
-
-entity {
-	entityDef objective_target_remove_1 {
-	inherit = "target/remove";
-	class = "idTarget_Remove";
-	expandInheritance = false;
-	poolCount = 0;
-	poolGranularity = 2;
-	networkReplicated = false;
-	disableAIPooling = false;
-	edit = {
-		flags = {
-			noFlood = true;
-		}
-		spawnPosition = {
-			x = -507;
-			y = -742;
-			z = -159.5;
-		}
-		targets = {
-			num = 1;
-			item[0] = "objective_target_poi_teleport";
-		}
-	}
-}
-}
-
-ADD myentity
-
-
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_2
 spawnMultiple(StoneImp, 5, hangar_encounter_spawn_group_zone_2, )
 
@@ -138,46 +110,49 @@ activate
 waitFor wait(1, false)
 
 
-
+// introarena
 REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_1
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
 spawn
-(ZombieTier3, breach_wasteland_target_spawn_7, )
-(ZombieTier3, breach_wasteland_target_spawn_10, )
+(Arachnotron, breach_wasteland_target_spawn_7, )
+(HellSoldier, breach_wasteland_target_spawn_10, )
 (HellSoldier, breach_wasteland_target_spawn_6, )
 (HellSoldier, breach_wasteland_target_spawn_8, )
-(ZombieTier3, breach_wasteland_target_spawn_36, )
+(Arachnotron, breach_wasteland_target_spawn_36, )
 (HellSoldier, breach_wasteland_target_spawn_34, )
+spawn(Tyrant, breach_wasteland_target_spawn_1, opening_mancubus)
 
-setFactionRelation(HellSoldier, , ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
-
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+//setFactionRelation(HellSoldier, , ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_breach_intro, true, false)
 
-waitFor AIHealthLevel(Any, 0.899999976, , false)
-spawn(Mancubus, breach_wasteland_target_spawn_1, opening_mancubus)
 clearFactionOverrides()
 alertAI(false, false, , false)
 
 waitFor wait(1, false)
 spawn
-(ShotgunSoldier, breach_wasteland_target_spawn_30, )
-(ShotgunSoldier, breach_wasteland_target_spawn_31, )
+(Imp, breach_wasteland_target_spawn_30, )
+(Imp, breach_wasteland_target_spawn_31, )
+(Imp, breach_wasteland_target_spawn_32, )
+(Imp, breach_wasteland_target_spawn_32, )
+forceChargeOnAllAI()
+print(imps spawned, false)
 
-waitFor wait(1, false)
-spawn(ShotgunSoldier, breach_wasteland_target_spawn_32, )
-
-waitFor wait(0.25, false)
+waitFor wait(1.5, false)
 spawn
-(ShotgunSoldier, breach_wasteland_target_spawn_33, )
-(ShotgunSoldier, breach_wasteland_target_spawn_28, )
+(Mancubus, breach_wasteland_target_spawn_33, )
+(Imp, breach_wasteland_target_spawn_28, )
+(Imp, breach_wasteland_target_spawn_30, )
+(Imp, breach_wasteland_target_spawn_31, )
+(Imp, breach_wasteland_target_spawn_32, )
+(Imp, breach_wasteland_target_spawn_32, )
 
 alertAI(true, false, , false)
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_intro_p2, true, false)
 
-waitFor wait(1, false)
-spawn(Revenant, breach_wasteland_target_spawn_29, )
+waitFor wait(0.2, false)
+spawn(Baron, breach_wasteland_target_spawn_29, )
 
 waitFor AIRemaining(Any, 0, , false)
 
@@ -185,25 +160,19 @@ waitFor AIRemaining(Any, 0, , false)
 
 REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_2
 spawn
-(HellKnight, breach_wasteland_target_spawn_15, )
-(HellKnight, breach_wasteland_target_spawn_16, )
-(HellKnight, breach_wasteland_target_spawn_17, )
+(Prowler, breach_wasteland_target_spawn_16, )
+(Imp, breach_wasteland_target_spawn_17, )
 (HellKnight, breach_wasteland_target_spawn_18, )
-(HellKnight, breach_wasteland_target_spawn_19, )
-(HellKnight, breach_wasteland_target_spawn_20, )
-(HellKnight, breach_wasteland_target_spawn_21, )
-(HellKnight, breach_wasteland_target_spawn_22, )
-(HellKnight, breach_wasteland_target_spawn_23, )
+alertAI(true, true, , false)
 
-spawnMultiple(Gargoyle, 1, breach_wasteland_spawn_group_opening_ledge_gargoyles, open_ledge_gargoyle)
 spawn
-(HellSoldier, breach_wasteland_target_spawn_11, )
-(HellSoldier, breach_wasteland_target_spawn_12, )
+(Imp, breach_wasteland_target_spawn_11, )
+(Imp, breach_wasteland_target_spawn_12, )
+(Cacodemon, breach_wasteland_target_spawn_5, )
 
 waitFor wait(2, false)
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
-staggeredAISpawn(Gargoyle, 2, breach_wasteland_spawn_group_opening_ledge_imps, open_ledge_imps, 1, 4)
 alertAI(true, true, , false)
 
 waitFor AIRemaining(Any, 0, , false)
@@ -229,17 +198,21 @@ spawn
 (Gargoyle, breach_wasteland_arena_target_spawn_50, )
 (Gargoyle, breach_wasteland_arena_target_spawn_37, )
 
+print(spawned initial AI, false)
+
 waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
 
 waitFor AIHealthLevel(Any, 0.899999976, , false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
+print(music pop off, false)
 clearFactionOverrides()
 alertAI(true, true, , false)
 maintainAI
 (Imp, 2, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
 (Gargoyle, 2, -1, 1, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 4)
+print(maintaining Imps, false)
 
 waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
 
@@ -263,17 +236,13 @@ waitFor AIRemaining
 (Whiplash, 0, , false)
 (DoomHunter, 0, , false)
 
-setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 spawn(ArmoredBaron, breach_wasteland_arena_target_spawn_54, )
 
 waitFor wait(1, false)
-spawnMultiple(Carcass, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawnMultiple(Carcass, 3, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+waitFor AIRemaining(ArmoredBaron, 1, , false)
 
-waitFor AIRemaining(ArmoredBaron, 0, , false)
-
-waitFor AIHealthLevel(ArmoredBaron, 0.649999976, , false)
 spawn(BloodAngel, breach_wasteland_arena_target_spawn_39, )
 
 waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
@@ -311,81 +280,171 @@ activate
 waitFor wait(1, false)
 
 
-
+// bigarena1
 REPLACE ENCOUNTER _example_encounter_manager_0
-setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
 
-waitFor wait(1, false)
 activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
 activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, , 0)
-spawnMultiple(DreadKnight, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawnMultiple(DreadKnight, 3, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor wait(1, false)
+waitFor 1 sec
 spawnMultiple
-(Imp, 3, breach_wasteland_arena_encounter_spawn_group_zone_1, )
-(ZombieMaykr, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+(Imp, 5, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+(MechaZombie, 3, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor wait(1, false)
 spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor 2 sec
+spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
+
+waitFor 2 sec
+spawnMultiple(Revenant, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
 waitFor wait(1, false)
 alertAI(true, true, , false)
 
-waitFor wait(2, false)
-spawnMultiple(Prowler, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor 5 sec
+spawnMultiple(Prowler, 4, breach_wasteland_arena_encounter_spawn_group_zone_2, )
 maintainAI
-(Imp, 3, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
-(ZombieMaykr, 1, 10, 8, 0, breach_wasteland_arena_encounter_spawn_group_zone_1, , 10)
+(Imp, 8, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
+(Gargoyle, 3, 10, 8, 0, breach_wasteland_arena_encounter_spawn_group_zone_1, , 10)
 
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+waitFor waitMulitpleConditions(3, ENCOUNTER_LOGICAL_OP_AND, false)
+waitFor {
+	AIRemaining
+	(DreadKnight, 1, , false)
+	(Revenant, 1, , false)
+	(Prowler, 2, , false)
+}
 
-waitFor AIRemaining
-(DreadKnight, 0, , false)
-(Revenant, 0, , false)
+spawnMultiple(DoomHunter, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
+waitFor 2.5 sec
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
 
-spawn(DoomHunter, breach_wasteland_arena_target_spawn_28, )
+waitFor 2.5 sec
+spawnMultiple(MaykrDrone, 1, breach_wasteland_arena_encounter_spawn_group_zone_2, )
+spawnMultiple(Carcass, 3, breach_wasteland_arena_encounter_spawn_group_zone_2, )
 
-waitFor wait(1, false)
-maintainAI(Whiplash, 2, 4, 2, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, , 3)
+waitFor 1 sec
 
-waitFor wait(1, false)
-spawnMultiple(CursedProwler, 1, breach_wasteland_arena_encounter_spawn_group_zone_2, )
+waitFor AIHealthLevel(DoomHunter, 0.400000012, , false)
+spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor 1.3 sec
+spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor 2 sec
+spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor 2 sec
+spawnMultiple(CyberMancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_2, )
+waitFor 2 sec
+spawnMultiple(Whiplash, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor wait(1, false)
+waitFor AIRemaining(Mancubus, 2)
+spawnMultiple(Whiplash, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor AIHealthLevel(DoomHunter, 0.300000012, , false)
-spawn(DoomHunter, breach_wasteland_arena_target_spawn_10, )
+waitFor {
+	AIRemaining
+	(Mancubus, 1, , false)
+	(DoomHunter, 0, , false)
+	(Whiplash, 1, , false)
+}
+print(Armored barons should spawn here)
+spawn(Baron, breach_wasteland_arena_target_spawn_54, )
+spawnMultiple(ArmoredBaron, 1, breach_wasteland_arena_encounter_spawn_group_zone_1,)
 
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+waitFor 1 sec
+spawn(PainElemental, breach_wasteland_arena_target_spawn_55, )
 
-waitFor AIRemaining
-(Whiplash, 0, , false)
-(DoomHunter, 0, , false)
+waitFor 2 sec
+spawn(PainElemental, breach_wasteland_arena_target_spawn_56, )
+stopMaintain(Gargoyle)
 
-spawnMultiple(Baron, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor AIRemaining(PainElemental, 1,, false)
+waitFor any {
+	AIRemaining(Baron, 0,, false)
+	AIRemaining(ArmoredBaron, 0,, false)
+}
 
-waitFor wait(1, false)
-spawn(Cacodemon, breach_wasteland_arena_target_spawn_61, )
-
-waitFor wait(0.25, false)
+print(prepare to die)
+spawnMultiple(Carcass, 1, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+spawn(BloodMaykr, breach_wasteland_arena_target_spawn_20, )
+waitFor 2 sec
+spawn(BloodMaykr, breach_wasteland_arena_target_spawn_30, )
+waitFor 2 sec
+spawn(BloodMaykr, breach_wasteland_arena_target_spawn_35, )
+waitFor 3 sec
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
+waitFor 2 sec
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
+waitFor 1 sec
 spawn(Cacodemon, breach_wasteland_arena_target_spawn_62, )
+waitFor 2 sec
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
 
-waitFor wait(0.25, false)
-spawnMultiple(Carcass, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
+waitFor {
+	AIRemaining
+	(PainElemental, 0, , false)
+	(BloodMaykr, 0, , false)
+}
 
-waitFor AIRemaining
-(Cacodemon, 0, , false)
-(Baron, 0, , false)
+targets = "Pinky Arachnotron Tyrant Revenant CyberMancubus"
+spawnPossessed
+(HellKnight, breach_wasteland_arena_target_spawn_27, , breach_wasteland_arena_target_spawn_25, targets, , true)
+
+spawnMultiple(Arachnotron, 3, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+waitFor 2 sec
+spawnMultiple(Tyrant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+stopMaintainAI(Imp,)
+spawnMultiple(Shotgunner, 2, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+maintainAI
+(Imp, 10, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
+(Shotgunner, 3, -1, 3, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, , 0)
+
+waitFor 2 sec
+spawnMultiple(MaykrDrone, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+
+waitFor any {
+	AIRemaining(Arachnotron, 2)
+}
+
+spawnMultiple(Pinky, 2, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+
+waitFor any {
+	AIRemaining(Tyrant, 0)
+	AIRemaining(Arachnotron, 0)
+}
+
+spawnMultiple
+(MaykrDrone, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+(DoomHunter, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+waitFor 3 sec
+spawnMultiple(Marauder, 1, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+waitFor AIHealthLevel(Marauder, 0.66, , false)
+spawnMultiple(Revenant, 3, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+waitFor AIHealthLevel(Marauder, 0.33, , false)
+spawnMultiple(Pinky, 1, breach_wasteland_arena_encounter_spawn_group_zone_1,)
+
+waitFor {
+	AIRemaining
+	(Arachnotron, 0, , false)
+	(ArmoredBaron, 0, , false)
+	(Baron, 0, , false)
+	(Pinky, 0, , false)
+	(Tyrant, 0, , false)
+	(Revenant, 0, , false)
+}
 
 forceChargeOnAllAI()
+damageAI(damage/triggerhurt/triggerhurt1000_instagib, Imp Shotgunner, )
 stopMaintainAI
 (Imp, )
-(ZombieMaykr, )
+(Shotgunner, )
 
 waitFor AIRemaining(Any, 0, , false)
-setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Light)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Heavy)
 activate
 (breach_wasteland_arena_target_relay_flame_traps_off, Stop traps)
 (breach_wasteland_arena_target_relay_combat_end_start_camera, start camera)
@@ -396,13 +455,15 @@ waitFor wait(6, false)
 activate(target_relay_escalation_1_done, Wave 1 Done)
 
 waitFor wait(1, false)
-activate(func_emitter_3, Second gore nest effect)
+//activate(func_emitter_3, Second gore nest effect)
 
 waitFor wait(1, false)
 activate(breach_wasteland_arena_target_relay_3, replace ammo)
 
 
 
+
+// bigarena1_2
 REPLACE ENCOUNTER breach_wasteland_arena_encounter_manager_dlc2_2
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 activate
@@ -447,9 +508,9 @@ waitFor AIRemaining
 (ArmoredBaron, 0, , false)
 
 spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
-
-waitFor wait(1, false)
 spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
+waitFor wait(1, false)
+
 
 waitFor wait(1, false)
 spawnMultiple(Marauder, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
@@ -882,39 +943,27 @@ spawnMultiple(ChaingunSoldier, 2, city_lower_encounter_spawn_group_zone_5, city_
 waitFor AIRemaining(Any, 0, , false)
 
 
-
+// cityrevealarena
+// city_reveal_encounter_spawn_group_zone_1
+// city_reveal_encounter_spawn_group_zone_2
+group = city_reveal_encounter_spawn_group_zone_
 REPLACE ENCOUNTER city_reveal_encounter_manager_dlc2_1
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, post_city_cam, false, false)
 spawn(PainElemental, city_reveal_target_spawn_13, reveal_pain_elem)
+maintainAI(Zombie, 6, -1, 3, 2, group+1, , 0)
+spawnMultiple(Tyrant, 3, group+1,)
 
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
+waitFor AIRemaining(Tyrant, 2)
+spawnMultiple(Pinky, 5, group+2,)
+spawnPossessed(Mancubus, city_reveal_target_spawn_4, , city_reveal_target_spawn_5, Pinky, , false)
 
-waitFor AIHealthLevel(PainElemental, 0.100000001, reveal_pain_elem, false)
+waitFor {
+	AIRemaining(Mancubus, 0)
+	AIRemaining(Tyrant, 0)
+}
 
-waitFor wait(6, false)
-staggeredAISpawn(Generic, 6, city_reveal_encounter_spawn_group_post_cam_troops, , 1, 3)
-
-waitFor staggeredSpawnComplete(Any, 0, , false)
-
-waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_OR, false)
-
-waitFor AIRemaining(Any, 3, , false)
-
-waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, reveal_deck_lower_spawns, true, false)
-staggeredAISpawn(Generic, 6, city_reveal_encounter_spawn_group_zone_1, , 0.25, 1)
-
-waitFor staggeredSpawnComplete(Any, 0, reveal_deck_troops_secondary, false)
-
-waitFor AIRemaining(Any, 0, reveal_deck_troops_secondary, false)
-spawnMultiple(Generic, 2, city_reveal_encounter_spawn_group_zone_2, reveal_deck_troops_tres)
-
-waitFor wait(2, false)
-
-waitFor AIRemaining(Any, 0, , false)
-
-
-
+// bigarena2
 REPLACE ENCOUNTER city_rooftop_encounter_manager_dlc2_1
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
@@ -1019,4 +1068,155 @@ waitFor wait(2, false)
 
 waitFor AIRemaining(Any, 0, , false)
 
+REMOVE breach_wasteland_arena_info_logic_fire_post_1465528472
+REMOVE breach_wasteland_arena_info_logic_fire_post_2106236184
+REMOVE breach_wasteland_arena_info_logic_fire_post_1396682183
+REMOVE breach_wall_deck_info_logic_fire_post_79790230
 
+ADD cave_meathook_node
+entity {
+	layers {
+		"game/dlc2/e5m3_hell/e5m3_hell/visibility/wasteland_meat_hooks"
+	}
+	entityDef cave_meathook_node {
+	inherit = "target/ai_proxy_meathook";
+	class = "idTarget_SmartAIProxy";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		targetingDecl = "target_aiproxy_meathook";
+		distanceOverride = 25;
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = -0.858214;
+					y = -0.429762;
+					z = -0.280667;
+				}
+				mat[1] = {
+					x = 0.447759;
+					y = -0.894154;
+					z=0.000000;
+				}
+				mat[2] = {
+					x = -0.250959;
+					y = -0.125671;
+					z = 0.959805;
+				}
+			}
+		}
+		spawnPosition = {
+			x = -1540.510010;
+			y = -253.860001;
+			z = -119.690002;
+		}
+		renderModelInfo = {
+			scale = {
+				x = 1.000000;
+				y = 1.000000;
+				z = 1.000000;
+			}
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"game/dlc2/e5m3_hell/e5m3_hell/visibility/wasteland_meat_hooks"
+	}
+	entityDef cave_target_proxy_handler {
+	inherit = "target/proxy_handler";
+	class = "idTargetableProxyHandler";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		cooldownDuration = 3000;
+		connectSound = "play_meat_hook_lock_in";
+		ambientLoopSound = "play_meathook_sphere_amb_loop";
+		oneSidedActiveModel = "art/kit/gameplay/meathook_traversal_a.lwo";
+		oneSidedInactiveModel = "art/kit/gameplay/meathook_traversal_b.lwo";
+		allSidedActiveModel = "art/kit/gameplay/meathook_traversal_c.lwo";
+		allSidedInactiveModel = "art/kit/gameplay/meathook_traversal_d.lwo";
+		oneSidedActiveFXModel = "art/kit/gameplay/meathook_traversal_a_rings.lwo";
+		oneSidedInactiveFXModel = "art/kit/gameplay/meathook_traversal_b_rings.lwo";
+		allSidedActiveFXModel = "art/kit/gameplay/meathook_traversal_c_rings.lwo";
+		allSidedInactiveFXModel = "art/kit/gameplay/meathook_traversal_d_rings.lwo";
+		spawnPosition = {
+			x = -1480.900146;
+			y = -337.499390;
+			z = -83.800026;
+		}
+		renderModelInfo = {
+			model = "art/kit/gameplay/meatHook_traversal_placeholder.lwo";
+			scale = {
+				x = 1.000000;
+				y = 1.000000;
+				z = 1.000000;
+			}
+		}
+		clipModelInfo = {
+			clipModelName = "maps/prefabs/gameplay/meathook_target/target_proxy_handler_2";
+		}
+		proxyList = {
+			num = 1;
+			item[0] = {
+				proxyEntity = "cave_meathook_node";
+				proxyTagName = "ai_proxy_meathook_1";
+			}
+		}
+		isOmnidirectional = true;
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = -0.000000;
+					y = -1.000000;
+					z = 0.000000;
+				}
+				mat[1] = {
+					x = 1.000000;
+					y = -0.000000;
+					z = 0.000000;
+				}
+				mat[2] = {
+					x = 0.000000;
+					y = 0.000000;
+					z = 1.000000;
+				}
+			}
+		}
+	}
+}
+}
+
+REPLACE sound_sound_musicentity_1
+entity {
+	entityDef sound_sound_musicentity_1 {
+	inherit = "sound/musicentity";
+	class = "idMusicEntity";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {
+			x = -1935.5;
+			y = -264.899994;
+			z = -164.800018;
+		}
+		initialState = "music_ghost_states/none";
+		initialSwitchGroup = "music_ghost_switch";
+		initialSwitchState = "samuelsbase_music";
+	}
+}
+}

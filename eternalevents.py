@@ -29,13 +29,19 @@ class EternalEvent:
                         {{varname}} = {{{value}}}
                     }""")
 
+
     def stringify(self):
+
+        def format_value(v):
+            if isinstance(v, str) and v not in ["NULL", "true", "false"]:
+                return f'"{v}";'
+            else:
+                return f'{v};'
+
         items = [
             {
                 "index": index,
-                "value": (f'"{val[1]}";' if isinstance(val[1], str)
-                          and val[1] not in ["NULL", "true", "false"]
-                          else f'{val[1]};'),
+                "value": format_value(val[1]),
                 "var": var[1]
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
@@ -43,14 +49,19 @@ class EternalEvent:
         #print(items)
         name = camelcase(type(self).__name__)
         for item in items:
-            if item["var"].startswith("decl"):
+            if "=" in item["var"]:
+                varname, default = item["var"].split("=")
+                item["var"] = varname
+                if item["value"] == '"";' or not item["value"]:
+                    item["value"] = format_value(default)
+                    print(f'set default value for var {varname}')
+            if item["var"].startswith("decl:"):
                 varname = item["var"].replace("decl:", "")
                 item["var"] = "decl"
                 item["value"] = (
                     chevron.render(
                         template=self.decl_template,
                         data={"varname": varname, "value": item["value"]}))
-
         return chevron.render(
             template=self.ev_template,
             data={"name": name, "items": items, "count": len(items)})
@@ -122,7 +133,7 @@ class MaintainAICount(EternalEvent, alias=["maintainAI", "maintain"]):
     group_level = "string"
     max_spawn_delay = "float"
 
-class StaggeredAISpawn(EternalEvent):
+class StaggeredAISpawn(EternalEvent, alias="spawnStaggered"):
     spawnType = "eEncounterSpawnType_t"
     spawn_count = "int"
     spawnGroup = "entity*"
@@ -151,20 +162,20 @@ class SpawnArchvile(EternalEvent):
     archvile_label = "string*"
     group_label = "string*"
 
-class SpawnPossessedAI(EternalEvent, alias=["spawnPossessed","spawnSpirit"]):
-    spawnType = "eEncounterSpawnType_t"
-    spawnTarget = "entity"
-    group_label = "string*"
-    spawnTarget2 = "entity"
-    spawnType2 = "eEncounterSpawnType_t"
-    group_label2 = "string*"
-    somebool = "bool"
+class SpawnPossessedAI(EternalEvent, alias=["spawnPossessed"]):
+    ai_spawnType = "eEncounterSpawnType_t"
+    ai_spawnTarget = "entity"
+    ai_groupLabel = "string*"
+    spirit_spawnTarget = "entity"
+    spirit_allowedAITypes = "eEncounterSpawnType_t"
+    spirit_allowedGroupLabel = "string*"
+    spirit_aiTypeExplicitFiltering = "bool"
 
 class SpawnSpirit(EternalEvent):
     spawnTarget = "entity"
-    spawnType = "eEncounterSpawnType_t"
-    group_label = "string*"
-    somebool = "bool"
+    allowedAITypes = "eEncounterSpawnType_t"
+    allowed_group_label = "string*"
+    aiTypeExplicitFiltering = "bool"
 
 class SetMusicState(EternalEvent):
     target = "entity"
@@ -198,7 +209,7 @@ class SetFactionRelation(EternalEvent):
     instigatorSpawnType = "eEncounterSpawnType_t"
     groupLabel = "string*"
     targetSpawnType = "eEncounterSpawnType_t"
-    relation = "socialEmotion_t"
+    relation = "socialEmotion_t=EMOTION_DESTROY_AT_ALL_COSTS"
 
 class ClearFactionOverrides(EternalEvent):
     pass
@@ -281,11 +292,6 @@ class ProceedToNextScript(EternalEvent):
 
 class DesignerComment(EternalEvent, alias="print"):
     designerComment = "string*"
-    printToConsole = "bool"
+    printToConsole = "bool=true"
 
-#events = []
-#for line in lines:
-    #if line.startswith("Wave"):
 
-#mylist = get_event_args(SpawnAI)
-#print(mylist

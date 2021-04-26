@@ -1,9 +1,5 @@
-import eternalevents
-import json
 import re
 import time
-from multiprocessing import Pool
-import multiprocessing as mp
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 from textwrap import indent
@@ -208,11 +204,12 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
         print(f"{segment_count} instances of {clsname} found")
 
 
-def parse_entities(filename, class_filter):
+def parse_entities(filename, class_filter=""):
     tic = time.time()
     print("Start processing")
-    with Pool(processes=mp.cpu_count()) as pool:
-        data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    #with Pool(processes=mp.cpu_count()) as pool:
+        #data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    data = map(ev.parse, generate_entity_segments(filename, class_filter))
     print(f"Done processing in {time.time()-tic:.1f} seconds")
     return data
 
@@ -237,7 +234,7 @@ def generate_entity(parsed_entity, depth=0):
             s += f"{key} = {str(val)}"
             if "\n" not in str(val):
                 s += ";\n"
-    return indent(s, "\t") if depth > 0 else s
+    return indent(s, "\t") if depth > 0 else s + "}\n"
 
 
 def minify(s):
@@ -262,14 +259,61 @@ def unminify(s):
     return res
 
 
-fp = "C:\_DEV\EternalEncounterDesigner\Test Entities\e5m3_hell.entities"
+# quick-n-dirty punctuation check
+# TODO: make less suck
+def verify_file(filename):
+    print("Checking file...")
+    error_found = False
+    depth = 0
+    layers_line = False
+    with open(filename) as fp:
+        for i, line in enumerate(fp.readlines()):
+            if "{" in line:
+                depth += 1
+            if "}" in line:
+                depth -= 1
+            if layers_line:
+                layers_line = False
+                continue
+            if i < 2 or not line.strip() or line.lstrip().startswith("//"):
+                continue
+            if line.strip().startswith("layers"):
+                layers_line = True
+            if not line.rstrip().endswith(("{","}",";")):
+                print(f"Missing punctuation on line {i+1}")
+                print(f"line {i+1}: {line}")
+                error_found = True
+    if depth != 0:
+        print(f"Unmatched braces detected! Depth = {depth}")
+        return True
+    if not error_found:
+        print("No problems found!")
+    return error_found
+
+def list_checkpoints(filename):
+    cps = []
+    print("\nCHECKPOINTS:")
+    with open(filename) as fp:
+        for line in fp.readlines():
+            # if 'checkpointName = ' in line:
+            #     name = line.replace('checkpointName = ',"").strip().strip(";").strip('"')
+            #     cps += [name]
+            if 'playerSpawnSpot = ' in line:
+                name = line.replace('playerSpawnSpot = ',"").strip().strip(";").strip('"')
+                cps += [name]
+    for name in cps:
+        print(name)
+    print("")
+
+
+fp = "C:\AndyStuff\DoomModding\_MYMODS_\TestEBLImmora\e5m3_hell\maps\game\dlc2\e5m3_hell\e5m3_hell.entities"
 
 if __name__ == "__main__":
-    entities = parse_entities(fp, "idEncounterManager")
-    with open('testoutput.json', 'w') as fp:
-        json.dump(entities, fp, indent=4)
-    my_entity = generate_entity(entities[0])
-    my_entity = my_entity.replace("\t","").replace("\n","")
-    with open("test_generated_entity.txt", "w") as fp:
-        fp.write(my_entity)
+    entities = parse_entities(fp)
+    # with open('testoutput.json', 'w') as fp:
+    #     json.dump(entities, fp, indent=4)
+    # my_entity = generate_entity(entities[0])
+    # my_entity = my_entity.replace("\t","").replace("\n","")
+    # with open("test_generated_entity.txt", "w") as fp:
+    #     fp.write(my_entity)
     print("success!")

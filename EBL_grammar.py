@@ -112,8 +112,7 @@ class NodeVisitor(NodeVisitor):
         _, _, keyword, _, conditions, _ = visited_children
         if not isinstance(conditions, list):
             return {"event": "waitForBlock", "args": []}
-        keyword = keyword[0]
-        keyword = keyword if isinstance(keyword, str) else "all"
+        keyword = keyword[0] if isinstance(keyword, list) else "all"
         #print("waitForBlock parsed")
         return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
 

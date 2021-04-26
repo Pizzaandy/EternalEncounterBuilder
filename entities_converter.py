@@ -68,21 +68,3 @@ def convert_to_ebl(events):
         last_name = name
     return res
 
-
-
-if __name__ == "__main__":
-    entities = parser.parse_entities(fp, "idEncounterManager")
-    res = ""
-    for i, entity in enumerate(entities):
-        print(f"processing entity {i}")
-        for key in entity:
-            if key.startswith("entityDef"):
-                entitydef = key
-                name = key.replace("entityDef ", "")
-        if not key or not name:
-            print("ERROR: no entityDef found")
-        events = entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"]
-        res += "\nREPLACE ENCOUNTER " + name + "\n"
-        res += convert_to_ebl(events) + "\n\n"
-    with open("test_generated_EBL.txt", "w") as fp:
-        fp.write(res)

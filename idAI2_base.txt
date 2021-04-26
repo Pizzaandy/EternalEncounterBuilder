@@ -1,4 +1,5 @@
-// Automatically added 29 idAI2 entities from the base game:
+
+// Automatically added 28 idAI2 entities from the base game:
 
 // custom_ai_fodder_imp
 // custom_ai_fodder_soldier_blaster
@@ -24,10 +25,11 @@
 // custom_ai_heavy_pinky_spectre
 // custom_ai_superheavy_archvile
 // custom_ai_superheavy_baron
-// custom_ai_superheavy_doom_hunter
+// custom_ai_superheavy_doom_hunter 
 // custom_ai_superheavy_marauder
 // custom_ai_superheavy_tyrant
 // custom_ai_ambient_buffpod
+// custom_ai_fodder_zombie_maykr
 
 entity {
 	layers {
@@ -6731,18 +6733,11 @@ entity {
 		}
 		aiEditable = {
 			perception = {
-				actorPerceptionRadius = 75;
+				actorPerceptionRadius = 39;
 				obstaclePerceptionRadius = 78;
 				closePerceptionRadius = 5;
 				eventPerceptionRadius = 39;
 				senseUpdatesOnNonEnemies = false;
-				fieldOfView = {
-					value = 360;
-				}
-				fieldOfView_close = {
-					value = 360;
-				}
-				exposedSightTime = 0;
 			}
 			useTouchComponent = true;
 			death = {
@@ -6779,6 +6774,7 @@ entity {
 				entranceAnimPath = "animweb/characters/monsters/doomhunter/spawn/teleport_entrance";
 				spawnFXEntityDef = "fx/spawn_in_superheavy";
 				teleportDelayMS = 2000;
+				initialState = "AIOVERRIDE_TELEPORT";
 			}
 		}
 		aiHealth = {
@@ -6839,12 +6835,9 @@ entity {
 			}
 		}
 		spawnPosition = {
-			x = 1.29999745;
-			y = 163.34996;
-			z = -2921.30005;
-		}
-		flags = {
-			hide = true;
+			x = -1692.90027;
+			y = -344;
+			z = -164;
 		}
 	}
 }
@@ -7624,6 +7617,269 @@ entity {
 		}
 		flags = {
 			hide = true;
+		}
+	}
+}
+}
+
+entity {
+	layers {
+		"spawn_target_layer"
+	}
+	entityDef custom_ai_fodder_zombie_maykr {
+	inherit = "ai/fodder/zombie_maykr";
+	class = "idAI2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		highlightDecl = "glorykill_highlight";
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 0.400000006;
+				y = 0.400000006;
+				z = 1.5;
+			}
+		}
+		dormancy = {
+			delay = 30;
+			distance = 19.5070019;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_AI_SPAWNED";
+				increase = 1;
+			}
+		}
+		targetingDecl = "characters/maykr_zombie";
+		actorConstants = {
+			perception = {
+				eyeOffset = {
+					z = 1.63829994;
+				}
+				crouchedEyeOffset = {
+					z = 0.609600008;
+				}
+			}
+			actorSounds = {
+				sndFootsteps = "footsteps/zombies/zombies_default";
+				sndPainSmall = "player/pain/small";
+				sndPainMedium = "player/pain/medium";
+				sndPainLarge = "player/pain/large";
+			}
+			footstepEffectTable = "impacteffect/footsteps/ai_zombie";
+			footstepEvents = "footstepevents/default";
+			painInfo = {
+				decayDelay = 1000;
+				bucketMaxValue = 800;
+				decayRate = -40;
+			}
+			bulletPenetrationData = {
+				energyCostToPenetrate = 10;
+				damageScaleToPenetrate = 1;
+			}
+			footstepEffectTable_Sprint = "impacteffect/footsteps/ai_zombie_sprint";
+			footstepEffectTable_SlowWalk = "impacteffect/footsteps/ai_zombie";
+			footstepEffectTable_CrouchWalk = "impacteffect/footsteps/ai_zombie";
+			footstepEffectTable_Landing = "impacteffect/footsteps/ai_zombie_landing";
+			footstepEffectTable_HeavyLanding = "impacteffect/footsteps/ai_zombie_landing";
+			ledgeGrabEffectTable = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_Heavy = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_Friendly = "impacteffect/footsteps/ai_zombie";
+			ledgeGrabEffectTable_FriendlyHeavy = "impacteffect/footsteps/ai_zombie";
+		}
+		actorEditable = {
+			entityDamageComponent = {
+				entityDamage = "entitydamage/ai/zombie_maykr/base";
+			}
+			injuredStates = {
+				num = 1;
+				item[0] = {
+					name = "not_injured";
+					damageGroupMaxGoreLevels = {
+						num = 1;
+						item[0] = {
+							damageGroupName = "left_upper_leg";
+							maxGoreLevel = "GORELEVEL_LIGHT_DAMAGE";
+						}
+					}
+					allowIK = true;
+					canUseAllTraversalsWhileInjured = true;
+					canUseDownTraversalsWhileInjured = true;
+				}
+			}
+			radiusDamageJoints = {
+				num = 3;
+				item[0] = "head_part01_md";
+				item[1] = "spine_part01_md";
+				item[2] = "tail_part04_md";
+			}
+		}
+		factionName = "maykr_minion";
+		mass = 18.1439991;
+		lootable = false;
+		lootDropComponent = {
+			lootDropDataDecl = "ai/fodder/zombie_maykr";
+		}
+		pvpLootDropComponent = {
+			lootDropDataDecl = "ai/default_fodder_pvp";
+		}
+		aiConstants = {
+			components = {
+				ptr = {
+					ptr[12] = {
+						componentDecl = "aicomponent/pathmanager/zombie";
+					}
+					ptr[14] = {
+						componentDecl = "aicomponent/attack/base";
+					}
+					ptr[9] = {
+						componentDecl = "aicomponent/positionawareness/zombie/maykr";
+					}
+					ptr[10] = {
+						componentDecl = "aicomponent/extendedsense/zombie/zombie_maykr";
+					}
+					ptr[28] = {
+						componentDecl = "aicomponent/whiplash/zombie_maykr";
+					}
+				}
+			}
+			syncMelee = {
+				msAfterAttackBeforeCanSync = 250;
+				syncMeleeEntityDefs = {
+					num = 2;
+					item[0] = "syncmelee/zombie_maykr";
+					item[1] = "syncmelee/zombie_maykr_3p";
+				}
+				syncGroups = {
+					num = 1;
+					item[0] = {
+						syncGroupName = "";
+						syncInteractions = {
+							num = 12;
+							item[0] = "syncdeath/playervsai/zombie_maykr/above_back";
+							item[1] = "syncdeath/playervsai/zombie_maykr/above_front";
+							item[2] = "syncdeath/playervsai/zombie_maykr/right_upper";
+							item[3] = "syncdeath/playervsai/zombie_maykr/berserk/berserk_above_front";
+							item[4] = "syncdeath/playervsai/zombie_maykr/left_upper";
+							item[5] = "syncdeath/playervsai/zombie_maykr/berserk/berserk_front_upper";
+							item[6] = "syncdeath/playervsai/zombie_maykr/front_upper";
+							item[7] = "syncdeath/playervsai/zombie_maykr/crucbile/crucible_front";
+							item[8] = "syncdeath/playervsai/zombie_maykr/crucbile/crucible_back";
+							item[9] = "syncdeath/playervsai/zombie_maykr/back_upper";
+							item[10] = "syncdeath/playervsai/zombie_maykr/chainsaw/cut_front";
+							item[11] = "syncdeath/playervsai/zombie_maykr/chainsaw/cut_back";
+						}
+					}
+				}
+			}
+			aiDeathStat = "STAT_ZOMBIE_KILLED";
+			aiDeathCodex = "codex/maykr/maykr_drones";
+			positioningParms = {
+				num = 1;
+				item[0] = "zombie/maykr";
+			}
+		}
+		aiEditable = {
+			perception = {
+				actorPerceptionRadius = 39;
+				obstaclePerceptionRadius = 78;
+				closePerceptionRadius = 5;
+				eventPerceptionRadius = 39;
+				senseUpdatesOnNonEnemies = false;
+			}
+			useTouchComponent = true;
+			death = {
+				ignoreDamageType = "DAMAGETYPE_EMP";
+				fadeOutAfterDeathDelay_Seconds = {
+					value = 3;
+				}
+				removeAfterFadeOutDelay_Seconds = {
+					value = 3;
+				}
+				canBecomeInjured = true;
+				explosionDecl = NULL;
+				declTwitchPain = "twitchpain/zombie_maykr";
+			}
+			movement = {
+				wanderRadius = 19.5070019;
+				useTraversalClassA = true;
+				preferredCombatWalkState = "WALKSTATE_WALKING";
+			}
+			cover = {
+				coverRadius = 50;
+			}
+			behaviors = {
+				decl = "behaviors/zombie_maykr/default";
+				declBehaviorEvents = "behaviorevents/default";
+				attackGraph = "ai/zombie_maykr";
+			}
+			vsAIDamageMask = "PAIN";
+			ambient = {
+				sndAmbient = "play_maykr_zombie_hover";
+				sndAmbientEnd = "stop_maykr_zombie_hover";
+			}
+			spawnSettings = {
+				entranceAnimPath = "animweb/characters/monsters/zombie_maykr/spawn/teleport_entrance";
+				spawnFXEntityDef = "fx/spawn_in_fodder";
+				teleportDelayMS = 750;
+			}
+		}
+		aiHealth = {
+			components = {
+				components[1] = {
+					max = 0;
+					regenInterval = {
+						value = 0;
+					}
+				}
+				components[0] = {
+					max = 800;
+					starting = 800;
+				}
+			}
+		}
+		goreComponent = {
+			goreContainer = "ai/fodder/zombie_maykr";
+		}
+		afProperties = {
+			impactEffectTable = "impacteffect/ragdoll/ragdoll_fodder";
+			articulatedFigure = "characters/monsters/zombie_maykr";
+		}
+		renderModelInfo = {
+			model = "md6def/characters/monsters/zombie_maykr/base/zombie_maykr.md6";
+			lightRigDecl = "zombie_maykr/zombie_maykr_default";
+			emissiveColor = {
+				g = 0.109803997;
+				b = 0.082352899;
+			}
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_codex_hell_demons_zombie_maykr";
+		}
+		fxDecl = "character/zombie_maykr/maykr_basic";
+		startingInventory = {
+			num = 2;
+			item[0] = {
+				startSlot = "EQUIPPED";
+				inventoryDecl = "weapon/ai/zombie/maykr_basic";
+				entityDef = "weapon_ent/ai/soldier/plasma";
+			}
+			item[1] = {
+				inventoryDecl = "weapon/ai/zombie/maykr_basic_turret";
+				entityDef = "weapon_ent/ai/soldier/plasma";
+			}
+		}
+		walkIKDecl = "walkik/zombie";
+		spawnPosition = {
+			x = -596.000183;
+			y = -609;
+			z = -174.1987;
 		}
 	}
 }
