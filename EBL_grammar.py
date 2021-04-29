@@ -116,6 +116,7 @@ class NodeVisitor(NodeVisitor):
         #print("waitForBlock parsed")
         return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
 
+    # disableAIHighlight false by default
     def visit_TIMER(self, node, visited_children):
         duration, _, _ = visited_children
         return {"event": "wait", "args": [duration, "false"]}

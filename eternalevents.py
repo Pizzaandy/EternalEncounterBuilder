@@ -54,7 +54,7 @@ class EternalEvent:
                 item["var"] = varname
                 if item["value"] == '"";' or not item["value"]:
                     item["value"] = format_value(default)
-                    print(f'set default value for var {varname}')
+                    # print(f'set default value for var {varname}')
             if item["var"].startswith("decl:"):
                 varname = item["var"].replace("decl:", "")
                 item["var"] = "decl"
@@ -220,17 +220,17 @@ class ForceChargeOnAllAI(EternalEvent):
 class WaitMulitpleConditions(EternalEvent):
     condition_count = "int"
     logic_operator = "encounterLogicOperator_t"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class Wait(EternalEvent):
     seconds = "float"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
-class WaitAIHealthLevel(EternalEvent, alias="AIHealthLevel"):
+class WaitAIHealthLevel(EternalEvent, alias=["healthLevel","AIHealthLevel"]):
     aiType = "eEncounterSpawnType_t"
     desired_remaing_ai_count = "int"
-    group_label = "char*"
-    disableAIHighlight = "bool"
+    group_label = "string*"
+    disableAIHighlight = "bool=false"
 
 class WaitAIRemaining(EternalEvent, alias="AIRemaining"):
     aiType = "eEncounterSpawnType_t"
@@ -241,20 +241,20 @@ class WaitKillCount(EternalEvent, alias="killCount"):
     ai_type = "eEncounterSpawnType_t"
     desired_kill_count = "int"
     group_label = "string*"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class WaitKillCountOrSyncStart(EternalEvent, alias="killCountOrSyncStart"):
     ai_type = "eEncounterSpawnType_t"
     desired_kill_count = "int"
     group_label = "string*"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class WaitRandomKillCount(EternalEvent, alias="randomKillCount"):
     ai_type = "eEncounterSpawnType_t"
     kill_count_min = "int"
     kill_count_max = "int"
     group_label = "string*"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class WaitMaintainComplete(EternalEvent, alias="maintainComplete"):
     aiType = "eEncounterSpawnType_t"
@@ -265,21 +265,25 @@ class WaitStaggeredSpawnComplete(EternalEvent, alias="staggeredSpawnComplete"):
     aiType = "eEncounterSpawnType_t"
     remaining_spawn_count = "int"
     group_label = "string*"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class WaitForStatCount(EternalEvent, alias="statCount"):
     trackedStat = "gameStat_t"
     stat_hit_count = "int"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
 class WaitForEventFlag(EternalEvent, alias="Flag"):
     eventFlag = "eEncounterEventFlags_t"
     userFlag = "string*"
     testIfAlreadyRaised = "bool"
-    disableAIHighlight = "bool"
+    disableAIHighlight = "bool=false"
 
-class DamageAI(EternalEvent):
+class DamageAI(EternalEvent, alias="damage"):
     damageType = "decl:damage"
+    aiType = "eEncounterSpawnType_t"
+    group_label = "string*"
+
+class RemoveAI(EternalEvent, alias="remove"):
     aiType = "eEncounterSpawnType_t"
     group_label = "string*"
 

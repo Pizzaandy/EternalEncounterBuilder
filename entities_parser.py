@@ -205,12 +205,12 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
 
 
 def parse_entities(filename, class_filter=""):
-    tic = time.time()
-    print("Start processing")
+    #tic = time.time()
+    #print("Start processing")
     #with Pool(processes=mp.cpu_count()) as pool:
         #data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
     data = map(ev.parse, generate_entity_segments(filename, class_filter))
-    print(f"Done processing in {time.time()-tic:.1f} seconds")
+    #print(f"Done processing in {time.time()-tic:.1f} seconds")
     return data
 
 
@@ -260,7 +260,7 @@ def unminify(s):
 
 
 # quick-n-dirty punctuation check
-# TODO: make less suck
+# TODO: make less bad
 def verify_file(filename):
     print("Checking file...")
     error_found = False
@@ -289,6 +289,7 @@ def verify_file(filename):
     if not error_found:
         print("No problems found!")
     return error_found
+
 
 def list_checkpoints(filename):
     cps = []

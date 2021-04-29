@@ -5,22 +5,42 @@ from textwrap import indent
 from dataclasses import dataclass
 import re
 import time
-import shutil
+import chevron
+import spawn_target_visualizer as visualizer
 
 
 ebl = EBL.NodeVisitor()
 ebl.grammar = EBL.grammar
+space_char = "^"
+blacklist_entities = []
+
 variables = {}
 debug_vars = False
 Settings = ""
-space_char = "^"
-blacklist_entities = []
+templates = {}
 
 
 @dataclass
 class EBL_Assignment():
     name: str
     value: str
+
+
+class EntityTemplate():
+    def __init__(self, name, template, args):
+        self.name = name
+        self.template = template
+        self.args = args
+        print(f"Template {name} found")
+
+    def render(self, *argv):
+        if len(argv) != len(self.args):
+            print(f"ERROR: expected {len(self.args)} args in template {self.name}, {len(argv)} given")
+            return ""
+        t_data = {}
+        for arg_name, arg in zip(self.args, argv):
+            t_data[arg_name] = arg
+        return chevron.render(template=self.template, data=t_data)
 
 
 def debug_print(string):
@@ -245,7 +265,7 @@ def get_event_args(classname):
 
 
 def strip_comments(string):
-    pattern = r"//(.*)[\r\n]+"
+    pattern = r"//(.*)(?=[\r\n]+)"
     return re.sub(pattern, "", string)
 
 
@@ -253,7 +273,7 @@ def strip_comments(string):
 # and also handles SETTINGS flags
 # returns a tuple with EBL code and encounter name
 
-ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE )"
+ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
 
 def generate_EBL_segments(filename):
     with open(filename) as fp:
@@ -545,7 +565,8 @@ def modify_entity(name, entity_string, params, dlc_level):
 
 
 # Apply all changes in ebl_file to modded_file created from base_file
-def apply_EBL(ebl_file, base_file, modded_file):
+def apply_EBL(ebl_file, base_file, modded_file, compress_file=True, show_spawn_targets=False):
+
     # generate segments + format target file
     tic = time.time()
     modified_count = 0
@@ -563,21 +584,40 @@ def apply_EBL(ebl_file, base_file, modded_file):
         dlc_level = 1
 
     segments = generate_EBL_segments(ebl_file)
-
     deltas = dict(segments)
+    added_entities = []
 
-    # compile EBL segments to eternalevents
-    added_entities = ""
+    # find templates
+    for key, val in deltas.items():
+        if val[0] == "TEMPLATE":
+            t_name, t_args = key.split("(", 1)
+            t_args = t_args.split(",")
+            for i, arg in enumerate(t_args):
+                t_args[i] = arg.replace(")", "").strip()
+            templates[t_name] = EntityTemplate(t_name, val[1], t_args)
+
+    # compile EBL segments to eternalevents and add new entities
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
             deltas[key] = (val[0], compile_EBL(val[1]))
         if val[0] == "ADD":
-            print (f"Added entity {key}")
-            added_entities += val[1].strip() + "\n"
+            is_template = False
+            for t_key in templates.keys():
+                if key.startswith(t_key):
+                    args = re.findall (r'([^(,)]+)(?!.*\()', key)
+                    args = [arg.strip() for arg in args]
+                    entity_str = templates[t_key].render(*args)
+                    is_template = True
+                    print(f"Added new instance of {t_key} with arguments {args}, {key}")
+            if not is_template:
+                entity_str = val[1].strip()
+                print (f"Added entity {key}")
+            added_entities += [entity_str.strip()]
 
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
     with open(modded_file, "w") as fp:
+
         for entity in entities:
             entity_count += 1
             for name, params in deltas.items():
@@ -591,15 +631,28 @@ def apply_EBL(ebl_file, base_file, modded_file):
                 entity = add_entitydefs(entity, entitydefs)
                 modified_count += 1
             fp.write(entity)
-        fp.write(added_entities)
+
+        fp.write("\n")
+        for new_entity in added_entities:
+            if ('class = "idTarget_Spawn";' in new_entity
+                or 'class = "idTarget_Spawn_Parent";' in new_entity):
+                new_entity = add_entitydefs(new_entity, entitydefs)
+            fp.write(new_entity + "\n")
 
     add_idAI2s(modded_file, dlc1, dlc2)
     apply_settings(modded_file, Settings)
+
+    if show_spawn_targets:
+        print("Adding spawn target markers...")
+        visualizer.show_spawn_targets(modded_file)
+
     parser.verify_file(modded_file)
     parser.list_checkpoints(modded_file)
 
-    parser.compress(modded_file)
+    if compress_file:
+        parser.compress(modded_file)
 
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
+    print(templates)
 
