@@ -1,4 +1,5 @@
 import eternalevents
+import eternaltools
 import EBL_grammar as EBL
 import entities_parser as parser
 from textwrap import indent
@@ -6,7 +7,6 @@ from dataclasses import dataclass
 import re
 import time
 import chevron
-import spawn_target_visualizer as visualizer
 
 
 ebl = EBL.NodeVisitor()
@@ -565,13 +565,20 @@ def modify_entity(name, entity_string, params, dlc_level):
 
 
 # Apply all changes in ebl_file to modded_file created from base_file
-def apply_EBL(ebl_file, base_file, modded_file, compress_file=True, show_spawn_targets=False):
+def apply_EBL(
+    ebl_file,
+    base_file,
+    modded_file,
+    compress_file=True,
+    show_spawn_targets=False,
+    generate_traversals=True
+):
 
     # generate segments + format target file
     tic = time.time()
     modified_count = 0
     entity_count = 0
-    parser.decompress(base_file)
+    eternaltools.decompress(base_file)
 
     # if they ever make more DLC I'll change this shit lol
     dlc1, dlc2 = is_dlc(base_file)
@@ -644,15 +651,18 @@ def apply_EBL(ebl_file, base_file, modded_file, compress_file=True, show_spawn_t
 
     if show_spawn_targets:
         print("Adding spawn target markers...")
-        visualizer.show_spawn_targets(modded_file)
+        eternaltools.mark_spawn_targets(modded_file)
+
+    if generate_traversals:
+        print("Generating traversal info...")
+        eternaltools.generate_traversals(modded_file, dlc_level)
 
     parser.verify_file(modded_file)
     parser.list_checkpoints(modded_file)
 
     if compress_file:
-        parser.compress(modded_file)
+        eternaltools.compress(modded_file)
 
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
-    print(templates)
 

@@ -14,6 +14,7 @@ blacklist = [
 def snake_to_camel(s):
     return ''.join(word.title() for word in s.split('_'))
 
+
 def format_arg(arg):
     res = ""
     if isinstance(arg, bool):
@@ -40,7 +41,7 @@ def convert_to_ebl(events):
         #print(event["eventCall"]["eventDef"])
         game_name = event["eventCall"]["eventDef"]
         name = event_to_ebl[game_name]
-        if "wait" in game_name:
+        if "wait" in game_name and game_name != "wait":
             name = "waitFor " + name
         args = event["eventCall"]["args"]
         for key, arg in args.items():

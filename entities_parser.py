@@ -140,12 +140,9 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
 
 
 def parse_entities(filename, class_filter=""):
-    #tic = time.time()
-    #print("Start processing")
     #with Pool(processes=mp.cpu_count()) as pool:
         #data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
     data = map(ev.parse, generate_entity_segments(filename, class_filter))
-    #print(f"Done processing in {time.time()-tic:.1f} seconds")
     return data
 
 
