@@ -46,7 +46,7 @@ class EternalEvent:
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
         ]
-        #print(items)
+
         name = camelcase(type(self).__name__)
         for item in items:
             if "=" in item["var"]:
@@ -66,28 +66,6 @@ class EternalEvent:
             template=self.ev_template,
             data={"name": name, "items": items, "count": len(items)})
 
-    # def dictify(self):
-    #     items = [
-    #         {
-    #             "index": index,
-    #             "value": (f'"{val[1]}";' if isinstance(val[1], str)
-    #                       and val[1] not in ["NULL", "true", "false"]
-    #                       else f'{val[1]};'),
-    #             "var": var[1]
-    #         }
-    #         for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
-    #     ]
-    #     #print(items)
-    #     name = camelcase(type(self).__name__)
-    #     items_dict = {"num": len(items)}
-    #     for item in items:
-    #         if item["var"].startswith("decl"):
-    #             varname = item["var"].replace("decl:", "")
-    #             item["var"] = "decl"
-    #             item["value"] = {varname: item["value"]}
-    #         items_dict[f'item[{item["index"]}]'] = {f'{item["var"]}': f'{item["value"]}'}
-
-    #     return {"eventCall": {"eventDef": name, "args": items_dict}}
 
     # metaprogramming time
     # TODO: figure out which arguments are *actually* optional
@@ -113,7 +91,11 @@ class EternalEvent:
 
         for item in aliases:
             ebl_to_event[item] = (cls.__name__, len(args))
+            # if "wait" not in default_alias and "spawn"  in default_alias:
+            #     print(item, end=' ')
         ebl_to_event[default_alias] = (cls.__name__, len(args))
+        # if "wait" not in default_alias and "spawn"  in default_alias:
+        #     print(default_alias, end=' ')
 
     def __init__(self, *args):
         for init_arg, (cls_name, cls_args) in zip(args, self.args):
@@ -162,7 +144,7 @@ class SpawnArchvile(EternalEvent):
     archvile_label = "string*"
     group_label = "string*"
 
-class SpawnPossessedAI(EternalEvent, alias=["spawnPossessed"]):
+class SpawnPossessedAI(EternalEvent, alias="spawnPossessed"):
     ai_spawnType = "eEncounterSpawnType_t"
     ai_spawnTarget = "entity"
     ai_groupLabel = "string*"

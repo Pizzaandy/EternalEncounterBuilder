@@ -21,7 +21,7 @@ templates = {}
 
 
 @dataclass
-class EBL_Assignment():
+class Assignment():
     name: str
     value: str
 
@@ -335,7 +335,7 @@ def create_events(data):
 
     if isinstance(data, dict):
         if "variable" in data:
-            return [EBL_Assignment(data["variable"], data["value"])]
+            return [Assignment(data["variable"], data["value"])]
 
         if data["event"] == "waitForBlock":
             length = len([ev for ev in data["args"] if not "variable" in ev[0]])
@@ -382,14 +382,14 @@ def is_dlc(filename):
     return (dlc1, dlc2)
 
 
-def add_idAI2s(filename, include_dlc1, include_dlc2):
+def add_idAI2s(filename, dlc_level):
     file = open(filename, "a")
 
     with open("idAI2_base.txt", "r") as fp_base:
         print("Added base game idAI2s")
         file.write(fp_base.read())
 
-    if include_dlc2:
+    if dlc_level == 2:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
         print("Added DLC1 idAI2s")
@@ -397,7 +397,7 @@ def add_idAI2s(filename, include_dlc1, include_dlc2):
             file.write(fp_dlc2.read())
         print("Added DLC2 idAI2s")
 
-    elif include_dlc1:
+    elif dlc_level == 1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
         print("Added DLC1 idAI2s")
@@ -432,36 +432,40 @@ def is_number(s):
 # Concatenate strings (jank)
 # TODO: make less jank, this is ugly as hell
 def concat_strings(event_string):
-    output_str = ""
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
-    if "+" in event_string:
-        segments = event_string.split("+")
-        for i, seg in enumerate(segments):
-            for var, val in sorted_variables:
-                val = format_args([val], 1)[0]
-                if ((seg.rstrip().endswith(f'{var}') and i != len(segments)-1)
-                or (seg.lstrip().startswith(f'{var}') and i != 0)):
-                    seg = seg.replace(f'{var}', str(val))
-                if not (is_number(str(val)) or val in ["true", "false"]):
-                    debug_print(f'added "" for {var} = {val}')
-                    val = f'"{val}"'
-                seg = seg.replace(f'"{var}"', str(val))
-                if i == len(segments)-1:
-                    seg = seg.lstrip()
-                elif i == 0:
-                    seg = seg.rstrip()
-                else:
-                    seg = seg.strip()
-            output_str += seg
-    else:
+    if "+" not in event_string:
         for var, val in sorted_variables:
             if not (is_number(str(val)) or val in ["true", "false"]):
                 debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
             event_string = event_string.replace(f'"{var}"', str(val))
-        output_str = event_string
+        return event_string
+
+    output_str = ""
+    segments = event_string.split("+")
+    for i, seg in enumerate(segments):
+        for var, val in sorted_variables:
+            val = format_args([val], 1)[0]
+
+            start_match = (seg.lstrip().startswith(f'{var}') and i != 0)
+            end_match = (seg.rstrip().endswith(f'{var}') and i != len(segments)-1)
+            if start_match or end_match:
+                seg = seg.replace(f'{var}', str(val))
+
+            if not (is_number(str(val)) or val in ["true", "false"]):
+                debug_print(f'added "" for {var} = {val}')
+                val = f'"{val}"'
+
+            seg = seg.replace(f'"{var}"', str(val))
+            if i == len(segments)-1:
+                seg = seg.lstrip()
+            elif i == 0:
+                seg = seg.rstrip()
+            else:
+                seg = seg.strip()
+        output_str += seg
 
     return output_str.replace(space_char, " ")
 
@@ -473,9 +477,10 @@ def compile_EBL(s):
     events = create_events(ebl.parse(s))
     if events is None:
         return output_str
+
     output_str += f"num = {len(events)};\n"
     for event in events:
-        if isinstance(event, EBL_Assignment):
+        if isinstance(event, Assignment):
             add_variable(event.name, event.value)
             continue
         event_string = concat_strings(str(event))
@@ -515,7 +520,6 @@ def replace_encounter(entity_string, entity_events, dlc_level):
 
 
 def add_entitydefs(entity_string, entitydefs):
-    # print(entity_string)
     entity = parser.ev.parse(entity_string)
     for key in entity:
         if key.startswith("entityDef"):
@@ -574,7 +578,7 @@ def apply_EBL(
     generate_traversals=True
 ):
 
-    # generate segments + format target file
+    # generate segments + decompress target file
     tic = time.time()
     modified_count = 0
     entity_count = 0
@@ -646,7 +650,7 @@ def apply_EBL(
                 new_entity = add_entitydefs(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
-    add_idAI2s(modded_file, dlc1, dlc2)
+    add_idAI2s(modded_file, dlc_level)
     apply_settings(modded_file, Settings)
 
     if show_spawn_targets:
