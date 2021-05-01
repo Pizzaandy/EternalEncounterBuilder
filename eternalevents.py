@@ -10,6 +10,7 @@ ebl_to_event = {}
 
 
 class EternalEvent:
+
     ev_template = dedent("""\
         eventCall = {
             eventDef = "{{name}}";

@@ -327,6 +327,7 @@ def format_args(args, arg_count):
 
 
 # Consumes a parsed EBL file and generates a list of EternalEvents
+# TODO: use the structural pattern matching feature when it comes out
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -361,15 +362,16 @@ def create_events(data):
         # Assume nested argument list means a list of parameters
         if any(isinstance(i, list) for i in args_list):
             output = []
-            print("list of parameters found")
+            # print("list of parameters found")
             for args in args_list:
                 args = format_args(args, arg_count)
                 output += [event_cls(*args)]
             return output
         else:
-            print("single parameter set found")
+            # print("single parameter set found")
             args_list = format_args(args_list, arg_count)
             return [event_cls(*args_list)]
+
     return data
 
 
@@ -380,10 +382,15 @@ def is_dlc(filename):
     with open(filename) as fp:
         for i in range(1,50):
             head += fp.readline()
-    dlc1 = "dlc1" in head
-    dlc2 = "dlc2" in head
-    print(f"dlc1: {dlc1}, dlc2: {dlc2}")
-    return (dlc1, dlc2)
+
+    if "dlc2" in head:
+        dlc_level = 2
+    elif "dlc1" in head:
+        dlc_level = 1
+    else:
+        dlc_level = 0
+    print(f"DLC Level: {dlc_level}")
+    return dlc_level
 
 
 def add_idAI2s(filename, dlc_level):
@@ -585,14 +592,15 @@ def apply_EBL(
     eternaltools.decompress(base_file)
 
     # if they ever make more DLC I'll change this shit lol
-    dlc1, dlc2 = is_dlc(base_file)
+    dlc_level = is_dlc(base_file)
+
     entitydefs = base_entitydefs
-    if dlc2:
-        entitydefs += dlc1_entitydefs + dlc2_entitydefs
-        dlc_level = 2
-    elif dlc1:
+
+    if dlc_level >= 2:
+        entitydefs += dlc2_entitydefs
+
+    if dlc_level >= 1:
         entitydefs += dlc1_entitydefs
-        dlc_level = 1
 
     segments = generate_EBL_segments(ebl_file)
     deltas = dict(segments)
