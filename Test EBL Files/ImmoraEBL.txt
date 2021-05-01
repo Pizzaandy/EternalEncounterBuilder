@@ -279,6 +279,8 @@ activate
 waitFor wait(1, false)
 
 // bigarena1
+ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001)
+
 REPLACE ENCOUNTER _example_encounter_manager_0
 
 activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
@@ -371,21 +373,17 @@ spawnMultiple(Carcass, 1, breach_wasteland_arena_encounter_spawn_group_zone_1,)
 spawn(BloodMaykr, breach_wasteland_arena_target_spawn_20, )
 waitFor 2 sec
 spawn(BloodMaykr, breach_wasteland_arena_target_spawn_30, )
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
 waitFor 2 sec
 spawn(BloodMaykr, breach_wasteland_arena_target_spawn_35, )
-waitFor 1 sec
-spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
-waitFor 1 sec
-spawn(Cacodemon, breach_wasteland_arena_target_spawn_56, )
-waitFor 1 sec
 spawn(Cacodemon, breach_wasteland_arena_target_spawn_62, )
-waitFor 3 sec
+waitFor 2 sec
 spawn(Cacodemon, breach_cacos1)
-
+waitFor 2 sec
+spawn(Cacodemon, breach_wasteland_arena_target_spawn_55, )
 
 waitFor {
-	AIRemaining
-	(BloodMaykr, 1, , false)
+	AIRemaining(BloodMaykr, 1, , false)
 }
 
 spawnArchvile(breach_wasteland_arena_target_spawn_34, breach_wall_deck_encounter_archvile_template_1, myvile)
@@ -393,7 +391,7 @@ waitFor 2 sec
 spawnArchvile(breach_wasteland_arena_target_spawn_41, breach_wall_deck_encounter_archvile_template_1, myvile2)
 
 waitFor AIRemaining
-(BloodMaykr, 0)
+//(BloodMaykr, 0)
 (PainElemental, 1)
 (Archvile, 1)
 
@@ -436,11 +434,13 @@ waitFor 2 sec
 spawnMultiple(Whiplash, 3, breach_wasteland_arena_encounter_spawn_group_zone_1)
 waitFor 5 sec
 spawnMultiple(DoomHunter, 1, breach_wasteland_arena_encounter_spawn_group_zone_1)
+waitFor 3 sec
 spawnMultiple(Revenant, 3, breach_wasteland_arena_encounter_spawn_group_zone_1,)
 spawn(Cacodemon, breach_cacos1)
 waitFor 7 sec
-spawnMultiple(Mancubus, 2, breach_wasteland_arena_encounter_spawn_group_zone_1)
-waitFor healthLevel(Pinky, 0.3)
+waitFor healthLevel(Pinky, 0.2)
+spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_1)
+waitFor 2 sec
 spawnMultiple(Baron, 1, breach_wasteland_arena_encounter_spawn_group_zone_1)
 
 waitFor {
@@ -717,8 +717,8 @@ maintainAI(ZombieTier1, 3, 10, 2, 3, breach_wall_base_encounter_spawn_group_zone
 waitFor AIRemaining(SuperTentacle, 0, , false)
 stopMaintainAI(Any, )
 
-
-
+// cavearena
+ADD MeathookNode(cavehook, -1537.93, -248.23, -117.41, 3000)
 REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_3
 spawnMultiple(ZombieTier1, 7, breach_wall_base_encounter_spawn_group_zone_1, )
 spawn
@@ -1436,11 +1436,90 @@ entity {
 }
 }
 
+REPLACE shooters__envhazard_shooters_hell_on_earth_9
+entity {
+	entityDef shooters__envhazard_shooters_hell_on_earth_9 {
+	inherit = "envhazard/shooters/hell_on_earth";
+	class = "idInteractable_Shooter";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		whenToSave = "SGT_NO_SAVE";
+		saveType = "SGS_NONE";
+		flags = {
+			takedamage = true;
+		}
+		renderModelInfo = {
+			model = "md6def/objects/props/hell_shooter_column_prop_a/hell_shooter_column_prop_a.md6";
+		}
+		fxDecl = "gameplay/shooters/hell_on_earth";
+		interaction = {
+			initalState = "interactables/shooters/base/base/idle";
+			animWebDecl = "animweb/objects/shooters/shield";
+			interactionGraph = "interactables/shooters/base";
+		}
+		shooterList = {
+			num = 1;
+			item[0] = {
+				tagName = "muzzle";
+				projectileDef = "projectile_ent/envhazard/shooters/hell_on_earth";
+				targetPos = {
+					y = 63;
+				}
+				firingInterval = 500;
+			}
+		}
+		preFireFxTime = 250;
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 2.5;
+				y = 2.5;
+				z = 2.5;
+			}
+			offset = {
+				y = 1;
+				z = -1;
+			}
+			numSides = 12;
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_damage_shooter_GHOST81067";
+		}
+		spawnPosition = {
+			x = -1485.59949;
+			y = -237.599792;
+			z = -118.199898;
+		}
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = 5.36441803e-07;
+					y = 1;
+				}
+				mat[1] = {
+					x = -1;
+					y = 5.36441803e-07;
+				}
+			}
+		}
+		touchData = {
+			triggerDef = "trigger/trigger";
+			instance_Trigger = "shooters_gameplayr_trigger_shooter_wasteland_01";
+		}
+	}
+}
+}
+
+
+
 ADD MeathookNode(lavapit1, -1684.150024, -243.100006, -135.509995, 3000)
 ADD MeathookNode(lavapit2, -1657.500000, -214.899994, -149.210007, 3000)
 ADD MeathookNode(lavapit4, 1636.969971, -232.050003, -131.520004, 3000)
 
-
-ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001)
 
 

@@ -24,14 +24,10 @@ class EternalEvent:
         }
     """)
 
-    decl_template = dedent("""\
-        {
-                        {{varname}} = {{{value}}}
-                    }""")
+    decl_template = "{\n\t\t\t\t{{varname}} = {{{value}}}\n\t\t\t}"
 
 
     def stringify(self):
-
         def format_value(v):
             if isinstance(v, str) and v not in ["NULL", "true", "false"]:
                 return f'"{v}";'
@@ -46,15 +42,17 @@ class EternalEvent:
             }
             for index, (val, var) in enumerate(zip(vars(self).items(), self.args))
         ]
-
         name = camelcase(type(self).__name__)
+
         for item in items:
+            # handle default arguments
             if "=" in item["var"]:
                 varname, default = item["var"].split("=")
                 item["var"] = varname
                 if item["value"] == '"";' or not item["value"]:
                     item["value"] = format_value(default)
                     # print(f'set default value for var {varname}')
+            # render decls
             if item["var"].startswith("decl:"):
                 varname = item["var"].replace("decl:", "")
                 item["var"] = "decl"

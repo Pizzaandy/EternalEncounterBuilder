@@ -18,6 +18,7 @@ variables = {}
 debug_vars = False
 Settings = ""
 templates = {}
+ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
 
 
 @dataclass
@@ -86,6 +87,7 @@ waitFor_keywords = {
     "any": "ENCOUNTER_LOGICAL_OP_OR"
 }
 
+
 # ENCOUNTER_SPAWN + name
 encounter_spawn_names = [
     "ANY",
@@ -130,7 +132,7 @@ encounter_spawn_names = [
     "SUPER_TENTACLE",
 ]
 
-# These are the REAL constants you should use
+# These are the preferred constants
 encounter_spawn_aliases = {
     "Any": "ANY",
     "Generic": "GENERIC",
@@ -191,6 +193,7 @@ encounter_spawn_aliases = {
     "SuperTentacle": "SUPER_TENTACLE",
 }
 
+
 base_entitydefs = [
     "custom_ai_fodder_imp",
     "custom_ai_fodder_soldier_blaster",
@@ -223,12 +226,14 @@ base_entitydefs = [
     "custom_ai_fodder_zombie_maykr",
 ]
 
+
 dlc1_entitydefs = [
     "custom_ai_ambient_turret",
     "custom_ai_heavy_bloodangel",
     "custom_ai_ambient_super_tentacle",
     "custom_ai_ambient_spirit",
 ]
+
 
 dlc2_entitydefs = [
     "custom_ai_superheavy_baron_armored",
@@ -272,9 +277,6 @@ def strip_comments(string):
 # Splits EBL file into segments at REPLACE ENCOUNTER headers
 # and also handles SETTINGS flags
 # returns a tuple with EBL code and encounter name
-
-ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
-
 def generate_EBL_segments(filename):
     with open(filename) as fp:
         segments = re.split(ebl_headers_regex, fp.read(), flags=re.MULTILINE)
@@ -359,11 +361,13 @@ def create_events(data):
         # Assume nested argument list means a list of parameters
         if any(isinstance(i, list) for i in args_list):
             output = []
+            print("list of parameters found")
             for args in args_list:
                 args = format_args(args, arg_count)
                 output += [event_cls(*args)]
             return output
         else:
+            print("single parameter set found")
             args_list = format_args(args_list, arg_count)
             return [event_cls(*args_list)]
     return data
@@ -389,15 +393,12 @@ def add_idAI2s(filename, dlc_level):
         print("Added base game idAI2s")
         file.write(fp_base.read())
 
-    if dlc_level == 2:
-        with open("idAI2_dlc1.txt") as fp_dlc1:
-            file.write(fp_dlc1.read())
-        print("Added DLC1 idAI2s")
+    if dlc_level >= 2:
         with open("idAI2_dlc2.txt") as fp_dlc2:
             file.write(fp_dlc2.read())
         print("Added DLC2 idAI2s")
 
-    elif dlc_level == 1:
+    if dlc_level >= 1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
         print("Added DLC1 idAI2s")
@@ -489,7 +490,6 @@ def compile_EBL(s):
         item_index += 1
 
     return output_str
-
 
 
 actorpopulation = [
