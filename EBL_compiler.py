@@ -170,26 +170,10 @@ def add_variable(varname, value):
     else:
         debug_print(f"Added variable {varname} = {value}")
 
-    minimum_chars = 0
-    prefixed = False
-    if isinstance(value, str):
-        prefixed = "+" in value
-        minimum_chars = len(str(value)) if not prefixed else 0
-
-    items = variables.items()
-    sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
-    for var, val in sorted_variables:
-        if not isinstance(value, str) or len(var) < minimum_chars:
-            continue
-        val = format_args([val], 1)[0]
-        old_value = value
-        value = value.replace(f'{var}', str(val))
-        if value != old_value:
-            debug_print(f"Substituted {var} = {value} into assignment {varname}")
-
-    if prefixed:
-        variables[varname] = value.replace("+", "")
-        debug_print(f'''Flattened nested prefix {varname} = {value.replace("+","")}''')
+    if "+" in value:
+        print(f"{varname} is {value}")
+        variables[varname] = concat_strings(value)
+        debug_print(f'''Concatenated strings in assignment {varname} = {variables[varname]}''')
         return
 
     variables[varname] = format_args([value], 1)[0]
@@ -526,21 +510,6 @@ def add_idAI2s(filename, dlc_level):
     file.close()
 
 
-# SETTINGS flags: (function, parameters)
-setting_to_func = {
-
-}
-
-
-# Read SETTINGS flags and format entities file
-# also make sure we don't miss any variables
-def apply_settings(filename, settings):
-    for line in settings.splitlines():
-        if line in setting_to_func:
-            func, args = setting_to_func[line]
-            func(filename, *args)
-
-
 # cringe
 def is_number(s):
     try:
@@ -552,40 +521,39 @@ def is_number(s):
 
 # Concatenate strings (jank)
 # TODO: make less jank, this is ugly as hell
-def concat_strings(event_string):
+# plus signs are reserved for this lmao
+def concat_strings(s):
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
-    if "+" not in event_string:
+    if "+" not in s:
         for var, val in sorted_variables:
             if not (is_number(str(val)) or val in ["true", "false"]):
                 # debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
-            event_string = event_string.replace(f'"{var}"', str(val))
-        return event_string
+            s = s.replace(f'"{var}"', str(val))
+        return s
 
     output_str = ""
-    segments = event_string.split("+")
+    segments = s.split("+")
     for i, seg in enumerate(segments):
+        seg = seg.strip()
+        minimum_chars = len(seg)
+        debug_print(f"minimum_chars = {minimum_chars}")
         for var, val in sorted_variables:
-            val = format_args([val], 1)[0]
+            if len(str(var)) < minimum_chars:
+                continue
 
+            val = format_args([val], 1)[0]
             start_match = (seg.lstrip().startswith(f'{var}') and i != 0)
             end_match = (seg.rstrip().endswith(f'{var}') and i != len(segments)-1)
             if start_match or end_match:
                 seg = seg.replace(f'{var}', str(val))
 
             if not (is_number(str(val)) or val in ["true", "false"]):
-                # debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
 
             seg = seg.replace(f'"{var}"', str(val))
-            if i == len(segments)-1:
-                seg = seg.lstrip()
-            elif i == 0:
-                seg = seg.rstrip()
-            else:
-                seg = seg.strip()
 
         output_str += seg
 

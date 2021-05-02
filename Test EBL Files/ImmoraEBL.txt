@@ -284,9 +284,9 @@ ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001, Mat3[0 0 
 REPLACE ENCOUNTER _example_encounter_manager_0
 
 var = bruh
-va = _lit
-newvar = var+val
-//print(newvar)
+val = _lit
+newvar = var +  "val" + 
+print(newvar)
 
 activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
 activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, , 0)
