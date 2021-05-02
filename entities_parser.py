@@ -94,7 +94,7 @@ class EntityVisitor(NodeVisitor):
 
     def visit_NUMBER(self, node, visited_children):
         if float(node.text).is_integer():
-            return int(node.text)
+            return int(float(node.text))
         else:
             return float(node.text)
 

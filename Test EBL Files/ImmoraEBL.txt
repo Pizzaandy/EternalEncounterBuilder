@@ -279,13 +279,18 @@ activate
 waitFor wait(1, false)
 
 // bigarena1
-ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001)
+ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001, Mat3[0 0 0])
 
 REPLACE ENCOUNTER _example_encounter_manager_0
 
+var = bruh
+va = _lit
+newvar = var+val
+//print(newvar)
+
 activate(breach_wasteland_arena_target_relay_flame_traps_on, Start Traps)
 activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, , 0)
-spawnMultiple(DreadKnight, 4, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawnMultiple(HellKnight, 4, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
 waitFor 1 sec
 spawnMultiple
@@ -295,7 +300,7 @@ spawnMultiple
 spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
 waitFor 2 sec
-spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawnMultiple(Revenant, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
 waitFor 2 sec
 spawnMultiple(Revenant, 2, breach_wasteland_arena_encounter_spawn_group_zone_1, )
@@ -339,7 +344,7 @@ spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, 
 waitFor 1 sec
 spawnMultiple(Mancubus, 1, breach_wasteland_arena_encounter_spawn_group_zone_2, )
 waitFor 1 sec
-spawnMultiple(Prowler, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
+spawnMultiple(Whiplash, 1, breach_wasteland_arena_encounter_spawn_group_zone_1, )
 
 waitFor AIRemaining(Mancubus, 1)
 
@@ -591,20 +596,20 @@ activate
 waitFor wait(1, false)
 
 
-
+breach = breach_wall_deck_target_spawn_
 REPLACE ENCOUNTER breach_wall_deck_encounter_manager_dlc2_1
 spawn
-(Prowler, breach_wall_deck_target_spawn_1, )
-(ChaingunSoldier, breach_wall_deck_target_spawn_3, )
+(Prowler, breach+1, )
+(ChaingunSoldier, breach+3, )
 
-waitFor wait(0.100000001, false)
-spawn(ChaingunSoldier, breach_wall_deck_target_spawn_20, )
+waitFor 0.1 sec
+spawn(ChaingunSoldier, breach+20, )
 
-waitFor wait(0.100000001, false)
-spawn(ChaingunSoldier, breach_wall_deck_target_spawn_21, )
+waitFor 0.1 sec
+spawn(ChaingunSoldier, breach+21, )
 
-waitFor wait(0.100000001, false)
-spawn(ChaingunSoldier, breach_wall_deck_target_spawn_22, )
+waitFor 0.1 sec
+spawn(ChaingunSoldier, breach+22, )
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wall_deck_gargs, false, false)
 
@@ -1015,8 +1020,8 @@ REMOVE city_rooftop_interact_vault_pipe_6
 REMOVE city_rooftop_interact_vault_pipe_7
 REMOVE city_rooftop_interact_vault_pipe_1
 
-ADD SpawnTarget(platform_air_center, -731.46, -655.71, -129.05)
-ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35 )
+ADD SpawnTarget(platform_air_center, -731.46, -655.71, -129.05, Mat3[0 0 0])
+ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[0 0 0])
 REPLACE ENCOUNTER city_rooftop_encounter_manager_dlc2_1
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
@@ -1157,7 +1162,7 @@ entity {
 }
 }
 
-TEMPLATE MeathookNode(name, x, y, z, cooldown)
+TEMPLATE MeathookNode(name, x, y, z, cooldown) 
 entity { 
 	entityDef {{name}}_target_ai_proxy_meathook {
 	class = "idTarget_SmartAIProxy";
@@ -1255,7 +1260,7 @@ entity {
 }
 }
 
-TEMPLATE SpawnTarget(name, x, y, z)
+TEMPLATE SpawnTarget(name, x, y, z, orientation)
 entity {
 	entityDef {{name}} {
 	inherit = "target/spawn";
@@ -1316,18 +1321,7 @@ entity {
 			y = {{y}};
 			z = {{z}};
 		}
-		spawnOrientation = {
-			mat = {
-				mat[0] = {
-					x = 5.36441803e-07;
-					y = 1;
-				}
-				mat[1] = {
-					x = -1;
-					y = 5.36441803e-07;
-				}
-			}
-		}
+		spawnOrientation = {{orientation}}
 	}
 }
 }

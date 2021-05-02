@@ -7,6 +7,8 @@ from dataclasses import dataclass
 import re
 import time
 import chevron
+import math
+import sys
 
 
 ebl = EBL.NodeVisitor()
@@ -15,26 +17,42 @@ space_char = "^"
 blacklist_entities = []
 
 variables = {}
-debug_vars = False
+debug_vars = True
 Settings = ""
 templates = {}
 ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
 
 
 @dataclass
-class Assignment():
+class Assignment:
     name: str
     value: str
 
 
-class EntityTemplate():
+class EntityTemplate:
     def __init__(self, name, template, args):
         self.name = name
         self.template = template
         self.args = args
         print(f"Template {name} found")
 
+    def modify_args(self, args):
+        args = list(args)
+        for i, arg in enumerate(args):
+            if "[" in arg:
+                clsname, clsargs = arg.split("[")
+                if clsname not in [cls.__name__ for cls in EntityTemplate.__subclasses__()]:
+                    print(f"class {clsname} not found")
+                    continue
+                clsargs = clsargs.replace("]", "").split()
+                clsargs = [arg.strip() for arg in clsargs]
+                cls = getattr(sys.modules[__name__], clsname)
+                args[i] = cls().render(*clsargs)
+                print(f"Rendered class {clsname} with args {clsargs}")
+        return args
+
     def render(self, *argv):
+        argv = self.modify_args(argv)
         if len(argv) != len(self.args):
             print(f"ERROR: expected {len(self.args)} args in template {self.name}, {len(argv)} given")
             return ""
@@ -42,6 +60,102 @@ class EntityTemplate():
         for arg_name, arg in zip(self.args, argv):
             t_data[arg_name] = arg
         return chevron.render(template=self.template, data=t_data)
+
+
+class Vec3(EntityTemplate):
+    def __init__(self):
+        self.name = "Vec3"
+        self.args = ["x", "y", "z"]
+        self.template = ("""\
+{
+            x = {{x}};
+            y = {{y}};
+            z = {{z}};
+        }
+    """)
+
+
+def sin_cos(deg):
+    rad = math.degrees(float(deg))
+    s = math.sin(rad)
+    c = math.cos(rad)
+    return s, c
+
+
+class Mat3(EntityTemplate):
+    def __init__(self):
+        self.name = "Mat3"
+        self.args = [
+            "x1", "y1", "z1",
+            "x2", "y2", "z2",
+            "x3", "y3", "z3"
+        ]
+        self.template = ("""\
+{
+            mat = {
+                mat[0] = {
+                    x = {{x1}};
+                    y = {{y1}};
+                    z = {{z1}};
+                }
+                mat[1] = {
+                    x = {{x2}};
+                    y = {{y2}};
+                    z = {{z2}};
+                }
+                mat[2] = {
+                    x = {{x3}};
+                    y = {{y3}};
+                    z = {{z3}};
+                }
+            }
+        }""")
+
+    def modify_args(self, args):
+        if len(args) == 3:
+            sy, cy = sin_cos(args[0])
+            sp, cp = sin_cos(args[1])
+            sr, cr = sin_cos(args[2])
+            return [
+                cp*cy, cp*sy, -sp,
+                sr*sp*cy + cr*-sy,  sr*sp*sy + cr*cy, sr*cp,
+                cr*sp*cy + -sr*sy, cr*sp*sy + -sr*cy, cr*cp
+            ]
+        else:
+            return args
+
+
+class Mat2(EntityTemplate):
+    def __init__(self):
+        self.name = "Mat2"
+        self.args = [
+            "x1", "y1",
+            "x2", "y2"
+        ]
+        self.template = ("""\
+{
+            mat = {
+                mat[0] = {
+                    x = {{x1}};
+                    y = {{y1}};
+                }
+                mat[1] = {
+                    x = {{x2}};
+                    y = {{y2}};
+                }
+            }
+        }""")
+
+    def modify_args(self, args):
+        if len(args) == 2:
+            sy, cy = sin_cos(args[0])
+            sp, cp = sin_cos(args[1])
+            return [
+                cy, sy,
+                cp, sp
+            ]
+        else:
+            return args
 
 
 def debug_print(string):
@@ -65,15 +179,14 @@ def add_variable(varname, value):
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
     for var, val in sorted_variables:
-        if len(var) < minimum_chars:
-            continue
-        if not isinstance(value, str):
+        if not isinstance(value, str) or len(var) < minimum_chars:
             continue
         val = format_args([val], 1)[0]
         old_value = value
         value = value.replace(f'{var}', str(val))
         if value != old_value:
             debug_print(f"Substituted {var} = {value} into assignment {varname}")
+
     if prefixed:
         variables[varname] = value.replace("+", "")
         debug_print(f'''Flattened nested prefix {varname} = {value.replace("+","")}''')
@@ -277,7 +390,7 @@ def strip_comments(string):
 # Splits EBL file into segments at REPLACE ENCOUNTER headers
 # and also handles SETTINGS flags
 # returns a tuple with EBL code and encounter name
-def generate_EBL_segments(filename):
+def generate_ebl_segments(filename):
     with open(filename) as fp:
         segments = re.split(ebl_headers_regex, fp.read(), flags=re.MULTILINE)
     if segments[0].startswith("SETTINGS"):
@@ -299,7 +412,7 @@ def generate_EBL_segments(filename):
             print("ERROR: No name in header!")
             continue
         segment = "\n".join(segment.split("\n")[1:])
-        yield (name, (cmd, strip_comments(segment)))
+        yield name, (cmd, strip_comments(segment))
 
 
 # Handles macros and fills in missing arguments
@@ -327,7 +440,7 @@ def format_args(args, arg_count):
 
 
 # Consumes a parsed EBL file and generates a list of EternalEvents
-# TODO: use the structural pattern matching feature when it comes out
+# TODO: use the structural pattern matching feature when it comes out lol
 def create_events(data):
     if isinstance(data, list):
         output = []
@@ -341,8 +454,8 @@ def create_events(data):
             return [Assignment(data["variable"], data["value"])]
 
         if data["event"] == "waitForBlock":
-            length = len([ev for ev in data["args"] if not "variable" in ev[0]])
-            waitevent =  {
+            length = len([ev for ev in data["args"] if "variable" not in ev[0]])
+            waitevent = {
                 "event": "waitMulitpleConditions",
                 "args": [length, waitFor_keywords[data["keyword"]], "false"]
             }
@@ -377,10 +490,10 @@ def create_events(data):
 
 # TODO: this is just dumb, find a better way
 def is_dlc(filename):
-     # check for "dlc1" and "dlc2"
+    # check for "dlc1" and "dlc2"
     head = ""
     with open(filename) as fp:
-        for i in range(1,50):
+        for i in range(1, 50):
             head += fp.readline()
 
     if "dlc2" in head:
@@ -446,7 +559,7 @@ def concat_strings(event_string):
     if "+" not in event_string:
         for var, val in sorted_variables:
             if not (is_number(str(val)) or val in ["true", "false"]):
-                debug_print(f'added "" for {var} = {val}')
+                # debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
             event_string = event_string.replace(f'"{var}"', str(val))
         return event_string
@@ -463,7 +576,7 @@ def concat_strings(event_string):
                 seg = seg.replace(f'{var}', str(val))
 
             if not (is_number(str(val)) or val in ["true", "false"]):
-                debug_print(f'added "" for {var} = {val}')
+                # debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
 
             seg = seg.replace(f'"{var}"', str(val))
@@ -473,13 +586,14 @@ def concat_strings(event_string):
                 seg = seg.rstrip()
             else:
                 seg = seg.strip()
+
         output_str += seg
 
     return output_str.replace(space_char, " ")
 
 
 # converts EBL string to encounterComponent events
-def compile_EBL(s):
+def compile_ebl(s):
     output_str = ""
     item_index = 0
     events = create_events(ebl.parse(s))
@@ -519,8 +633,8 @@ def replace_encounter(entity_string, entity_events, dlc_level):
     try:
         entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
         entity[entitydef]["edit"]["aiTypeDefAssignments"] = actorpopulation[dlc_level]
-        #print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
-    except:
+        # print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
+    except KeyError:
         print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
     return parser.generate_entity(entity)
@@ -546,10 +660,11 @@ def add_entitydefs(entity_string, entitydefs):
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
     except KeyError:
+        # print("No spawnEditable")
         pass
     else:
         if not spawn_editable["spawnAnim"]:
-            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = "AIOVERRIDE_TELEPORT";
+            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = '"AIOVERRIDE_TELEPORT";'
 
     targets = list_targets(entitydefs)
     entitydefs = list_entitydefs(entitydefs)
@@ -557,7 +672,7 @@ def add_entitydefs(entity_string, entitydefs):
     entitydefs = "{\n" + indent(entitydefs, "\t") + "}\n"
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
     entity[entitydef]["edit"]["targets"] = targets
-    #print("Added entitydefs")
+    # print("Added entitydefs")
     return parser.generate_entity(entity)
 
 
@@ -576,7 +691,7 @@ def modify_entity(name, entity_string, params, dlc_level):
 
 
 # Apply all changes in ebl_file to modded_file created from base_file
-def apply_EBL(
+def apply_ebl(
     ebl_file,
     base_file,
     modded_file,
@@ -585,10 +700,11 @@ def apply_EBL(
     generate_traversals=True
 ):
 
-    # generate segments + decompress target file
     tic = time.time()
+
     modified_count = 0
     entity_count = 0
+
     eternaltools.decompress(base_file)
 
     # if they ever make more DLC I'll change this shit lol
@@ -602,11 +718,12 @@ def apply_EBL(
     if dlc_level >= 1:
         entitydefs += dlc1_entitydefs
 
-    segments = generate_EBL_segments(ebl_file)
+    # get all the file deltas
+    segments = generate_ebl_segments(ebl_file)
     deltas = dict(segments)
     added_entities = []
 
-    # find templates
+    # find + parse templates
     for key, val in deltas.items():
         if val[0] == "TEMPLATE":
             t_name, t_args = key.split("(", 1)
@@ -618,25 +735,26 @@ def apply_EBL(
     # compile EBL segments to eternalevents and add new entities
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
-            deltas[key] = (val[0], compile_EBL(val[1]))
+            deltas[key] = (val[0], compile_ebl(val[1]))
+
         if val[0] == "ADD":
             is_template = False
             for t_key in templates.keys():
                 if key.startswith(t_key):
-                    args = re.findall (r'([^(,)]+)(?!.*\()', key)
+                    args = re.findall(r'([^(,)]+)(?!.*\()', key)
                     args = [arg.strip() for arg in args]
                     entity_str = templates[t_key].render(*args)
                     is_template = True
                     print(f"Added new instance of {t_key} with arguments {args}, {key}")
             if not is_template:
                 entity_str = val[1].strip()
-                print (f"Added entity {key}")
+                print(f"Added entity {key}")
             added_entities += [entity_str.strip()]
 
+    # get vanilla entities from base file
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
     with open(modded_file, "w") as fp:
-
         for entity in entities:
             entity_count += 1
             for name, params in deltas.items():
@@ -646,7 +764,7 @@ def apply_EBL(
                     modified_count += 1
                     break
             if ('class = "idTarget_Spawn";' in entity
-                or 'class = "idTarget_Spawn_Parent";' in entity):
+                    or 'class = "idTarget_Spawn_Parent";' in entity):
                 entity = add_entitydefs(entity, entitydefs)
                 modified_count += 1
             fp.write(entity)
@@ -654,12 +772,11 @@ def apply_EBL(
         fp.write("\n")
         for new_entity in added_entities:
             if ('class = "idTarget_Spawn";' in new_entity
-                or 'class = "idTarget_Spawn_Parent";' in new_entity):
+                    or 'class = "idTarget_Spawn_Parent";' in new_entity):
                 new_entity = add_entitydefs(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
     add_idAI2s(modded_file, dlc_level)
-    apply_settings(modded_file, Settings)
 
     if show_spawn_targets:
         print("Adding spawn target markers...")
