@@ -9,6 +9,15 @@ event_to_ebl = {}
 ebl_to_event = {}
 
 
+def is_number_or_keyword(s):
+    s = str(s)
+    try:
+        float(s)
+        return s not in ["true", "false", "NULL"]
+    except ValueError:
+        return False
+
+
 class EternalEvent:
 
     ev_template = dedent("""\
@@ -27,13 +36,12 @@ class EternalEvent:
 
     decl_template = "{\n\t\t\t\t{{varname}} = {{{value}}}\n\t\t\t}"
 
-
     def stringify(self):
         def format_value(v):
-            if isinstance(v, str) and v not in ["NULL", "true", "false"]:
-                return f'"{v}";'
-            else:
+            if is_number_or_keyword(v):
                 return f'{v};'
+            else:
+                return f'"{v}";'
 
         items = [
             {
@@ -52,7 +60,7 @@ class EternalEvent:
                 item["var"] = varname
                 if item["value"] == '"";' or not item["value"]:
                     item["value"] = format_value(default)
-                    # print(f'set default value for var {varname}')
+
             # render decls
             if item["var"].startswith("decl:"):
                 varname = item["var"].replace("decl:", "")
@@ -64,7 +72,6 @@ class EternalEvent:
         return chevron.render(
             template=self.ev_template,
             data={"name": name, "items": items, "count": len(items)})
-
 
     # metaprogramming time
     # TODO: figure out which arguments are *actually* optional
@@ -100,8 +107,8 @@ class EternalEvent:
         for init_arg, (cls_name, cls_args) in zip(args, self.args):
             setattr(self, cls_name, init_arg)
 
-    def __str__(cls):
-        return cls.stringify()
+    def __str__(self):
+        return self.stringify()
 
 
 class MaintainAICount(EternalEvent, alias=["maintainAI", "maintain"]):
@@ -207,7 +214,7 @@ class Wait(EternalEvent):
     seconds = "float"
     disableAIHighlight = "bool=false"
 
-class WaitAIHealthLevel(EternalEvent, alias=["healthLevel","AIHealthLevel"]):
+class WaitAIHealthLevel(EternalEvent, alias=["healthLevel", "AIHealthLevel"]):
     aiType = "eEncounterSpawnType_t"
     desired_remaing_ai_count = "int"
     group_label = "string*"
@@ -278,5 +285,4 @@ class ProceedToNextScript(EternalEvent):
 class DesignerComment(EternalEvent, alias="print"):
     designerComment = "string*"
     printToConsole = "bool=true"
-
 

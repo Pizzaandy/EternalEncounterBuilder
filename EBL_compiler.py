@@ -1,4 +1,5 @@
 import eternalevents
+from eternalevents import is_number_or_keyword
 import eternaltools
 import EBL_grammar as EblGrammar
 import entities_parser as parser
@@ -20,7 +21,7 @@ variables = {}
 debug_vars = True
 Settings = ""
 templates = {}
-ebl_headers_regex = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
 
 
 @dataclass
@@ -66,8 +67,7 @@ class Vec3(EntityTemplate):
     def __init__(self):
         self.name = "Vec3"
         self.args = ["x", "y", "z"]
-        self.template = ("""\
-{
+        self.template = ("""{
             x = {{x}};
             y = {{y}};
             z = {{z}};
@@ -90,8 +90,7 @@ class Mat3(EntityTemplate):
             "x2", "y2", "z2",
             "x3", "y3", "z3"
         ]
-        self.template = ("""\
-{
+        self.template = ("""{
             mat = {
                 mat[0] = {
                     x = {{x1}};
@@ -132,8 +131,7 @@ class Mat2(EntityTemplate):
             "x1", "y1",
             "x2", "y2"
         ]
-        self.template = ("""\
-{
+        self.template = ("""{
             mat = {
                 mat[0] = {
                     x = {{x1}};
@@ -163,7 +161,7 @@ def debug_print(string):
         print(string)
 
 
-# not technically variables
+# not technically variables, but go off I guess
 def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified variable {varname} = {value}")
@@ -371,22 +369,28 @@ def strip_comments(string):
     return re.sub(pattern, "", string)
 
 
-# Splits EBL file into segments at REPLACE ENCOUNTER headers
-# and also handles SETTINGS flags
-# returns a tuple with EBL code and encounter name
 def generate_ebl_segments(filename):
+    """
+    Splits EBL file into segments at headers
+    returns a tuple with EBL code and encounter name
+    :param filename:
+    :return:
+    """
     with open(filename) as fp:
-        segments = re.split(ebl_headers_regex, fp.read(), flags=re.MULTILINE)
+        segments = re.split(EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
     if segments[0].startswith("SETTINGS"):
-        # handle assignments written before REPLACE ENCOUNTERs
         print("SETTINGS header found!")
         Settings = segments[0]
-        for line in Settings.splitlines():
-            if line.count('=') == 1:
-                var = line.split("=")
-                add_variable(var[0].strip(), var[1].strip())
     else:
         print("No SETTINGS found")
+
+    # handle assignments at top level of document
+    for line in segments[0].splitlines():
+        if line.count('=') == 1:
+            var = line.split("=")
+            add_variable(var[0].strip(), var[1].strip())
+
+    # yield tuple containing name, header command, and text
     for i, segment in enumerate(segments[1:]):
         if i % 2 == 0:
             cmd = segment.strip()
@@ -459,13 +463,11 @@ def create_events(data):
         # Assume nested argument list means a list of parameters
         if any(isinstance(i, list) for i in args_list):
             output = []
-            # print("list of parameters found")
             for args in args_list:
                 args = format_args(args, arg_count)
                 output += [event_cls(*args)]
             return output
         else:
-            # print("single parameter set found")
             args_list = format_args(args_list, arg_count)
             return [event_cls(*args_list)]
 
@@ -474,7 +476,11 @@ def create_events(data):
 
 # TODO: this is just dumb, find a better way
 def is_dlc(filename):
-    # check for "dlc1" and "dlc2"
+    """
+    Checks dlc level of file by checking first 50 lines for keywords
+    :param filename:
+    :return dlc_level:
+    """
     head = ""
     with open(filename) as fp:
         for i in range(1, 50):
@@ -511,15 +517,6 @@ def add_idai2s(filename, dlc_level):
 
 
 # cringe
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
-# cringe again
 def rreplace(s, old, new, occurrence=0):
     li = s.rsplit(old, occurrence)
     return new.join(li)
@@ -538,7 +535,7 @@ def concat_strings(s):
 
     if "+" not in s:
         for var, val in sorted_variables:
-            if not (is_number(str(val)) or val in ["true", "false"]):
+            if not is_number_or_keyword(s):
                 val = f'"{val}"'
             s = s.replace(f'"{var}"', str(val))
         return s
@@ -549,12 +546,12 @@ def concat_strings(s):
         seg = seg.lstrip() if i > 0 else seg
         seg = seg.rstrip() if i < len(segments)-1 else seg
 
-        matches = re.findall(r'[$^\w]+', seg)
+        potential_matches = re.findall(r'[$^\w]+', seg)
 
-        start_match = matches[0] if i > 0 else None
-        end_match = matches[-1] if i < len(segments)-1 else None
+        first_match = potential_matches[0] if i > 0 else None
+        last_match = potential_matches[-1] if i < len(segments)-1 else None
 
-        for j, match in enumerate([start_match, end_match]):
+        for j, match in enumerate([first_match, last_match]):
             if not match:
                 continue
             for var, val in sorted_variables:
@@ -569,10 +566,6 @@ def concat_strings(s):
                     debug_print(f"matched '{match}' and replaced with '{str(val)}'")
                     debug_print(f"seg is now '{seg}'")
 
-        if not (is_number(str(val)) or val in ["true", "false"]):
-            val = f'"{val}"'
-            seg = seg.replace(f'"{var}"', str(val))
-
         output_str += seg
 
     return output_str.replace(space_char, " ").replace("$", "")
@@ -582,7 +575,7 @@ def compile_ebl(s):
     """
     Converts EBL string to encounterComponent events
     :param s:
-    :return modified_string:
+    :return events:
     """
     output_str = ""
     item_index = 0
@@ -662,19 +655,19 @@ def add_entitydefs(entity_string, entitydefs):
         if not spawn_editable["spawnAnim"]:
             entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = '"AIOVERRIDE_TELEPORT";'
 
-    targets = list_targets(entitydefs)
-    entitydefs = list_entitydefs(entitydefs)
-    targets = "{\n" + indent(targets, "\t") + "}\n"
-    entitydefs = "{\n" + indent(entitydefs, "\t") + "}\n"
-    entity[entitydef]["edit"]["entityDefs"] = entitydefs
+    listed_targets = list_targets(entitydefs)
+    targets = "{\n" + indent(listed_targets, "\t") + "}\n"
     entity[entitydef]["edit"]["targets"] = targets
-    # print("Added entitydefs")
+
+    listed_entitydefs = list_entitydefs(entitydefs)
+    entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
+    entity[entitydef]["edit"]["entityDefs"] = entitydefs
+
     return parser.generate_entity(entity)
 
 
 def modify_entity(name, entity_string, params, dlc_level):
-    cmd = params[0]
-    text = params[1]
+    cmd, text = params
     if cmd == "REPLACE ENCOUNTER":
         print(f"Replaced encounter {name}")
         return replace_encounter(entity_string, text, dlc_level)
@@ -696,8 +689,8 @@ def apply_ebl(
     generate_traversals=True
 ):
     """
-    Applies all changes in an EBL file to a copy of the vanilla entities file
-    :param ebl_file: EBL file, which describes all file deltas
+    Applies all changes in the EBL file to a copy of the vanilla entities file
+    :param ebl_file: EBL file describing all file deltas
     :param base_file: The vanilla entities file to modify
     :param modded_file: The output file path
     :param compress_file: Whether the output file should be compressed
@@ -713,18 +706,16 @@ def apply_ebl(
 
     eternaltools.decompress(base_file)
 
-    # if they ever make more DLC I'll change this shit lol
     dlc_level = is_dlc(base_file)
 
+    # Add entitydefs with appropriate DLC level
     entitydefs = base_entitydefs
-
     if dlc_level >= 2:
         entitydefs += dlc2_entitydefs
-
     if dlc_level >= 1:
         entitydefs += dlc1_entitydefs
 
-    # get all the file deltas
+    # get all file deltas
     segments = generate_ebl_segments(ebl_file)
     deltas = dict(segments)
     added_entities = []
@@ -762,6 +753,7 @@ def apply_ebl(
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
     with open(modded_file, "w") as fp:
+        # iterate vanilla entities and apply changes
         for entity in entities:
             entity_count += 1
             for name, params in deltas.items():
@@ -777,6 +769,7 @@ def apply_ebl(
             fp.write(entity)
 
         fp.write("\n")
+        # iterate new entities and apply changes
         for new_entity in added_entities:
             if ('class = "idTarget_Spawn";' in new_entity
                     or 'class = "idTarget_Spawn_Parent";' in new_entity):
