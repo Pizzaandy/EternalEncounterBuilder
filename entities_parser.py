@@ -198,12 +198,18 @@ def verify_file(filename):
     error_found = False
     depth = 0
     layers_line = False
+    last_entity_line = 0
     with open(filename) as fp:
         for i, line in enumerate(fp.readlines()):
             if "{" in line:
-                depth += 1
+                depth += line.count("{")
             if "}" in line:
                 depth -= 1
+            if line.strip() == "entity {":
+                if depth != 1:
+                    print(f"Unmatched braces in entity starting at line {i+1}")
+                    return True
+                last_entity_line = i
             if layers_line:
                 layers_line = False
                 continue

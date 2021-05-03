@@ -490,7 +490,7 @@ def is_dlc(filename):
     return dlc_level
 
 
-def add_idAI2s(filename, dlc_level):
+def add_idai2s(filename, dlc_level):
     file = open(filename, "a")
 
     with open("idAI2_base.txt", "r") as fp_base:
@@ -519,6 +519,10 @@ def is_number(s):
         return False
 
 
+def rreplace(s, old, new, occurrence=0):
+    li = s.rsplit(old, occurrence)
+    return new.join(li)
+
 # Concatenate strings (jank)
 # TODO: make less jank, this is ugly as hell
 # plus signs are reserved for this lmao
@@ -529,7 +533,6 @@ def concat_strings(s):
     if "+" not in s:
         for var, val in sorted_variables:
             if not (is_number(str(val)) or val in ["true", "false"]):
-                # debug_print(f'added "" for {var} = {val}')
                 val = f'"{val}"'
             s = s.replace(f'"{var}"', str(val))
         return s
@@ -537,27 +540,36 @@ def concat_strings(s):
     output_str = ""
     segments = s.split("+")
     for i, seg in enumerate(segments):
-        seg = seg.strip()
-        minimum_chars = len(seg)
-        debug_print(f"minimum_chars = {minimum_chars}")
-        for var, val in sorted_variables:
-            if len(str(var)) < minimum_chars:
+        seg = seg.lstrip() if  i > 0 else seg
+        seg = seg.rstrip() if i < len(segments)-1 else seg
+
+        matches = re.findall('[\w$^]+', seg)
+
+        start_match = matches[0] if i > 0 else None
+        end_match = matches[-1] if i < len(segments)-1 else None
+
+        for j, match in enumerate([start_match, end_match]):
+            if not match:
                 continue
+            for var, val in sorted_variables:
+                if len(var) < len(match.strip()):
+                    continue
+                if match.strip() == var:
+                    val = format_args([val], 1)[0]
+                    if j == 0:
+                        seg = seg.replace(match, str(val), 1)
+                    else:
+                        seg = rreplace(seg, match, str(val), 1)
+                    debug_print(f"matched '{match}' and replaced with '{str(val)}'")
+                    debug_print(f"seg is now '{seg}'")
 
-            val = format_args([val], 1)[0]
-            start_match = (seg.lstrip().startswith(f'{var}') and i != 0)
-            end_match = (seg.rstrip().endswith(f'{var}') and i != len(segments)-1)
-            if start_match or end_match:
-                seg = seg.replace(f'{var}', str(val))
-
-            if not (is_number(str(val)) or val in ["true", "false"]):
-                val = f'"{val}"'
-
+        if not (is_number(str(val)) or val in ["true", "false"]):
+            val = f'"{val}"'
             seg = seg.replace(f'"{var}"', str(val))
 
         output_str += seg
 
-    return output_str.replace(space_char, " ")
+    return output_str.replace(space_char, " ").replace("$", "")
 
 
 # converts EBL string to encounterComponent events
@@ -703,7 +715,9 @@ def apply_ebl(
     # compile EBL segments to eternalevents and add new entities
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
+            print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
             deltas[key] = (val[0], compile_ebl(val[1]))
+
 
         if val[0] == "ADD":
             is_template = False
@@ -744,7 +758,7 @@ def apply_ebl(
                 new_entity = add_entitydefs(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
-    add_idAI2s(modded_file, dlc_level)
+    add_idai2s(modded_file, dlc_level)
 
     if show_spawn_targets:
         print("Adding spawn target markers...")
@@ -762,4 +776,4 @@ def apply_ebl(
 
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
-
+    print(variables)
