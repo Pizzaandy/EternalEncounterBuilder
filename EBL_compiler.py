@@ -1,6 +1,6 @@
 import eternalevents
 import eternaltools
-import EBL_grammar as EBL
+import EBL_grammar as EblGrammar
 import entities_parser as parser
 from textwrap import indent
 from dataclasses import dataclass
@@ -11,8 +11,8 @@ import math
 import sys
 
 
-ebl = EBL.NodeVisitor()
-ebl.grammar = EBL.grammar
+ebl = EblGrammar.NodeVisitor()
+ebl.grammar = EblGrammar.grammar
 space_char = "^"
 blacklist_entities = []
 
@@ -519,14 +519,20 @@ def is_number(s):
         return False
 
 
+# cringe again
 def rreplace(s, old, new, occurrence=0):
     li = s.rsplit(old, occurrence)
     return new.join(li)
 
-# Concatenate strings (jank)
-# TODO: make less jank, this is ugly as hell
-# plus signs are reserved for this lmao
+
 def concat_strings(s):
+    """
+    Manipulates string by:
+    a) replacing variable names with values
+    b) handling the + operator and concatenating strings
+    :param s:
+    :return modified_string:
+    """
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
@@ -540,10 +546,10 @@ def concat_strings(s):
     output_str = ""
     segments = s.split("+")
     for i, seg in enumerate(segments):
-        seg = seg.lstrip() if  i > 0 else seg
+        seg = seg.lstrip() if i > 0 else seg
         seg = seg.rstrip() if i < len(segments)-1 else seg
 
-        matches = re.findall('[\w$^]+', seg)
+        matches = re.findall(r'[$^\w]+', seg)
 
         start_match = matches[0] if i > 0 else None
         end_match = matches[-1] if i < len(segments)-1 else None
@@ -572,8 +578,12 @@ def concat_strings(s):
     return output_str.replace(space_char, " ").replace("$", "")
 
 
-# converts EBL string to encounterComponent events
 def compile_ebl(s):
+    """
+    Converts EBL string to encounterComponent events
+    :param s:
+    :return modified_string:
+    """
     output_str = ""
     item_index = 0
     events = create_events(ebl.parse(s))
@@ -602,6 +612,13 @@ actorpopulation = [
 
 # TODO: actual error handling
 def replace_encounter(entity_string, entity_events, dlc_level):
+    """
+    Modifies encounter entity with list of eternalevents
+    :param entity_string:
+    :param entity_events:
+    :param dlc_level:
+    :return new_entity_string:
+    """
     entity = parser.ev.parse(entity_string)
     entity_events = "{\n" + indent(entity_events, "\t") + "}\n"
     for key in entity:
@@ -640,7 +657,6 @@ def add_entitydefs(entity_string, entitydefs):
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
     except KeyError:
-        # print("No spawnEditable")
         pass
     else:
         if not spawn_editable["spawnAnim"]:
@@ -679,6 +695,16 @@ def apply_ebl(
     show_spawn_targets=False,
     generate_traversals=True
 ):
+    """
+    Applies all changes in an EBL file to a copy of the vanilla entities file
+    :param ebl_file: EBL file, which describes all file deltas
+    :param base_file: The vanilla entities file to modify
+    :param modded_file: The output file path
+    :param compress_file: Whether the output file should be compressed
+    :param show_spawn_targets: Whether visual spawn target markers should be added to the file
+    :param generate_traversals: Whether traversal info should be applied to the file
+    :return success:
+    """
 
     tic = time.time()
 
@@ -717,7 +743,6 @@ def apply_ebl(
         if val[0] == "REPLACE ENCOUNTER":
             print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
             deltas[key] = (val[0], compile_ebl(val[1]))
-
 
         if val[0] == "ADD":
             is_template = False
@@ -777,3 +802,4 @@ def apply_ebl(
     print(f"{modified_count} entities out of {entity_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
     print(variables)
+    return True
