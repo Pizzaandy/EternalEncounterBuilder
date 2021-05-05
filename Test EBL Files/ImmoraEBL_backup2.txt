@@ -5,36 +5,31 @@ SETTINGS
 // MilkyQuesadilla
 // Sir Gecko
 
-// bigarena2
+
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
 
 setMusicState("sound_sound_musicentity_1", music_ghost_states/main_heavy, Start Heavy)
 activate(hangar_target_relay_hangar_entrance_blocker_on, Turn on blocker / Lock door)
-spawn(Mancubus, hangar_target_spawn_68, )
+spawn(Gargoyle, hangar_target_spawn_68, )
 
 waitFor wait(0.5, false)
-spawn(CyberMancubus, hangar_target_spawn_70, )
+spawn(Gargoyle, hangar_target_spawn_70, )
 
 waitFor wait(0.5, false)
 spawn(Imp, hangar_target_spawn_69, )
 
 waitFor wait(1, false)
-spawn(Arachnotron, hangar_target_spawn_27, )
+spawn(HellKnight, hangar_target_spawn_27, )
 
 waitFor wait(1, false)
-spawn
-(DreadKnight, hangar_target_spawn_49)
-(DreadKnight, hangar_target_spawn_40)
-(DreadKnight, hangar_target_spawn_21)
-(BloodAngel, hangar_target_spawn_26)
+spawn(HellKnight, hangar_target_spawn_49, )
 
 waitFor wait(1, false)
 spawn(Tyrant, hangar_target_spawn_2, )
-
 maintainAI
 (Imp, 3, -1, 3, 2, hangar_encounter_spawn_group_zone_1, , 5)
-(HellSoldier, 5, -1, 5, 2, hangar_encounter_spawn_group_zone_1, , 2)
-(Shotgunner, 4, -1, 2, 2, hangar_encounter_spawn_group_zone_1, , 5)
+(HellSoldier, 3, -1, 5, 2, hangar_encounter_spawn_group_zone_1, , 2)
+(ZombieTier1, 3, -1, 2, 2, hangar_encounter_spawn_group_zone_1, , 5)
 
 waitFor wait(3, false)
 spawn(CursedProwler, hangar_target_spawn_35, )
@@ -50,17 +45,13 @@ waitFor AIRemaining
 (BloodAngel, 0, , false)
 (Tyrant, 0, , false)
 
-targets = Carcass CyberMancubus Arachnotron Baron
-spawnPossessed
-(BloodAngel, hangar_target_spawn_49, , hangar_target_spawn_73, targets, , false)
-(BloodAngel, hangar_target_spawn_34, , hangar_target_spawn_73, targets, , false)
-(Mancubus, hangar_target_spawn_3, , hangar_target_spawn_73, targets, , false)
+spawnPossessed(Baron, hangar_target_spawn_49, , hangar_target_spawn_73, Carcass CyberMancubus Arachnotron Baron, , false)
 
 waitFor wait(0.25, false)
-spawn(Mancubus, hangar_target_spawn_21, )
+spawn(Arachnotron, hangar_target_spawn_21, )
 
 waitFor wait(0.25, false)
-spawn(Baron, hangar_target_spawn_40, )
+spawn(Arachnotron, hangar_target_spawn_40, )
 
 waitFor wait(3, false)
 spawnMultiple(Carcass, 2, hangar_encounter_spawn_group_zone_1, )
@@ -293,7 +284,7 @@ waitFor wait(1, false)
 group1 = breach_wasteland_arena_encounter_spawn_group_zone_1
 group2 = breach_wasteland_arena_encounter_spawn_group_zone_2
 breachtarg = breach_wasteland_arena_target_spawn_
-test = breachtarg + bruh +  "breachtargDreadKnight"; 
+test = breachtarg + bruh +  "breachtarg"; 
 test2 = test
 
 // new spawn targets
@@ -398,20 +389,19 @@ spawnMultiple(CyberMancubus, 1, group1)
 waitFor 1 sec
 spawnMultiple(CyberMancubus, 1, group1)
 
-waitFor AIRemaining(ArmoredBaron, 1)(CyberMancubus, 2)
-spawnMultiple(Pinky, 1, group1)
-waitFor 3 sec
-spawnMultiple(Pinky, 1, group1)
+waitFor AIRemaining(ArmoredBaron, 1)
+spawn(PainElemental, breachtarg+55, )
+
 waitFor 2 sec
-spawnMultiple(Pinky, 1, group1)
-//spawn(PainElemental, breachtarg+55, )
+//breachtarg+56?
 spawn(PainElemental, breachtarg+62, )
 stopMaintain(Gargoyle)
 maintainAI(Imp, 7, -1, 3, 2, group1, , 0)
 
 waitFor all {
 	AIRemaining(ArmoredBaron, 0)
-	AIRemaining(PainElemental, 0)
+	AIRemaining(PainElemental, 1)
+	AIRemaining(CyberMancubus, 2)
 }
 
 print(prepare to die)
@@ -428,15 +418,15 @@ spawn(Cacodemon, breach_cacos1)
 waitFor 2 sec
 spawn(Cacodemon, breachtarg+55)
 
-waitFor AIRemaining(BloodMaykr, 1)
+waitFor AIRemaining(BloodMaykr, 1, , false)
 
 spawnArchvile(breachtarg+34, breach_wall_deck_encounter_archvile_template_1, myvile)
 waitFor 1 sec
 spawnArchvile(breachtarg+41, breach_wall_deck_encounter_archvile_template_1, myvile2)
 
 waitFor AIRemaining
+//(BloodMaykr, 0)
 (PainElemental, 1)
-(Pinky, 1)
 (Archvile, 1)
 
 waitFor healthLevel(Archvile, 0.4)
@@ -446,9 +436,7 @@ spawnMultiple(Tyrant, 2, group1)
 waitFor 1 sec
 spawnMultiple(Whiplash, 1, group1)
 waitFor 1 sec
-spawn(Tyrant, breachtarg+41)
-
-// comment xd
+spawnMultiple(Tyrant, 1, breachtarg+41)
 stopMaintainAI(Imp,)(MechaZombie, 0)
 maintainAI
 (Imp, 7, -1, 3, 2, group1, , 0)
@@ -460,32 +448,46 @@ spawnMultiple(MaykrDrone, 1, group1)
 waitFor {
 	AIRemaining
 	(Archvile, 0)
-	(Tyrant, 2)
+	(Tyrant, 1)
 	(Arachnotron, 2)
+	(BloodMaykr, 0)
+	AIHealthLevel(Tyrant, 0.6)
 }
-spawnMultiple(Revenant, 1, group1)
-spawnMultiple(Whiplash, 1, group1)
 
-waitFor AIRemaining(Tyrant, 1)
-AIHealthLevel(Tyrant, 0.7)
+spawnMultiple(Pinky, 3, group1)
 
-stopMaintain(Prowler)(Imp)
-removeAI(Prowler)
-maintainAI
-(Zombie, 4, -1, 3, 2, group1, , 0)
-(SIMP, 4, -1, 3, 2, group1, , 0)
+stopMaintain(Prowler)
+maintainAI(SIMP, 3, -1, 3, 2, group1, , 0)
 
 waitFor 2 sec
 
-//targets = HellKnight Baron Pinky Whiplash PainElemental Mancubus DoomHunter
-//spawnPossessed(Marauder, breachtarg+55, , breachtarg+25, targets, , true)
-spawn(Marauder, breachtarg+34)(Marauder, breachtarg+25)
-waitFor healthLevel(Marauder, 0.5)
-spawn(DreadKnight, breachtarg+41)
-spawn(Baron, breachtarg+35)
-waitFor AIRemaining(Marauder, 1)
+targets = HellKnight Baron Pinky Whiplash PainElemental Mancubus DoomHunter
+spawnPossessed(Marauder, breachtarg+55, , breachtarg+25, targets, , true)
 
-stopMaintainAI(Imp)(SIMP)
+waitFor healthLevel(Marauder, 0.5)
+spawn(Baron, breachtarg+55)
+waitFor 6 sec
+waitFor any {
+	AIRemaining(Marauder, 0)
+	AIRemaining(Baron, 0)
+}
+stopMaintain(SIMP)
+waitFor 2 sec
+spawnMultiple(Whiplash, 1, group1)
+waitFor 2 sec
+spawnMultiple(Whiplash, 1, group1)
+waitFor 2 sec
+spawnMultiple(Whiplash, 1, group1)
+
+
+waitFor {
+	AIRemaining
+	(Marauder, 0)
+	(HellKnight, 0)
+	(Whiplash, 2)
+}
+
+stopMaintainAI(Imp)
 
 waitFor {
 	AIRemaining
@@ -501,12 +503,11 @@ waitFor {
 	(Mancubus, 0)
 	(Revenant, 0)
 	(PainElemental, 0)
-	(Marauder, 0)
 }
 
 forceChargeOnAllAI()
 damageAI(damage/triggerhurt/triggerhurt1000_instagib, Imp)
-removeAI(SIMP)(Prowler)
+removeAI(SIMP)
 
 waitFor AIRemaining(Any, 0, , false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, End Heavy)
@@ -1034,14 +1035,12 @@ waitFor any {
 // city_rooftop_encounter_spawn_group_zone_2
 // city_rooftop_encounter_spawn_group_zone_3
 // city_rooftop_encounter_spawn_group_zone_4
-
-// spawn targets: 0-9, 12, 15, 16
-// air spawns: 10, 11
-cityroof = city_rooftop_target_spawn_
+// Air spawns: 10, 11
 
 // Add meathook nodes
 ADD MeathookNode(platform_right, -755.08, -675.24, -133.71, 6000)
 ADD MeathookNode(platform_left_front, -724.06, -613, -139.3, 6000)
+//ADD MeathookNode(platform_left, -715.62, -635.91, -132.43, 5000)
 ADD MeathookNode(platform_center, -731.7, -651.94, -131.8, 6000)
 
 // remove monke bars
@@ -1057,13 +1056,9 @@ REPLACE ENCOUNTER city_rooftop_encounter_manager_dlc2_1
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 alertAI(true, false, , false)
-waitFor 4 sec
-spawn
-(Mancubus, cityroof+0)
-(Mancubus, cityroof+1)
-(Mancubus, cityroof+2)
-(Mancubus, cityroof+3)
-(Mancubus, cityroof+4)
+spawnMultiple
+(Revenant, 3, city_rooftop_encounter_spawn_group_zone_1, )
+(Mancubus, 2, city_rooftop_encounter_spawn_group_zone_1, )
 
 maintainAI
 (Imp, 1, 10, 35, 0, city_rooftop_encounter_spawn_group_zone_1, , 40)
@@ -1347,72 +1342,6 @@ entity {
 }
 }
 
-TEMPLATE SpawnTargetAnim(name, x, y, z, orientation, animation)
-entity {
-	entityDef {{name}} {
-	inherit = "target/spawn";
-	class = "idTarget_Spawn";
-	expandInheritance = false;
-	poolCount = 0;
-	poolGranularity = 2;
-	networkReplicated = false;
-	disableAIPooling = false;
-	edit = {
-		flags = {
-			noFlood = true;
-		}
-		spawnConditions = {
-			maxCount = 0;
-			reuseDelaySec = 0;
-			doBoundsTest = false;
-			boundsTestType = "BOUNDSTEST_NONE";
-			fovCheck = 0;
-			minDistance = 0;
-			maxDistance = 0;
-			neighborSpawnerDistance = -1;
-			LOS_Test = "LOS_NONE";
-			playerToTest = "PLAYER_SP";
-			conditionProxy = "";
-		}
-		spawnEditableShared = {
-			groupName = "";
-			deathTrigger = "";
-			coverRadius = 0;
-			maxEnemyCoverDistance = 0;
-		}
-		entityDefs = {
-			num = 0;
-		}
-		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
-		initialEntityDefs = {
-			num = 0;
-		}
-		spawnEditable = {
-			spawnAt = "";
-			copyTargets = false;
-			additionalTargets = {
-				num = 0;
-			}
-			overwriteTraversalFlags = true;
-			traversalClassFlags = "CLASS_A";
-			combatHintClass = "CLASS_ALL";
-			spawnAnim = "{{animation}}";
-			aiStateOverride = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION";
-			initialTargetOverride = "";
-		}
-		portal = "";
-		targetSpawnParent = "";
-		disablePooling = false;
-		spawnPosition = {
-			x = {{x}};
-			y = {{y}};
-			z = {{z}};
-		}
-		spawnOrientation = {{orientation}}
-	}
-}
-}
-
 REPLACE sound_sound_musicentity_1
 entity {
 	entityDef sound_sound_musicentity_1 {
@@ -1436,8 +1365,6 @@ entity {
 }
 }
 
-
-// SPAWNGROUP EDITS
 REPLACE breach_wasteland_arena_encounter_spawn_group_zone_1
 entity {
 	entityDef breach_wasteland_arena_encounter_spawn_group_zone_1 {
@@ -1519,49 +1446,6 @@ entity {
 }
 }
 
-REPLACE city_rooftop_encounter_spawn_group_zone_1
-entity {
-	entityDef city_rooftop_encounter_spawn_group_zone_1 {
-	inherit = "encounter/spawn_group/zone";
-	class = "idTargetSpawnGroup";
-	expandInheritance = false;
-	poolCount = 0;
-	poolGranularity = 2;
-	networkReplicated = false;
-	disableAIPooling = false;
-	edit = {
-		spawnPosition = {
-			x = -781.099426;
-			y = -681.100037;
-			z = -66;
-		}
-		renderModelInfo = {
-			model = NULL;
-		}
-		clipModelInfo = {
-			clipModelName = "maps/game/dlc2/e5m3_hell/e5m3_hell/city_rooftop_encounter_spawn_group_zone_1";
-		}
-		spawners = {
-			num = 14;
-			item[0] = "city_rooftop_target_spawn_1";
-			item[1] = "city_rooftop_target_spawn_2";
-			item[2] = "city_rooftop_target_spawn_3";
-			item[3] = "city_rooftop_target_spawn_4";
-			item[4] = "city_rooftop_target_spawn_6";
-			item[5] = "city_rooftop_target_spawn_5";
-			item[6] = "city_rooftop_target_spawn_7";
-			item[7] = "city_rooftop_target_spawn_9";
-			item[8] = "city_rooftop_target_spawn_8";
-			item[9] = "city_rooftop_target_spawn_12";
-			item[10] = "city_rooftop_target_spawn_15";
-			item[11] = "city_rooftop_target_spawn_16";
-		}
-		targetSpawnParent = "city_rooftop_encounter_spawn_group_parent_1";
-	}
-}
-}
-
-// SHOOTER EDITS
 REPLACE shooters__envhazard_shooters_hell_on_earth_9
 entity {
 	entityDef shooters__envhazard_shooters_hell_on_earth_9 {

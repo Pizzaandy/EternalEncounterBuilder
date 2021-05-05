@@ -4,24 +4,30 @@ import eternaltools
 import EBL_grammar as EblGrammar
 import entities_parser as parser
 from textwrap import indent
+import chevron
 from dataclasses import dataclass
+from typing import List
 import re
 import time
-import chevron
 import math
 import sys
 
-
+# EBL = Eternal Builder Language, describes changes to .entities files
 ebl = EblGrammar.NodeVisitor()
 ebl.grammar = EblGrammar.grammar
-space_char = "^"
 blacklist_entities = []
 
+# character reserved for spaces in string literals
+SPACE_CHAR = "^"
 variables = {}
-debug_vars = True
 Settings = ""
 templates = {}
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
+debug_vars = False
+
+
+def debug_print(string):
+    if debug_vars:
+        print(string)
 
 
 @dataclass
@@ -31,6 +37,9 @@ class Assignment:
 
 
 class EntityTemplate:
+    """
+    Handles text templates to be rendered into .entities
+    """
     def __init__(self, name, template, args):
         self.name = name
         self.template = template
@@ -52,7 +61,7 @@ class EntityTemplate:
                 print(f"Rendered class {clsname} with args {clsargs}")
         return args
 
-    def render(self, *argv):
+    def render(self, *argv) -> str:
         argv = self.modify_args(argv)
         if len(argv) != len(self.args):
             print(f"ERROR: expected {len(self.args)} args in template {self.name}, {len(argv)} given")
@@ -63,6 +72,7 @@ class EntityTemplate:
         return chevron.render(template=self.template, data=t_data)
 
 
+# noinspection PyMissingConstructor
 class Vec3(EntityTemplate):
     def __init__(self):
         self.name = "Vec3"
@@ -77,11 +87,10 @@ class Vec3(EntityTemplate):
 
 def sin_cos(deg):
     rad = math.degrees(float(deg))
-    s = math.sin(rad)
-    c = math.cos(rad)
-    return s, c
+    return math.sin(rad), math.cos(rad)
 
 
+# noinspection PyMissingConstructor
 class Mat3(EntityTemplate):
     def __init__(self):
         self.name = "Mat3"
@@ -124,6 +133,7 @@ class Mat3(EntityTemplate):
             return args
 
 
+# noinspection PyMissingConstructor
 class Mat2(EntityTemplate):
     def __init__(self):
         self.name = "Mat2"
@@ -156,35 +166,28 @@ class Mat2(EntityTemplate):
             return args
 
 
-def debug_print(string):
-    if debug_vars:
-        print(string)
-
-
-# not technically variables, but go off I guess
+# these are not technically variables, but go off I guess
 def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified variable {varname} = {value}")
     else:
         debug_print(f"Added variable {varname} = {value}")
 
-    if "+" in value:
-        print(f"{varname} is {value}")
-        variables[varname] = concat_strings(value)
-        debug_print(f'''Concatenated strings in assignment {varname} = {variables[varname]}''')
-        return
-
-    variables[varname] = format_args([value], 1)[0]
+    ignore_quotes = "+" not in value
+    new_value = format_args([value], 1)[0]
+    variables[varname] = concat_strings(new_value, ignore_quotes)
+    debug_print(f'''Concatenated strings in assignment {varname} = {variables[varname]}''')
+    return True
 
 
-waitFor_keywords = {
+WAITFOR_KEYWORDS = {
     "all": "ENCOUNTER_LOGICAL_OP_AND",
     "any": "ENCOUNTER_LOGICAL_OP_OR"
 }
 
 
 # ENCOUNTER_SPAWN + name
-encounter_spawn_names = [
+ENCOUNTER_SPAWN_NAMES = [
     "ANY",
     "GENERIC",
     "ARACHNOTRON",
@@ -228,7 +231,7 @@ encounter_spawn_names = [
 ]
 
 # These are the preferred constants
-encounter_spawn_aliases = {
+ENCOUNTER_SPAWN_ALIASES = {
     "Any": "ANY",
     "Generic": "GENERIC",
     "Arachnotron": "ARACHNOTRON",
@@ -289,7 +292,7 @@ encounter_spawn_aliases = {
 }
 
 
-base_entitydefs = [
+BASE_ENTITYDEFS = [
     "custom_ai_fodder_imp",
     "custom_ai_fodder_soldier_blaster",
     "custom_ai_fodder_gargoyle",
@@ -322,7 +325,7 @@ base_entitydefs = [
 ]
 
 
-dlc1_entitydefs = [
+DLC1_ENTITYDEFS = [
     "custom_ai_ambient_turret",
     "custom_ai_heavy_bloodangel",
     "custom_ai_ambient_super_tentacle",
@@ -330,7 +333,7 @@ dlc1_entitydefs = [
 ]
 
 
-dlc2_entitydefs = [
+DLC2_ENTITYDEFS = [
     "custom_ai_superheavy_baron_armored",
     "custom_ai_fodder_prowler_cursed",
     "custom_ai_fodder_imp_stone",
@@ -340,14 +343,14 @@ dlc2_entitydefs = [
 ]
 
 
-def list_entitydefs(entitydefs):
+def list_entitydefs(entitydefs: list) -> str:
     res = f"num = {len(entitydefs)};\n"
     for i, name in enumerate(entitydefs):
         res += f'item[{i}] = {{\n\tname = "{name}";\n}}\n'
     return res
 
 
-def list_targets(entitydefs):
+def list_targets(entitydefs: list) -> str:
     res = f"num = {len(entitydefs)};\n"
     for i, name in enumerate(entitydefs):
         res += f'item[{i}] = "{name}";\n'
@@ -364,33 +367,38 @@ def get_event_args(classname):
              and not i.startswith('args')])
 
 
-def strip_comments(string):
+def strip_comments(s):
     pattern = r"//(.*)(?=[\r\n]+)"
-    return re.sub(pattern, "", string)
+    return re.sub(pattern, "", s)
+
+
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
 
 
 def generate_ebl_segments(filename):
     """
-    Splits EBL file into segments at headers
+    Splits an EBL file into segments at headers
     returns a tuple with EBL code and encounter name
     :param filename:
     :return:
     """
     with open(filename) as fp:
         segments = re.split(EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
+
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
-        Settings = segments[0]
+        # Settings = segments[0]
     else:
         print("No SETTINGS found")
 
-    # handle assignments at top level of document
+    # handle variables at top of document
     for line in segments[0].splitlines():
         if line.count('=') == 1:
             var = line.split("=")
             add_variable(var[0].strip(), var[1].strip())
 
-    # yield tuple containing name, header command, and text
+    # yield tuple containing name, header command, and body text
+    cmd = ""
     for i, segment in enumerate(segments[1:]):
         if i % 2 == 0:
             cmd = segment.strip()
@@ -403,20 +411,20 @@ def generate_ebl_segments(filename):
         yield name, (cmd, strip_comments(segment))
 
 
-# Handles macros and fills in missing arguments
-def format_args(args, arg_count):
+# Handles variables and fills in missing arguments
+def format_args(args: list, arg_count) -> list:
     for i, arg in enumerate(args):
         if isinstance(arg, str):
             args[i] = ""
-            arg = arg.replace(space_char, space_char + " ").split()
+            arg = arg.replace(SPACE_CHAR, SPACE_CHAR + " ").split()
             for word in arg:
                 old_word = word
                 word = word.replace("^", "")
-                if word in encounter_spawn_names:
+                if word in ENCOUNTER_SPAWN_NAMES:
                     args[i] += "ENCOUNTER_SPAWN_" + word + " "
-                elif word in encounter_spawn_aliases:
+                elif word in ENCOUNTER_SPAWN_ALIASES:
                     args[i] += ("ENCOUNTER_SPAWN_" +
-                                encounter_spawn_aliases[word] + " ")
+                                ENCOUNTER_SPAWN_ALIASES[word] + " ")
                 else:
                     args[i] += old_word + " "
             args[i] = args[i].strip()
@@ -427,14 +435,14 @@ def format_args(args, arg_count):
     return args
 
 
-# Consumes a parsed EBL file and generates a list of EternalEvents
+# Consumes parsed EBL and generates a list of EternalEvents
 # TODO: use the structural pattern matching feature when it comes out lol
-def create_events(data):
+def create_events(data) -> list:
     if isinstance(data, list):
         output = []
         for item in data:
             event = create_events(item)
-            output += event if event is not None else []
+            output += event  # if event is not None else []
         return output
 
     if isinstance(data, dict):
@@ -442,10 +450,10 @@ def create_events(data):
             return [Assignment(data["variable"], data["value"])]
 
         if data["event"] == "waitForBlock":
-            length = len([ev for ev in data["args"] if "variable" not in ev[0]])
+            event_count = len([ev for ev in data["args"] if "variable" not in ev[0]])
             waitevent = {
                 "event": "waitMulitpleConditions",
-                "args": [length, waitFor_keywords[data["keyword"]], "false"]
+                "args": [event_count, WAITFOR_KEYWORDS[data["keyword"]], "false"]
             }
             return create_events([waitevent] + data["args"])
 
@@ -456,17 +464,18 @@ def create_events(data):
             cls_name, arg_count = eternalevents.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
-            print(f'''ERROR: undefined event {data["event"]}!''')
+            print(f'''ERROR: Undefined event {data["event"]}!''')
+            return []
 
         args_list = data["args"]
 
         # Assume nested argument list means a list of parameters
         if any(isinstance(i, list) for i in args_list):
-            output = []
+            result = []
             for args in args_list:
                 args = format_args(args, arg_count)
-                output += [event_cls(*args)]
-            return output
+                result += [event_cls(*args)]
+            return result
         else:
             args_list = format_args(args_list, arg_count)
             return [event_cls(*args_list)]
@@ -475,7 +484,7 @@ def create_events(data):
 
 
 # TODO: this is just dumb, find a better way
-def is_dlc(filename):
+def is_dlc(filename) -> int:
     """
     Checks dlc level of file by checking first 50 lines for keywords
     :param filename:
@@ -522,32 +531,35 @@ def rreplace(s, old, new, occurrence=0):
     return new.join(li)
 
 
-def concat_strings(s):
+def concat_strings(s, ignore_quotes=False):
     """
     Manipulates string by:
-    a) replacing variable names with values
+    a) replacing variable names with corresponding values
     b) handling the + operator and concatenating strings
     :param s:
+    :param ignore_quotes:
     :return modified_string:
     """
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
     if "+" not in s:
+        add_quotes = not is_number_or_keyword(s) and not ignore_quotes
         for var, val in sorted_variables:
-            if not is_number_or_keyword(s):
+            if add_quotes:
                 val = f'"{val}"'
-            s = s.replace(f'"{var}"', str(val))
-        return s
+            if ignore_quotes:
+                s = s.replace(f'{var}', str(val))
+            else:
+                s = s.replace(f'"{var}"', str(val))
+        return s.replace(SPACE_CHAR, " ").replace("$", "")
 
-    output_str = ""
+    result = ""
     segments = s.split("+")
     for i, seg in enumerate(segments):
         seg = seg.lstrip() if i > 0 else seg
         seg = seg.rstrip() if i < len(segments)-1 else seg
-
         potential_matches = re.findall(r'[$^\w]+', seg)
-
         first_match = potential_matches[0] if i > 0 else None
         last_match = potential_matches[-1] if i < len(segments)-1 else None
 
@@ -566,37 +578,36 @@ def concat_strings(s):
                     debug_print(f"matched '{match}' and replaced with '{str(val)}'")
                     debug_print(f"seg is now '{seg}'")
 
-        output_str += seg
+        result += seg
+    return result.replace(SPACE_CHAR, " ").replace("$", "")
 
-    return output_str.replace(space_char, " ").replace("$", "")
 
-
-def compile_ebl(s):
+def compile_ebl(s) -> str:
     """
-    Converts EBL string to encounterComponent events
+    Compiles EBL to encounterComponent events
     :param s:
     :return events:
     """
-    output_str = ""
+    result = ""
     item_index = 0
     events = create_events(ebl.parse(s))
     if events is None:
-        return output_str
+        return result
 
-    output_str += f"num = {len(events)};\n"
+    result += f"num = {len(events)};\n"
     for event in events:
         if isinstance(event, Assignment):
             add_variable(event.name, event.value)
             continue
         event_string = concat_strings(str(event))
-        output_str += (f"item[{item_index}]" + " = {\n" +
-                       indent(event_string, "\t") + "}\n")
+        result += (f"item[{item_index}]" + " = {\n" +
+                   indent(event_string, "\t") + "}\n")
         item_index += 1
 
-    return output_str
+    return result
 
 
-actorpopulation = [
+ACTORPOPULATION = [
     "actorpopulation/default/default_no_bosses",
     "actorpopulation/default/dlc1",
     "actorpopulation/default/dlc2_demonic_soldier",
@@ -604,25 +615,26 @@ actorpopulation = [
 
 
 # TODO: actual error handling
-def replace_encounter(entity_string, entity_events, dlc_level):
+def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     """
     Modifies encounter entity with list of eternalevents
-    :param entity_string:
-    :param entity_events:
+    :param encounter:
+    :param events:
     :param dlc_level:
     :return new_entity_string:
     """
-    entity = parser.ev.parse(entity_string)
-    entity_events = "{\n" + indent(entity_events, "\t") + "}\n"
+    entity = parser.ev.parse(encounter)
+    entity_events = "{\n" + indent(events, "\t") + "}\n"
+    entitydef = ""
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
-    if not key:
+    if not entitydef:
         print("ERROR: no entityDef component!")
-        return entity_string
+        return encounter
     try:
         entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
-        entity[entitydef]["edit"]["aiTypeDefAssignments"] = actorpopulation[dlc_level]
+        entity[entitydef]["edit"]["aiTypeDefAssignments"] = ACTORPOPULATION[dlc_level]
         # print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
     except KeyError:
         print("ERROR: Unable to replace encounter")
@@ -630,21 +642,29 @@ def replace_encounter(entity_string, entity_events, dlc_level):
     return parser.generate_entity(entity)
 
 
-def add_entitydefs(entity_string, entitydefs):
-    entity = parser.ev.parse(entity_string)
+def add_entitydefs(spawn_target: str, entitydefs: List[str]) -> str:
+    """
+    Add custom idAI2s to the given spawn target
+    :param spawn_target:
+    :param entitydefs:
+    :return modified_spawn_target:
+    """
+    entity = parser.ev.parse(spawn_target)
+    entitydef = ""
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
-    if not key:
+    if not entitydef:
         print("ERROR: no entityDef component!")
-        return entity_string
+        return spawn_target
 
-    old_entitydefs = entity[entitydef]["edit"]["entityDefs"]
-    old_entitydefs.pop('num')
+    existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
+    existing_entitydefs.pop('num')
 
-    if len(old_entitydefs) > 0:
+    # append existing entitydefs to end of list
+    if len(existing_entitydefs) > 0:
         names = []
-        for assignment in list(old_entitydefs.values()):
+        for assignment in list(existing_entitydefs.values()):
             names += list(assignment.values())
         entitydefs = entitydefs + names
     try:
@@ -652,8 +672,9 @@ def add_entitydefs(entity_string, entitydefs):
     except KeyError:
         pass
     else:
+        # TODO: adjust spawn target formatting to preserve intro animations
         if not spawn_editable["spawnAnim"]:
-            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = '"AIOVERRIDE_TELEPORT";'
+            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = 'AIOVERRIDE_TELEPORT'
 
     listed_targets = list_targets(entitydefs)
     targets = "{\n" + indent(listed_targets, "\t") + "}\n"
@@ -666,11 +687,19 @@ def add_entitydefs(entity_string, entitydefs):
     return parser.generate_entity(entity)
 
 
-def modify_entity(name, entity_string, params, dlc_level):
+def modify_entity(name, entity: str, params, dlc_level) -> str:
+    """
+    Applies changes to entity with given parameters
+    :param name:
+    :param entity:
+    :param params:
+    :param dlc_level:
+    :return modified_entity:
+    """
     cmd, text = params
     if cmd == "REPLACE ENCOUNTER":
         print(f"Replaced encounter {name}")
-        return replace_encounter(entity_string, text, dlc_level)
+        return replace_encounter(entity, text, dlc_level)
     if cmd == "REPLACE":
         print(f"Replaced entity {name}")
         return text
@@ -679,7 +708,7 @@ def modify_entity(name, entity_string, params, dlc_level):
         return ""
 
 
-# Apply all changes in ebl_file to modded_file created from base_file
+# Apply all changes in ebl_file to base_file and output to modded_file
 def apply_ebl(
     ebl_file,
     base_file,
@@ -689,8 +718,8 @@ def apply_ebl(
     generate_traversals=True
 ):
     """
-    Applies all changes in the EBL file to a copy of the vanilla entities file
-    :param ebl_file: EBL file describing all file deltas
+    Applies all changes in an EBL file to a copy of a vanilla entities file
+    :param ebl_file: EBL file describing all file changes
     :param base_file: The vanilla entities file to modify
     :param modded_file: The output file path
     :param compress_file: Whether the output file should be compressed
@@ -698,29 +727,26 @@ def apply_ebl(
     :param generate_traversals: Whether traversal info should be applied to the file
     :return success:
     """
-
     tic = time.time()
-
     modified_count = 0
-    entity_count = 0
+    total_count = 0
 
     eternaltools.decompress(base_file)
-
     dlc_level = is_dlc(base_file)
 
     # Add entitydefs with appropriate DLC level
-    entitydefs = base_entitydefs
+    entitydefs = BASE_ENTITYDEFS
     if dlc_level >= 2:
-        entitydefs += dlc2_entitydefs
+        entitydefs += DLC2_ENTITYDEFS
     if dlc_level >= 1:
-        entitydefs += dlc1_entitydefs
+        entitydefs += DLC1_ENTITYDEFS
 
     # get all file deltas
     segments = generate_ebl_segments(ebl_file)
     deltas = dict(segments)
     added_entities = []
 
-    # find + parse templates
+    # find + store templates
     for key, val in deltas.items():
         if val[0] == "TEMPLATE":
             t_name, t_args = key.split("(", 1)
@@ -732,30 +758,32 @@ def apply_ebl(
     # compile EBL segments to eternalevents and add new entities
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
-            print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
             deltas[key] = (val[0], compile_ebl(val[1]))
+            # debug_print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
 
         if val[0] == "ADD":
+            entity = ""
             is_template = False
-            for t_key in templates.keys():
-                if key.startswith(t_key):
+            for template in templates.keys():
+                if key.replace(" ", "").startswith(template + "("):
+                    # find all comma-delimited arguments
                     args = re.findall(r'([^(,)]+)(?!.*\()', key)
                     args = [arg.strip() for arg in args]
-                    entity_str = templates[t_key].render(*args)
+                    entity = templates[template].render(*args)
                     is_template = True
-                    print(f"Added new instance of {t_key} with arguments {args}, {key}")
+                    print(f"Added new instance of {key}")
             if not is_template:
-                entity_str = val[1].strip()
+                entity = val[1].strip()
                 print(f"Added entity {key}")
-            added_entities += [entity_str.strip()]
+            added_entities += [entity.strip()]
 
     # get vanilla entities from base file
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
     with open(modded_file, "w") as fp:
-        # iterate vanilla entities and apply changes
+        # iterate vanilla entities, apply changes, then write to output file
         for entity in entities:
-            entity_count += 1
+            total_count += 1
             for name, params in deltas.items():
                 if f"entityDef {name} {{" in entity:
                     print(f"Found entity {name}")
@@ -767,9 +795,8 @@ def apply_ebl(
                 entity = add_entitydefs(entity, entitydefs)
                 modified_count += 1
             fp.write(entity)
-
         fp.write("\n")
-        # iterate new entities and apply changes
+        # iterate added entities, apply changes, then write to output file
         for new_entity in added_entities:
             if ('class = "idTarget_Spawn";' in new_entity
                     or 'class = "idTarget_Spawn_Parent";' in new_entity):
@@ -792,7 +819,7 @@ def apply_ebl(
     if compress_file:
         eternaltools.compress(modded_file)
 
-    print(f"{modified_count} entities out of {entity_count-1} modified!")
+    print(f"{modified_count} entities out of {total_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
-    print(variables)
+    debug_print(variables)
     return True

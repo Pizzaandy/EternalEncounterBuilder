@@ -96,12 +96,9 @@ class NodeVisitor(NodeVisitor):
 
     def visit_EVENT(self, node, visited_children):
         event_name, _, params = visited_children
-        #print(params)
         if not isinstance(params, list):
-            print("STINKY")
+            print("This should never happen")
             return {"event": str(event_name), "args": []}
-        #params.insert(0, "EVENT: " + str(event_name))
-        #print("event: " + str(params[0][0]))
         return {"event": str(event_name), "args": params}
 
     def visit_WAITFOR(self, node, visited_children):
@@ -114,7 +111,6 @@ class NodeVisitor(NodeVisitor):
         if not isinstance(conditions, list):
             return {"event": "waitForBlock", "args": []}
         keyword = keyword[0] if isinstance(keyword, list) else "all"
-        #print("waitForBlock parsed")
         return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
 
     # disableAIHighlight = false by default
@@ -127,19 +123,18 @@ class NodeVisitor(NodeVisitor):
         return string[0]
 
     def visit_STRING(self, node, visited_children):
-        #print(str(node.text))
         return str(node.text)
 
     def visit_STRINGLITERAL(self, node, visited_children):
-        #print (str(node.text).replace('"', '').replace(" ", "^"))
-        return str(node.text).replace('"', '').replace(" ", "^") + "$"
+        expr = str(node.text).replace('"', '').replace(" ", "$^") + "$"
+        print(expr)
+        return expr
 
     def visit_MULTISTRING(self, node, visited_children):
         string, _, _ = visited_children
         output_str = ""
         for i, item in enumerate(string):
             output_str += string[i][1] + " "
-        #print(output_str)
         return output_str.strip()
 
     def visit_NUMBER(self, node, visited_children):

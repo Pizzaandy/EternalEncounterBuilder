@@ -13,9 +13,9 @@ def is_number_or_keyword(s):
     s = str(s)
     try:
         float(s)
-        return s not in ["true", "false", "NULL"]
+        return True
     except ValueError:
-        return False
+        return s in ["true", "false", "NULL"]
 
 
 class EternalEvent:

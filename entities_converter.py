@@ -26,7 +26,7 @@ def format_arg(arg):
     for word in str(arg).split():
         if word in blacklist:
             continue
-        if word.replace("ENCOUNTER_SPAWN_", "") in ebl.encounter_spawn_names:
+        if word.replace("ENCOUNTER_SPAWN_", "") in ebl.ENCOUNTER_SPAWN_NAMES:
             word = snake_to_camel(word.replace("ENCOUNTER_SPAWN_", ""))
         res += word + " "
     return res.strip()
