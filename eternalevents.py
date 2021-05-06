@@ -56,10 +56,10 @@ class EternalEvent:
         for item in items:
             # handle default arguments
             if "=" in item["var"]:
-                varname, default = item["var"].split("=")
+                varname, default_value = item["var"].split("=")
                 item["var"] = varname
                 if item["value"] == '"";' or not item["value"]:
-                    item["value"] = format_value(default)
+                    item["value"] = format_value(default_value)
 
             # render decls
             if item["var"].startswith("decl:"):

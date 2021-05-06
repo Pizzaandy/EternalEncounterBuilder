@@ -55,7 +55,6 @@ class NodeVisitor(NodeVisitor):
         #print("statement: " + str(statement[0]))
         return statement[0]
 
-    # ASSIGNMENT = STRING EQUALS (NUMBER / STRING)
     def visit_ASSIGNMENT(self, node, visited_children):
         varname, _, value, _ = visited_children
         return {"variable": varname, "value": value[0]}

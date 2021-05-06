@@ -36,6 +36,7 @@ class Assignment:
     value: str
 
 
+# TODO: move templates to another module
 class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
@@ -544,13 +545,12 @@ def concat_strings(s, ignore_quotes=False):
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
     if "+" not in s:
-        add_quotes = not is_number_or_keyword(s) and not ignore_quotes
         for var, val in sorted_variables:
-            if add_quotes:
-                val = f'"{val}"'
             if ignore_quotes:
                 s = s.replace(f'{var}', str(val))
             else:
+                if not is_number_or_keyword(s):
+                    val = f'"{val}"'
                 s = s.replace(f'"{var}"', str(val))
         return s.replace(SPACE_CHAR, " ").replace("$", "")
 
@@ -750,9 +750,9 @@ def apply_ebl(
     for key, val in deltas.items():
         if val[0] == "TEMPLATE":
             t_name, t_args = key.split("(", 1)
-            t_args = t_args.split(",")
-            for i, arg in enumerate(t_args):
-                t_args[i] = arg.replace(")", "").strip()
+            t_args = re.findall(r'([^(,)]+)(?!.*\()', t_args)
+            t_args = [arg.strip() for arg in t_args]
+            # print(f"t_args is {t_args}")
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
 
     # compile EBL segments to eternalevents and add new entities

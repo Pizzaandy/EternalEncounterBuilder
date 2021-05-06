@@ -17,16 +17,17 @@ spawn(CyberMancubus, hangar_target_spawn_70, )
 
 waitFor wait(0.5, false)
 spawn(Imp, hangar_target_spawn_69, )
+Wave mywave {
+	waitFor wait(1, false)
+	spawn(Arachnotron, hangar_target_spawn_27, )
 
-waitFor wait(1, false)
-spawn(Arachnotron, hangar_target_spawn_27, )
-
-waitFor wait(1, false)
-spawn
-(DreadKnight, hangar_target_spawn_49)
-(DreadKnight, hangar_target_spawn_40)
-(DreadKnight, hangar_target_spawn_21)
-(BloodAngel, hangar_target_spawn_26)
+	waitFor wait(1, false)
+	spawn
+	(DreadKnight, hangar_target_spawn_49)
+	(DreadKnight, hangar_target_spawn_40)
+	(DreadKnight, hangar_target_spawn_21)
+	(BloodAngel, hangar_target_spawn_26)
+}
 
 waitFor wait(1, false)
 spawn(Tyrant, hangar_target_spawn_2, )
@@ -57,6 +58,7 @@ spawnPossessed
 (Mancubus, hangar_target_spawn_3, , hangar_target_spawn_73, targets, , false)
 
 waitFor wait(0.25, false)
+
 spawn(Mancubus, hangar_target_spawn_21, )
 
 waitFor wait(0.25, false)
