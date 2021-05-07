@@ -545,11 +545,14 @@ def rreplace(s, old, new, occurrence=0):
 
 def concat_strings(s, is_expression=False):
     """
+    Okay this function is really nasty
+    If I ever find a reason to change it I will lol
+
     Manipulates string by:
     a) replacing variable names with corresponding values
     b) handling the + operator and concatenating strings
     :param s:
-    :param is_expression: whether s is an entire expression
+    :param is_expression: whether all of s must be matched if there is no + in string
     :return modified_string:
     """
     items = variables.items()
@@ -590,14 +593,14 @@ def concat_strings(s, is_expression=False):
                         seg = seg.replace(match, str(val), 1)
                     else:
                         seg = rreplace(seg, match, str(val), 1)
-                    debug_print(f"matched '{match}' and replaced with '{str(val)}'")
+                    debug_print(f"matched variable '{match}' and substituted '{str(val)}'")
                     debug_print(f"seg is now '{seg}'")
 
         result += seg
     return result.replace(SPACE_CHAR, " ").replace("$", "")
 
 
-def compile_ebl(s) -> str:
+def compile_ebl_encounter(s) -> str:
     """
     Compiles EBL to encounterComponent events
     :param s:
@@ -836,7 +839,7 @@ def apply_ebl(
     # compile EBL segments to eternalevents and add new entities
     for key, val in deltas.items():
         if val[0] == "REPLACE ENCOUNTER":
-            deltas[key] = (val[0], compile_ebl(val[1]))
+            deltas[key] = (val[0], compile_ebl_encounter(val[1]))
             # debug_print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
 
         if val[0] == "ADD":
