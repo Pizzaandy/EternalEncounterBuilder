@@ -4,6 +4,10 @@ from parsimonious.grammar import NodeVisitor
 from textwrap import indent
 
 
+class EntitiesSyntaxError(Exception):
+    pass
+
+
 entity_grammar = Grammar(r"""
     #DOCUMENT = VERSION_LINES? ENTITY*
 
@@ -148,24 +152,43 @@ def parse_entities(filename, class_filter=""):
 
 # converts a parsed event back to .entities
 # shoutout to Chrispy
-no_equals = ('entityDef', 'layers')
+NO_EQUALS = ('entityDef', 'layers')
 def generate_entity(parsed_entity, depth=0):
-    s = "entity {\n\t" if depth == 0 else ""
+    s = ""
+    if depth == 0:
+        s += "entity {\n\t"
+    item_index = 0
+    do_item_numbering = False
     for key, val in parsed_entity.items():
+        if do_item_numbering or key == "num":
+            do_item_numbering = True
+            if key == "num":
+                val = len(parsed_entity)-1
+            else:
+                key = f"item[{item_index}]"
+                item_index += 1
+            if item_index >= len(parsed_entity)-1:
+                item_index = 0
+                do_item_numbering = False
+
         if isinstance(val, dict):
             s += key
-            if not key.startswith(no_equals):
+            if not key.startswith(NO_EQUALS):
                 s += " ="
             s += " {\n" + generate_entity(val, depth+1) + "}\n"
         else:
+            multiline = False
             if isinstance(val, bool):
                 val = "true" if val else "false"
             elif isinstance(val, str):
-                if "\n" not in val:
+                # if string is multiline, unpack string
+                multiline = "\n" in val
+                if not multiline:
                     val = f'"{val}"'
             s += f"{key} = {str(val)}"
-            if "\n" not in str(val):
+            if not multiline:
                 s += ";\n"
+
     return indent(s, "\t") if depth > 0 else s + "}\n"
 
 

@@ -1,11 +1,17 @@
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 
+
+class EblTypeError(Exception):
+    pass
+
+
 grammar = Grammar(r"""
     DOCUMENT = (STATEMENTS)*
-    STATEMENTS = SPACE? (EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
+    STATEMENTS = SPACE? (ENTITYEDIT / EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
 
     ASSIGNMENT = STRING EQUALS (NUMBER / MULTISTRING / ANYSTRING) SPACE?
+    ENTITYEDIT = PATHSTRING "." EVENT
 
     WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
     PARAM_LIST = PARAM_TUPLE+
@@ -37,6 +43,7 @@ grammar = Grammar(r"""
     SPACE = ~r"[\s;]+"
     SPACE_NO_NEWLINE = ~r"[\t ]+"
     STRING = ~r'[\w/#+.]+'
+    PATHSTRING = ~r'[\w/#+\[\]]+'
     STRINGLITERAL = ~r'"[\t\n\w/#+. ]+"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """)
@@ -52,12 +59,17 @@ class NodeVisitor(NodeVisitor):
 
     def visit_STATEMENTS(self, node, visited_children):
         _, statement = visited_children
-        #print("statement: " + str(statement[0]))
         return statement[0]
 
     def visit_ASSIGNMENT(self, node, visited_children):
         varname, _, value, _ = visited_children
         return {"variable": varname, "value": value[0]}
+
+    def visit_ENTITYEDIT(self, node, visited_children):
+        obj, _, event = visited_children
+        return {"object": obj,
+                "function": event["event"],
+                "value": event["args"]}
 
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
@@ -75,7 +87,6 @@ class NodeVisitor(NodeVisitor):
 
     def visit_REALPARAM(self, node, visited_children):
         _, value, _, _ = visited_children
-        #print(value[0])
         return value[0]
 
     def visit_PARAM_LINE(self, node, visited_children):
@@ -102,7 +113,6 @@ class NodeVisitor(NodeVisitor):
 
     def visit_WAITFOR(self, node, visited_children):
         _, _, condition = visited_children
-        #print("waitFor parsed")
         return {"event": "waitFor", "args": condition[0]}
 
     def visit_WAITFORBLOCK(self, node, visited_children):
@@ -124,6 +134,9 @@ class NodeVisitor(NodeVisitor):
     def visit_STRING(self, node, visited_children):
         return str(node.text)
 
+    def visit_PATHSTRING(self, node, visited_children):
+        return str(node.text)
+
     def visit_STRINGLITERAL(self, node, visited_children):
         expr = str(node.text).replace('"', '').replace(" ", "$^") + "$"
         print(expr)
@@ -138,9 +151,9 @@ class NodeVisitor(NodeVisitor):
 
     def visit_NUMBER(self, node, visited_children):
         if (float(node.text).is_integer()
-            and "." not in node.text
-            and "+" not in node.text):
-                return int(node.text)
+                and "." not in node.text
+                and "+" not in node.text):
+            return int(node.text)
         else:
             return float(node.text)
 

@@ -2,7 +2,9 @@ import eternalevents
 from eternalevents import is_number_or_keyword
 import eternaltools
 import EBL_grammar as EblGrammar
+from EBL_grammar import EblTypeError
 import entities_parser as parser
+from entities_parser import EntitiesSyntaxError
 from textwrap import indent
 import chevron
 from dataclasses import dataclass
@@ -22,7 +24,7 @@ SPACE_CHAR = "^"
 variables = {}
 Settings = ""
 templates = {}
-debug_vars = False
+debug_vars = True
 
 
 def debug_print(string):
@@ -36,7 +38,15 @@ class Assignment:
     value: str
 
 
-# TODO: move templates to another module
+# syntax is object.func(value)
+@dataclass
+class EntityEdit:
+    object: str
+    func: str
+    value: list
+
+
+# TODO: move entity templates to another module
 class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
@@ -65,8 +75,7 @@ class EntityTemplate:
     def render(self, *argv) -> str:
         argv = self.modify_args(argv)
         if len(argv) != len(self.args):
-            print(f"ERROR: expected {len(self.args)} args in template {self.name}, {len(argv)} given")
-            return ""
+            raise EblTypeError(f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given")
         t_data = {}
         for arg_name, arg in zip(self.args, argv):
             t_data[arg_name] = arg
@@ -172,7 +181,7 @@ def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified variable {varname} = {value}")
     else:
-        debug_print(f"Added variable {varname} = {value}")
+        print(f"Added variable {varname} = {value}")
 
     ignore_quotes = "+" not in value
     new_value = format_args([value], 1)[0]
@@ -373,7 +382,7 @@ def strip_comments(s):
     return re.sub(pattern, "", s)
 
 
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE )"
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY )"
 
 
 def generate_ebl_segments(filename):
@@ -398,7 +407,7 @@ def generate_ebl_segments(filename):
             var = line.split("=")
             add_variable(var[0].strip(), var[1].strip())
 
-    # yield tuple containing name, header command, and body text
+    # yield tuples containing name, header command, and body text
     cmd = ""
     for i, segment in enumerate(segments[1:]):
         if i % 2 == 0:
@@ -406,8 +415,7 @@ def generate_ebl_segments(filename):
             continue
         name = segment.split("\n")[0].strip()
         if not name:
-            print("ERROR: No name in header!")
-            continue
+            raise EblTypeError(f"No entity name specified in header {cmd}")
         segment = "\n".join(segment.split("\n")[1:])
         yield name, (cmd, strip_comments(segment))
 
@@ -450,6 +458,10 @@ def create_events(data) -> list:
         if "variable" in data:
             return [Assignment(data["variable"], data["value"])]
 
+        if "function" in data:
+            print(f"function value is {data['value']}")
+            return [EntityEdit(data["object"], data["function"], data["value"])]
+
         if data["event"] == "waitForBlock":
             event_count = len([ev for ev in data["args"] if "variable" not in ev[0]])
             waitevent = {
@@ -465,8 +477,7 @@ def create_events(data) -> list:
             cls_name, arg_count = eternalevents.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
-            print(f'''ERROR: Undefined event {data["event"]}!''')
-            return []
+            raise EblTypeError(f'''Undefined event {data["event"]}!''')
 
         args_list = data["args"]
 
@@ -485,7 +496,7 @@ def create_events(data) -> list:
 
 
 # TODO: this is just dumb, find a better way
-def is_dlc(filename) -> int:
+def get_dlc_level(filename) -> int:
     """
     Checks dlc level of file by checking first 50 lines for keywords
     :param filename:
@@ -532,13 +543,13 @@ def rreplace(s, old, new, occurrence=0):
     return new.join(li)
 
 
-def concat_strings(s, ignore_quotes=False):
+def concat_strings(s, is_expression=False):
     """
     Manipulates string by:
     a) replacing variable names with corresponding values
     b) handling the + operator and concatenating strings
     :param s:
-    :param ignore_quotes:
+    :param is_expression: whether s is an entire expression
     :return modified_string:
     """
     items = variables.items()
@@ -546,9 +557,13 @@ def concat_strings(s, ignore_quotes=False):
 
     if "+" not in s:
         for var, val in sorted_variables:
-            if ignore_quotes:
-                s = s.replace(f'{var}', str(val))
+            if is_expression:
+                # only replace entire expression if match
+                if len(var) == len(s.strip()):
+                    s = s.replace(f'{var}', str(val))
+                    break
             else:
+                # replace all instances of substring in quotes
                 if not is_number_or_keyword(s):
                     val = f'"{val}"'
                 s = s.replace(f'"{var}"', str(val))
@@ -630,8 +645,7 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
         if key.startswith("entityDef"):
             entitydef = key
     if not entitydef:
-        print("ERROR: no entityDef component!")
-        return encounter
+        raise EntitiesSyntaxError("No entityDef component!")
     try:
         entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
         entity[entitydef]["edit"]["aiTypeDefAssignments"] = ACTORPOPULATION[dlc_level]
@@ -639,6 +653,68 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     except KeyError:
         print("ERROR: Unable to replace encounter")
         print(entity[entitydef]["edit"])
+    return parser.generate_entity(entity)
+
+
+def edit_entity_fields(base_entity: str, edits: str) -> str:
+    """
+    Edits specific fields in the given entity
+    :param base_entity:
+    :param edits:
+    :return edited_entity:
+    """
+    entity = parser.ev.parse(base_entity)
+    entitydef = ""
+    for key in entity:
+        if key.startswith("entityDef"):
+            entitydef = key
+    if not entitydef:
+        # This should never happen when modifying a base entities file
+        raise EntitiesSyntaxError("No entityDef component!")
+
+    entity_edits = ebl.parse(edits)
+    for entity_edit in create_events(entity_edits):
+        if type(entity_edit) is not EntityEdit:
+            if type(entity_edit) is Assignment:
+                add_variable(entity_edit.name, entity_edit.value)
+                continue
+            else:
+                raise EblTypeError("All lines under MODIFY header must be EntityEdits or Assignments")
+        func = entity_edit.func
+        values = entity_edit.value
+        path = entity_edit.object
+        keys = path.split("/")
+
+        print(f"values is {values}")
+        for value in values:
+            dic = entity[entitydef]
+
+            if func in ["append", "add", "update", "set"]:
+                if not 2 >= len(value) >= 1:
+                    raise EblTypeError(f'Edit function "{func}" takes one or two arguments')
+                for key in keys:
+                    dic = dic.setdefault(key, {})
+                print(dic)
+                if len(value) == 2:
+                    if isinstance(value[1], str):
+                        value[1] = concat_strings(value[1], is_expression=True)
+                    dic[concat_strings(value[0])] = value[1]
+                else:
+                    dic = value[0]
+
+            if func in ["remove", "pop", "delete"]:
+                if len(value) != 1:
+                    raise EblTypeError(f'Edit function "{func}" takes one argument')
+                value = concat_strings(value[0], is_expression=True)
+                for key in keys:
+                    dic = dic[key]
+                for key, val in dic.items():
+                    debug_print(f"Checking value '{value}' against '{val}'")
+                    if val == value:
+                        debug_print("Matched!")
+                        dic.pop(key)
+                        break
+
     return parser.generate_entity(entity)
 
 
@@ -661,7 +737,7 @@ def add_entitydefs(spawn_target: str, entitydefs: List[str]) -> str:
     existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
     existing_entitydefs.pop('num')
 
-    # append existing entitydefs to end of list
+    # add existing entitydefs to end of list
     if len(existing_entitydefs) > 0:
         names = []
         for assignment in list(existing_entitydefs.values()):
@@ -706,6 +782,8 @@ def modify_entity(name, entity: str, params, dlc_level) -> str:
     if cmd == "REMOVE":
         print(f"Removed entity {name}")
         return ""
+    if cmd == "MODIFY":
+        return edit_entity_fields(entity, text)
 
 
 # Apply all changes in ebl_file to base_file and output to modded_file
@@ -724,7 +802,7 @@ def apply_ebl(
     :param modded_file: The output file path
     :param compress_file: Whether the output file should be compressed
     :param show_spawn_targets: Whether visual spawn target markers should be added to the file
-    :param generate_traversals: Whether traversal info should be applied to the file
+    :param generate_traversals: Whether traversal info should be added to the file
     :return success:
     """
     tic = time.time()
@@ -732,7 +810,7 @@ def apply_ebl(
     total_count = 0
 
     eternaltools.decompress(base_file)
-    dlc_level = is_dlc(base_file)
+    dlc_level = get_dlc_level(base_file)
 
     # Add entitydefs with appropriate DLC level
     entitydefs = BASE_ENTITYDEFS

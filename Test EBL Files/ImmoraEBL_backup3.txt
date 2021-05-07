@@ -1133,10 +1133,57 @@ waitFor wait(2, false)
 waitFor AIRemaining(Any, 0, , false)
 
 
-MODIFY player_start_checkpoint1
-edit/targets.pop
-(target_interact_action_2)
-(target_show_2)
+REPLACE player_start_checkpoint1
+entity {
+	entityDef player_start_checkpoint1 {
+	inherit = "player/start";
+	class = "idPlayerStart";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {
+			x = -1723.09937;
+			y = -284.300446;
+			z = -163.999008;
+		}
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = -4.76837215e-07;
+					y = -1;
+				}
+				mat[1] = {
+					x = 1;
+					y = -4.76837215e-07;
+				}
+			}
+		}
+		targets = {
+			num = 14;
+			item[0] = "";
+			item[1] = "";
+			item[2] = "breach_wasteland_arena_target_relay_arena_complete";
+			item[3] = "breach_wasteland_arena_target_relay_1";
+			item[4] = "breach_wasteland_arena_target_remove_3";
+			item[5] = "checkpoint_target_relay_ambient_music_control";
+			item[6] = "fx_target_relay_checkpoint_fx_start";
+			item[7] = "breach_wasteland_war_target_relay_start_hell_ships";
+			item[8] = "breach_wasteland_war_func_anim_canyon_titan_stab";
+			item[9] = "breach_wasteland_war_func_anim_canyon_mech_stab";
+			item[10] = "breach_wasteland_war_func_anim_canyon_mech_stab_spear";
+			item[11] = "breach_wasteland_war_relay_mech_walker_right_start";
+			item[12] = "breach_wasteland_target_relay_storming_gates_complete_checkstart";
+			item[13] = "alembic_target_remove_3";
+		}
+	}
+}
+}
 
 TEMPLATE MeathookNode(name, x, y, z, cooldown) 
 entity { 
@@ -1368,27 +1415,241 @@ entity {
 }
 }
 
-MODIFY sound_sound_musicentity_1
-edit.set(initialSwitchState, samuelsbase_music)
+REPLACE sound_sound_musicentity_1
+entity {
+	entityDef sound_sound_musicentity_1 {
+	inherit = "sound/musicentity";
+	class = "idMusicEntity";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {
+			x = -1935.5;
+			y = -264.899994;
+			z = -164.800018;
+		}
+		initialState = "music_ghost_states/none";
+		initialSwitchGroup = "music_ghost_switch";
+		initialSwitchState = "samuelsbase_music";
+	}
+}
+}
 
-// remove air targets
-MODIFY breach_wasteland_arena_encounter_spawn_group_zone_1
-breachtarg = breach_wasteland_arena_target_spawn_
-edit/spawners.pop
-(breachtarg+52)
-(breachtarg+62)
+// new syntax
+// EDIT breach_wasteland_arena_encounter_spawn_group_zone_1
+// with edit/spawners:
+// EDIT breach_wasteland_arena_encounter_spawn_group_zone_1
 
-edit/spawners.add("value")
+// edit/spawners.pop("breach_wasteland_arena_target_spawn_52") 
+// edit/spawners.pop("breach_wasteland_arena_target_spawn_52") 
 
-// remove air targets 10 and 11
-MODIFY city_rooftop_encounter_spawn_group_zone_1
-edit/spawners.pop
-(city_rooftop_target_spawn_10)
-(city_rooftop_target_spawn_11)
+// SPAWNGROUP EDITS
+REPLACE breach_wasteland_arena_encounter_spawn_group_zone_1
+entity {
+	entityDef breach_wasteland_arena_encounter_spawn_group_zone_1 {
+	inherit = "encounter/spawn_group/zone";
+	class = "idTargetSpawnGroup";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {
+			x = -1707.50012;
+			y = -340.5;
+			z = -163.800018;
+		}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+			clipModelName = "maps/game/dlc2/e5m3_hell/e5m3_hell/breach_wasteland_arena_encounter_spawn_group_zone_1";
+		}
+		spawners = {
+			num = 53;
+			item[0] = "breach_wasteland_arena_target_spawn_1";
+			item[1] = "breach_wasteland_arena_target_spawn_32";
+			item[2] = "breach_wasteland_arena_target_spawn_33";
+			item[3] = "breach_wasteland_arena_target_spawn_31";
+			item[4] = "breach_wasteland_arena_target_spawn_34";
+			item[5] = "breach_wasteland_arena_target_spawn_35";
+			item[6] = "breach_wasteland_arena_target_spawn_36";
+			item[7] = "breach_wasteland_arena_target_spawn_37";
+			item[8] = "breach_wasteland_arena_target_spawn_28";
+			item[9] = "breach_wasteland_arena_target_spawn_29";
+			item[10] = "breach_wasteland_arena_target_spawn_26";
+			item[11] = "breach_wasteland_arena_target_spawn_27";
+			item[12] = "breach_wasteland_arena_target_spawn_25";
+			item[13] = "breach_wasteland_arena_target_spawn_24";
+			item[14] = "breach_wasteland_arena_target_spawn_22";
+			item[15] = "breach_wasteland_arena_target_spawn_21";
+			item[16] = "breach_wasteland_arena_target_spawn_20";
+			item[17] = "breach_wasteland_arena_target_spawn_19";
+			item[18] = "breach_wasteland_arena_target_spawn_18";
+			item[19] = "breach_wasteland_arena_target_spawn_17";
+			item[20] = "breach_wasteland_arena_target_spawn_30";
+			item[21] = "breach_wasteland_arena_target_spawn_51";
+			item[22] = "breach_wasteland_arena_target_spawn_47";
+			item[23] = "breach_wasteland_arena_target_spawn_48";
+			item[24] = "breach_wasteland_arena_target_spawn_40";
+			item[25] = "breach_wasteland_arena_target_spawn_45";
+			item[26] = "breach_wasteland_arena_target_spawn_39";
+			item[27] = "breach_wasteland_arena_target_spawn_46";
+			item[28] = "breach_wasteland_arena_target_spawn_41";
+			item[29] = "breach_wasteland_arena_target_spawn_42";
+			item[30] = "breach_wasteland_arena_target_spawn_49";
+			item[31] = "breach_wasteland_arena_target_spawn_43";
+			item[32] = "breach_wasteland_arena_target_spawn_50";
+			item[33] = "breach_wasteland_arena_target_spawn_44";
+			item[34] = "breach_wasteland_arena_target_spawn_15";
+			item[35] = "breach_wasteland_arena_target_spawn_13";
+			item[36] = "breach_wasteland_arena_target_spawn_14";
+			item[37] = "breach_wasteland_arena_target_spawn_16";
+			item[38] = "breach_wasteland_arena_target_spawn_10";
+			item[39] = "breach_wasteland_arena_target_spawn_12";
+			item[40] = "breach_wasteland_arena_target_spawn_11";
+			item[41] = "breach_wasteland_arena_target_spawn_9";
+			item[42] = "breach_wasteland_arena_target_spawn_8";
+			item[43] = "breach_wasteland_arena_target_spawn_7";
+			item[44] = "breach_wasteland_arena_target_spawn_6";
+			item[45] = "breach_wasteland_arena_target_spawn_5";
+			item[46] = "breach_wasteland_arena_target_spawn_4";
+			item[47] = "breach_wasteland_arena_target_spawn_54";
+			item[48] = "breach_wasteland_arena_target_spawn_53";
+			item[49] = "breach_wasteland_arena_target_spawn_38";
+			item[50] = "breach_wasteland_arena_target_spawn_61";
+		}
+		targetSpawnParent = "breach_wasteland_arena_encounter_spawn_group_parent_1";
+	}
+}
+}
+
+REPLACE city_rooftop_encounter_spawn_group_zone_1
+entity {
+	entityDef city_rooftop_encounter_spawn_group_zone_1 {
+	inherit = "encounter/spawn_group/zone";
+	class = "idTargetSpawnGroup";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {
+			x = -781.099426;
+			y = -681.100037;
+			z = -66;
+		}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+			clipModelName = "maps/game/dlc2/e5m3_hell/e5m3_hell/city_rooftop_encounter_spawn_group_zone_1";
+		}
+		spawners = {
+			num = 14;
+			item[0] = "city_rooftop_target_spawn_1";
+			item[1] = "city_rooftop_target_spawn_2";
+			item[2] = "city_rooftop_target_spawn_3";
+			item[3] = "city_rooftop_target_spawn_4";
+			item[4] = "city_rooftop_target_spawn_6";
+			item[5] = "city_rooftop_target_spawn_5";
+			item[6] = "city_rooftop_target_spawn_7";
+			item[7] = "city_rooftop_target_spawn_9";
+			item[8] = "city_rooftop_target_spawn_8";
+			item[9] = "city_rooftop_target_spawn_12";
+			item[10] = "city_rooftop_target_spawn_15";
+			item[11] = "city_rooftop_target_spawn_16";
+		}
+		targetSpawnParent = "city_rooftop_encounter_spawn_group_parent_1";
+	}
+}
+}
 
 // SHOOTER EDITS
-MODIFY shooters__envhazard_shooters_hell_on_earth_9
-edit/shooterList/item[0].set(firingInterval, 400)
+REPLACE shooters__envhazard_shooters_hell_on_earth_9
+entity {
+	entityDef shooters__envhazard_shooters_hell_on_earth_9 {
+	inherit = "envhazard/shooters/hell_on_earth";
+	class = "idInteractable_Shooter";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		whenToSave = "SGT_NO_SAVE";
+		saveType = "SGS_NONE";
+		flags = {
+			takedamage = true;
+		}
+		renderModelInfo = {
+			model = "md6def/objects/props/hell_shooter_column_prop_a/hell_shooter_column_prop_a.md6";
+		}
+		fxDecl = "gameplay/shooters/hell_on_earth";
+		interaction = {
+			initalState = "interactables/shooters/base/base/idle";
+			animWebDecl = "animweb/objects/shooters/shield";
+			interactionGraph = "interactables/shooters/base";
+		}
+		shooterList = {
+			num = 1;
+			item[0] = {
+				tagName = "muzzle";
+				projectileDef = "projectile_ent/envhazard/shooters/hell_on_earth";
+				targetPos = {
+					y = 63;
+				}
+				firingInterval = 500;
+			}
+		}
+		preFireFxTime = 250;
+		clipModelInfo = {
+			type = "CLIPMODEL_BOX";
+			size = {
+				x = 2.5;
+				y = 2.5;
+				z = 2.5;
+			}
+			offset = {
+				y = 1;
+				z = -1;
+			}
+			numSides = 12;
+		}
+		killerNames = {
+			num = 1;
+			item[0] = "#str_decl_damage_shooter_GHOST81067";
+		}
+		spawnPosition = {
+			x = -1485.59949;
+			y = -237.599792;
+			z = -118.199898;
+		}
+		spawnOrientation = {
+			mat = {
+				mat[0] = {
+					x = 5.36441803e-07;
+					y = 1;
+				}
+				mat[1] = {
+					x = -1;
+					y = 5.36441803e-07;
+				}
+			}
+		}
+		touchData = {
+			triggerDef = "trigger/trigger";
+			instance_Trigger = "shooters_gameplayr_trigger_shooter_wasteland_01";
+		}
+	}
+}
+}
+
 
 
 ADD MeathookNode(lavapit1, -1684.150024, -243.100006, -135.509995, 3000)
