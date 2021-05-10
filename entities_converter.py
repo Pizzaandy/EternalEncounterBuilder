@@ -1,6 +1,6 @@
 import eternalevents
 import entities_parser as parser
-import EBL_compiler as ebl
+import ebl_compiler as ebl
 
 fp = "Test Entities/e5m3_hell.entities"
 event_to_ebl = eternalevents.event_to_ebl

@@ -14,12 +14,7 @@ spawn(DreadKnight, my_prefix + something) // destroyed_rig_encounter_spawn_group
 print(firstname + lastname) // DesignerComment, prints "Doom Eternal" to console
 print(firstname+firstname+lastname) // prints "Doom Doom Eternal" to console
 
-// this is horrendous but you are allowed to do it
-my_fodder = "
-	Gargoyle
-	Imp
-"
-
+my_fodder = Gargoyle Imp
 rig = my_prefix
 
 // see previous comment

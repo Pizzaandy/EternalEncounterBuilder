@@ -1,30 +1,41 @@
 import eternalevents
 from eternalevents import is_number_or_keyword
 import eternaltools
-import EBL_grammar as EblGrammar
-from EBL_grammar import EblTypeError
+from entity_templates import EntityTemplate
 import entities_parser as parser
 from entities_parser import EntitiesSyntaxError
+import ebl_grammar
+from ebl_grammar import EblTypeError
+
 from textwrap import indent
-import chevron
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 import re
 import time
-import math
-import sys
+import compiler_constants as cc
+
+# from compiler_constants import (
+#     ENCOUNTER_SPAWN_NAMES,
+#     ENCOUNTER_SPAWN_ALIASES,
+#     BASE_ENTITYDEFS,
+#     DLC1_ENTITYDEFS,
+#     DLC2_ENTITYDEFS,
+#     SPACE_CHAR,
+#     LITERAL_CHAR,
+#     WAITFOR_KEYWORDS,
+#     ACTORPOPULATION,
+# )
 
 # EBL = Eternal Builder Language, describes changes to .entities files
-ebl = EblGrammar.NodeVisitor()
-ebl.grammar = EblGrammar.grammar
+ebl = ebl_grammar.NodeVisitor()
+ebl.grammar = ebl_grammar.grammar
 blacklist_entities = []
 
-# character reserved for spaces in string literals
-SPACE_CHAR = "^"
 variables = {}
 Settings = ""
 templates = {}
-debug_vars = True
+decorator_changes = {}
+debug_vars = False
 
 
 def debug_print(string):
@@ -46,136 +57,6 @@ class EntityEdit:
     value: list
 
 
-# TODO: move entity templates to another module
-class EntityTemplate:
-    """
-    Handles text templates to be rendered into .entities
-    """
-    def __init__(self, name, template, args):
-        self.name = name
-        self.template = template
-        self.args = args
-        print(f"Template {name} found")
-
-    def modify_args(self, args):
-        args = list(args)
-        for i, arg in enumerate(args):
-            if "[" in arg:
-                clsname, clsargs = arg.split("[")
-                if clsname not in [cls.__name__ for cls in EntityTemplate.__subclasses__()]:
-                    print(f"class {clsname} not found")
-                    continue
-                clsargs = clsargs.replace("]", "").split()
-                clsargs = [arg.strip() for arg in clsargs]
-                cls = getattr(sys.modules[__name__], clsname)
-                args[i] = cls().render(*clsargs)
-                print(f"Rendered class {clsname} with args {clsargs}")
-        return args
-
-    def render(self, *argv) -> str:
-        argv = self.modify_args(argv)
-        if len(argv) != len(self.args):
-            raise EblTypeError(f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given")
-        t_data = {}
-        for arg_name, arg in zip(self.args, argv):
-            t_data[arg_name] = arg
-        return chevron.render(template=self.template, data=t_data)
-
-
-# noinspection PyMissingConstructor
-class Vec3(EntityTemplate):
-    def __init__(self):
-        self.name = "Vec3"
-        self.args = ["x", "y", "z"]
-        self.template = ("""{
-            x = {{x}};
-            y = {{y}};
-            z = {{z}};
-        }
-    """)
-
-
-def sin_cos(deg):
-    rad = math.degrees(float(deg))
-    return math.sin(rad), math.cos(rad)
-
-
-# noinspection PyMissingConstructor
-class Mat3(EntityTemplate):
-    def __init__(self):
-        self.name = "Mat3"
-        self.args = [
-            "x1", "y1", "z1",
-            "x2", "y2", "z2",
-            "x3", "y3", "z3"
-        ]
-        self.template = ("""{
-            mat = {
-                mat[0] = {
-                    x = {{x1}};
-                    y = {{y1}};
-                    z = {{z1}};
-                }
-                mat[1] = {
-                    x = {{x2}};
-                    y = {{y2}};
-                    z = {{z2}};
-                }
-                mat[2] = {
-                    x = {{x3}};
-                    y = {{y3}};
-                    z = {{z3}};
-                }
-            }
-        }""")
-
-    def modify_args(self, args):
-        if len(args) == 3:
-            sy, cy = sin_cos(args[0])
-            sp, cp = sin_cos(args[1])
-            sr, cr = sin_cos(args[2])
-            return [
-                cp*cy, cp*sy, -sp,
-                sr*sp*cy + cr*-sy,  sr*sp*sy + cr*cy, sr*cp,
-                cr*sp*cy + -sr*sy, cr*sp*sy + -sr*cy, cr*cp
-            ]
-        else:
-            return args
-
-
-# noinspection PyMissingConstructor
-class Mat2(EntityTemplate):
-    def __init__(self):
-        self.name = "Mat2"
-        self.args = [
-            "x1", "y1",
-            "x2", "y2"
-        ]
-        self.template = ("""{
-            mat = {
-                mat[0] = {
-                    x = {{x1}};
-                    y = {{y1}};
-                }
-                mat[1] = {
-                    x = {{x2}};
-                    y = {{y2}};
-                }
-            }
-        }""")
-
-    def modify_args(self, args):
-        if len(args) == 2:
-            sy, cy = sin_cos(args[0])
-            sp, cp = sin_cos(args[1])
-            return [
-                cy, sy,
-                cp, sp
-            ]
-        else:
-            return args
-
-
 # these are not technically variables, but go off I guess
 def add_variable(varname, value):
     if varname in variables:
@@ -184,173 +65,12 @@ def add_variable(varname, value):
         print(f"Added variable {varname} = {value}")
 
     ignore_quotes = "+" not in value
-    new_value = format_args([value], 1)[0]
+    new_value = format_args(value)
     variables[varname] = concat_strings(new_value, ignore_quotes)
-    debug_print(f'''Concatenated strings in assignment {varname} = {variables[varname]}''')
+    debug_print(
+        f"""Concatenated strings in assignment {varname} = {variables[varname]}"""
+    )
     return True
-
-
-WAITFOR_KEYWORDS = {
-    "all": "ENCOUNTER_LOGICAL_OP_AND",
-    "any": "ENCOUNTER_LOGICAL_OP_OR"
-}
-
-
-# ENCOUNTER_SPAWN + name
-ENCOUNTER_SPAWN_NAMES = [
-    "ANY",
-    "GENERIC",
-    "ARACHNOTRON",
-    "ARMORED_BARON",
-    "BARON",
-    "BLOOD_ANGEL",
-    "CACODEMON",
-    "CHAINGUN_SOLDIER",
-    "CUEBALL",
-    "CURSED_PROWLER",
-    "CYBER_MANCUBUS",
-    "DOOM_HUNTER",
-    "DREAD_KNIGHT",
-    "GARGOYLE",
-    "HELL_KNIGHT",
-    "HELL_SOLDIER",
-    "IMP",
-    "MANCUBUS",
-    "MARAUDER",
-    "PAIN_ELEMENTAL",
-    "PINKY",
-    "PROWLER",
-    "REVENANT",
-    "SHOTGUN_SOLDIER",
-    "STONE_IMP",
-    "TENTACLE",
-    "TYRANT",
-    "WHIPLASH",
-    "ZOMBIE_MAYKR",
-    "ZOMBIE_T1_SCREECHER",
-    "ZOMBIE_TIER_1",
-    "ZOMBIE_TIER_3",
-    "LOST_SOUL",
-    "SPECTRE",
-    "CARCASS",
-    "ARCHVILE",
-    "BUFF_POD",
-    "SPIRIT",
-    "TURRET",
-    "SUPER_TENTACLE",
-]
-
-# These are the preferred constants
-ENCOUNTER_SPAWN_ALIASES = {
-    "Any": "ANY",
-    "Generic": "GENERIC",
-    "Arachnotron": "ARACHNOTRON",
-    "ArmoredBaron": "ARMORED_BARON",
-    "Spider": "ARACHNOTRON",
-    "Baron": "BARON",
-    "FireborneBaron": "BARON",
-    "BloodAngel": "BLOOD_ANGEL",
-    "BloodMaykr": "BLOOD_ANGEL",
-    "Cacodemon": "CACODEMON",
-    "ChaingunSoldier": "CHAINGUN_SOLDIER",
-    "Chaingunner": "CHAINGUN_SOLDIER",
-    "RiotSoldier": "CHAINGUN_SOLDIER",
-    "Cueball": "CUEBALL",
-    "CursedProwler": "CURSED_PROWLER",
-    "CyberMancubus": "CYBER_MANCUBUS",
-    "DoomHunter": "DOOM_HUNTER",
-    "DreadKnight": "DREAD_KNIGHT",
-    "Gargoyle": "GARGOYLE",
-    "HellKnight": "HELL_KNIGHT",
-    "HellSoldier": "HELL_SOLDIER",
-    "ZombieMan": "HELL_SOLDIER",
-    "Imp": "IMP",
-    "Mancubus": "MANCUBUS",
-    "Marauder": "MARAUDER",
-    "PainElemental": "PAIN_ELEMENTAL",
-    "Pinky": "PINKY",
-    "Prowler": "PROWLER",
-    "Revenant": "REVENANT",
-    "ShotgunSoldier": "SHOTGUN_SOLDIER",
-    "Shotgunner": "SHOTGUN_SOLDIER",
-    "ShotgunGuy": "SHOTGUN_SOLDIER",
-    "ShieldGuy": "SHOTGUN_SOLDIER",
-    "StoneImp": "STONE_IMP",
-    "SIMP": "STONE_IMP",
-    "Tentacle": "TENTACLE",
-    "Tyrant": "TYRANT",
-    "Cyberdemon": "TYRANT",
-    "Whiplash": "WHIPLASH",
-    "ZombieMaykr": "ZOMBIE_MAYKR",
-    "MaykrDrone": "ZOMBIE_MAYKR",
-    "ZombieT1Screecher": "ZOMBIE_T1_SCREECHER",
-    "Screecher": "ZOMBIE_T1_SCREECHER",
-    "ZombieTier1": "ZOMBIE_TIER_1",
-    "Zombie": "ZOMBIE_TIER_1",
-    "ZombieTier3": "ZOMBIE_TIER_3",
-    "MechaZombie": "ZOMBIE_TIER_3",
-    "LostSoul": "LOST_SOUL",
-    "Spectre": "SPECTRE",
-    "Carcass": "CARCASS",
-    "BigChungus": "CARCASS",
-    "Archvile": "ARCHVILE",
-    "BuffPod": "BUFF_POD",
-    "BuffTotem": "BUFF_POD",
-    "Spirit": "SPIRIT",
-    "Turret": "TURRET",
-    "SuperTentacle": "SUPER_TENTACLE",
-}
-
-
-BASE_ENTITYDEFS = [
-    "custom_ai_fodder_imp",
-    "custom_ai_fodder_soldier_blaster",
-    "custom_ai_fodder_gargoyle",
-    "custom_ai_fodder_zombie_tier_3",
-    "custom_ai_heavy_hellknight",
-    "custom_ai_heavy_revenant",
-    "custom_ai_fodder_lostsoul",
-    "custom_ai_fodder_soldier_shield",
-    "custom_ai_heavy_whiplash",
-    "custom_ai_heavy_arachnotron",
-    "custom_ai_heavy_cacodemon",
-    "custom_ai_ambient_zombie_cueball",
-    "custom_ai_fodder_zombie_t1_scientist",
-    "custom_ai_heavy_mancubus_fire",
-    "custom_ai_ambient_tentacle",
-    "custom_ai_fodder_carcass",
-    "custom_ai_fodder_prowler",
-    "custom_ai_heavy_dreadknight",
-    "custom_ai_heavy_mancubus_goo",
-    "custom_ai_heavy_painelemental",
-    "custom_ai_heavy_pinky",
-    "custom_ai_heavy_pinky_spectre",
-    "custom_ai_superheavy_archvile",
-    "custom_ai_superheavy_baron",
-    "custom_ai_superheavy_doom_hunter",
-    "custom_ai_superheavy_marauder",
-    "custom_ai_superheavy_tyrant",
-    "custom_ai_ambient_buffpod",
-    "custom_ai_fodder_zombie_maykr",
-]
-
-
-DLC1_ENTITYDEFS = [
-    "custom_ai_ambient_turret",
-    "custom_ai_heavy_bloodangel",
-    "custom_ai_ambient_super_tentacle",
-    "custom_ai_ambient_spirit",
-]
-
-
-DLC2_ENTITYDEFS = [
-    "custom_ai_superheavy_baron_armored",
-    "custom_ai_fodder_prowler_cursed",
-    "custom_ai_fodder_imp_stone",
-    "custom_ai_fodder_soldier_chaingun",
-    "custom_ai_fodder_zombie_t1_screecher",
-    "custom_ai_ambient_demonic_trooper",
-]
 
 
 def list_entitydefs(entitydefs: list) -> str:
@@ -372,9 +92,11 @@ def str_to_class(classname):
 
 
 def get_event_args(classname):
-    return ([i for i in classname.__dict__.keys()
-             if not i.startswith('__')
-             and not i.startswith('args')])
+    return [
+        i
+        for i in classname.__dict__.keys()
+        if not i.startswith("__") and not i.startswith("args")
+    ]
 
 
 def strip_comments(s):
@@ -403,7 +125,7 @@ def generate_ebl_segments(filename):
 
     # handle variables at top of document
     for line in segments[0].splitlines():
-        if line.count('=') == 1:
+        if line.count("=") == 1:
             var = line.split("=")
             add_variable(var[0].strip(), var[1].strip())
 
@@ -420,20 +142,22 @@ def generate_ebl_segments(filename):
         yield name, (cmd, strip_comments(segment))
 
 
-# Handles variables and fills in missing arguments
-def format_args(args: list, arg_count) -> list:
+def format_args(args, arg_count=-1) -> Union[list, str]:
+    """Handles variables and fills in missing arguments"""
+    args = args if isinstance(args, list) else [args]
     for i, arg in enumerate(args):
         if isinstance(arg, str):
             args[i] = ""
-            arg = arg.replace(SPACE_CHAR, SPACE_CHAR + " ").split()
+            arg = arg.replace(cc.SPACE_CHAR, cc.SPACE_CHAR + " ").split()
             for word in arg:
                 old_word = word
                 word = word.replace("^", "")
-                if word in ENCOUNTER_SPAWN_NAMES:
+                if word in cc.ENCOUNTER_SPAWN_NAMES:
                     args[i] += "ENCOUNTER_SPAWN_" + word + " "
-                elif word in ENCOUNTER_SPAWN_ALIASES:
-                    args[i] += ("ENCOUNTER_SPAWN_" +
-                                ENCOUNTER_SPAWN_ALIASES[word] + " ")
+                elif word in cc.ENCOUNTER_SPAWN_ALIASES:
+                    args[i] += (
+                        "ENCOUNTER_SPAWN_" + cc.ENCOUNTER_SPAWN_ALIASES[word] + " "
+                    )
                 else:
                     args[i] += old_word + " "
             args[i] = args[i].strip()
@@ -441,7 +165,7 @@ def format_args(args: list, arg_count) -> list:
             args[i] = ""
     while len(args) < arg_count:
         args += [""]
-    return args
+    return args[0] if arg_count == -1 else args
 
 
 # Consumes parsed EBL and generates a list of EternalEvents
@@ -451,7 +175,7 @@ def create_events(data) -> list:
         output = []
         for item in data:
             event = create_events(item)
-            output += event  # if event is not None else []
+            output += event
         return output
 
     if isinstance(data, dict):
@@ -466,7 +190,7 @@ def create_events(data) -> list:
             event_count = len([ev for ev in data["args"] if "variable" not in ev[0]])
             waitevent = {
                 "event": "waitMulitpleConditions",
-                "args": [event_count, WAITFOR_KEYWORDS[data["keyword"]], "false"]
+                "args": [event_count, cc.WAITFOR_KEYWORDS[data["keyword"]], "false"],
             }
             return create_events([waitevent] + data["args"])
 
@@ -477,22 +201,38 @@ def create_events(data) -> list:
             cls_name, arg_count = eternalevents.ebl_to_event[data["event"]]
             event_cls = str_to_class(cls_name)
         else:
-            raise EblTypeError(f'''Undefined event {data["event"]}!''')
-
-        args_list = data["args"]
+            raise EblTypeError(f"""Undefined event {data["event"]}!""")
 
         # Assume nested argument list means a list of parameters
+        args_list = data["args"]
         if any(isinstance(i, list) for i in args_list):
             result = []
             for args in args_list:
                 args = format_args(args, arg_count)
+                if "decorator" in data and data["decorator"]:
+                    add_decorator_command(data["decorator"], event_cls(*args))
                 result += [event_cls(*args)]
             return result
         else:
             args_list = format_args(args_list, arg_count)
-            return [event_cls(*args_list)]
+            if "decorator" in data and data["decorator"]:
+                add_decorator_command(data["decorator"], event_cls(*args_list))
+            event_cls = event_cls(*args_list)
+            return [event_cls]
 
     return data
+
+
+def add_decorator_command(decorator: str, event_cls: eternalevents.EternalEvent):
+    cmd = decorator
+
+    if type(event_cls) in eternalevents.SPAWN_EVENTS:
+        entity_name = concat_strings(event_cls.spawnTarget, is_expression=True)
+
+    if entity_name in decorator_changes:
+        decorator_changes[entity_name] += [cmd]
+    else:
+        decorator_changes[entity_name] = [cmd]
 
 
 # TODO: this is just dumb, find a better way
@@ -561,25 +301,25 @@ def concat_strings(s, is_expression=False):
     if "+" not in s:
         for var, val in sorted_variables:
             if is_expression:
-                # only replace entire expression if match
+                # only replace entire expression if matched
                 if len(var) == len(s.strip()):
-                    s = s.replace(f'{var}', str(val))
+                    s = s.replace(f"{var}", str(val))
                     break
             else:
-                # replace all instances of substring in quotes
+                # replace all instances of matches in quotes
                 if not is_number_or_keyword(s):
                     val = f'"{val}"'
                 s = s.replace(f'"{var}"', str(val))
-        return s.replace(SPACE_CHAR, " ").replace("$", "")
+        return s.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
     result = ""
     segments = s.split("+")
     for i, seg in enumerate(segments):
         seg = seg.lstrip() if i > 0 else seg
-        seg = seg.rstrip() if i < len(segments)-1 else seg
-        potential_matches = re.findall(r'[$^\w]+', seg)
+        seg = seg.rstrip() if i < len(segments) - 1 else seg
+        potential_matches = re.findall(r"[$^\w]+", seg)
         first_match = potential_matches[0] if i > 0 else None
-        last_match = potential_matches[-1] if i < len(segments)-1 else None
+        last_match = potential_matches[-1] if i < len(segments) - 1 else None
 
         for j, match in enumerate([first_match, last_match]):
             if not match:
@@ -588,16 +328,18 @@ def concat_strings(s, is_expression=False):
                 if len(var) < len(match.strip()):
                     continue
                 if match.strip() == var:
-                    val = format_args([val], 1)[0]
+                    val = format_args(val)
                     if j == 0:
                         seg = seg.replace(match, str(val), 1)
                     else:
                         seg = rreplace(seg, match, str(val), 1)
-                    debug_print(f"matched variable '{match}' and substituted '{str(val)}'")
+                    debug_print(
+                        f"matched variable '{match}' and substituted '{str(val)}'"
+                    )
                     debug_print(f"seg is now '{seg}'")
 
         result += seg
-    return result.replace(SPACE_CHAR, " ").replace("$", "")
+    return result.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
 
 def compile_ebl_encounter(s) -> str:
@@ -618,24 +360,15 @@ def compile_ebl_encounter(s) -> str:
             add_variable(event.name, event.value)
             continue
         event_string = concat_strings(str(event))
-        result += (f"item[{item_index}]" + " = {\n" +
-                   indent(event_string, "\t") + "}\n")
+        result += f"item[{item_index}]" + " = {\n" + indent(event_string, "\t") + "}\n"
         item_index += 1
 
     return result
 
 
-ACTORPOPULATION = [
-    "actorpopulation/default/default_no_bosses",
-    "actorpopulation/default/dlc1",
-    "actorpopulation/default/dlc2_demonic_soldier",
-]
-
-
-# TODO: actual error handling
 def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     """
-    Modifies encounter entity with list of eternalevents
+    Modifies encounter entity with list of EternalEvents
     :param encounter:
     :param events:
     :param dlc_level:
@@ -650,8 +383,12 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     if not entitydef:
         raise EntitiesSyntaxError("No entityDef component!")
     try:
-        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"]["events"] = entity_events
-        entity[entitydef]["edit"]["aiTypeDefAssignments"] = ACTORPOPULATION[dlc_level]
+        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"][
+            "events"
+        ] = entity_events
+        entity[entitydef]["edit"]["aiTypeDefAssignments"] = cc.ACTORPOPULATION[
+            dlc_level
+        ]
         # print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
     except KeyError:
         print("ERROR: Unable to replace encounter")
@@ -682,7 +419,9 @@ def edit_entity_fields(base_entity: str, edits: str) -> str:
                 add_variable(entity_edit.name, entity_edit.value)
                 continue
             else:
-                raise EblTypeError("All lines under MODIFY header must be EntityEdits or Assignments")
+                raise EblTypeError(
+                    "All lines under MODIFY header must be EntityEdits or Assignments"
+                )
         func = entity_edit.func
         values = entity_edit.value
         path = entity_edit.object
@@ -694,7 +433,9 @@ def edit_entity_fields(base_entity: str, edits: str) -> str:
 
             if func in ["append", "add", "update", "set"]:
                 if not 2 >= len(value) >= 1:
-                    raise EblTypeError(f'Edit function "{func}" takes one or two arguments')
+                    raise EblTypeError(
+                        f'Edit function "{func}" takes one or two arguments'
+                    )
                 for key in keys:
                     dic = dic.setdefault(key, {})
                 print(dic)
@@ -721,24 +462,26 @@ def edit_entity_fields(base_entity: str, edits: str) -> str:
     return parser.generate_entity(entity)
 
 
-def add_entitydefs(spawn_target: str, entitydefs: List[str]) -> str:
+def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     """
-    Add custom idAI2s to the given spawn target
+    Adds custom idAI2s and applies changes to the given spawn target
     :param spawn_target:
     :param entitydefs:
     :return modified_spawn_target:
     """
     entity = parser.ev.parse(spawn_target)
     entitydef = ""
+    name = ""
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
+            name = entitydef.replace("entityDef", "").strip()
     if not entitydef:
         print("ERROR: no entityDef component!")
         return spawn_target
 
     existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
-    existing_entitydefs.pop('num')
+    existing_entitydefs.pop("num")
 
     # add existing entitydefs to end of list
     if len(existing_entitydefs) > 0:
@@ -752,8 +495,15 @@ def add_entitydefs(spawn_target: str, entitydefs: List[str]) -> str:
         pass
     else:
         # TODO: adjust spawn target formatting to preserve intro animations
-        if not spawn_editable["spawnAnim"]:
-            entity[entitydef]["edit"]["spawnEditable"]["aiStateOverride"] = 'AIOVERRIDE_TELEPORT'
+        if name in decorator_changes:
+            cmds = decorator_changes[name]
+            print(f"Applying command {cmds} to entity {name}")
+        no_spawnanim = not spawn_editable["spawnAnim"]
+        no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
+        if no_spawnanim and no_add_targets:
+            entity[entitydef]["edit"]["spawnEditable"][
+                "aiStateOverride"
+            ] = "AIOVERRIDE_TELEPORT"
 
     listed_targets = list_targets(entitydefs)
     targets = "{\n" + indent(listed_targets, "\t") + "}\n"
@@ -796,7 +546,7 @@ def apply_ebl(
     modded_file,
     compress_file=True,
     show_spawn_targets=False,
-    generate_traversals=True
+    generate_traversals=True,
 ):
     """
     Applies all changes in an EBL file to a copy of a vanilla entities file
@@ -816,22 +566,22 @@ def apply_ebl(
     dlc_level = get_dlc_level(base_file)
 
     # Add entitydefs with appropriate DLC level
-    entitydefs = BASE_ENTITYDEFS
+    entitydefs = cc.BASE_ENTITYDEFS
     if dlc_level >= 2:
-        entitydefs += DLC2_ENTITYDEFS
+        entitydefs += cc.DLC2_ENTITYDEFS
     if dlc_level >= 1:
-        entitydefs += DLC1_ENTITYDEFS
+        entitydefs += cc.DLC1_ENTITYDEFS
 
     # get all file deltas
     segments = generate_ebl_segments(ebl_file)
     deltas = dict(segments)
     added_entities = []
 
-    # find + store templates
+    # find + store entity templates
     for key, val in deltas.items():
         if val[0] == "TEMPLATE":
             t_name, t_args = key.split("(", 1)
-            t_args = re.findall(r'([^(,)]+)(?!.*\()', t_args)
+            t_args = re.findall(r"([^(,)]+)(?!.*\()", t_args)
             t_args = [arg.strip() for arg in t_args]
             # print(f"t_args is {t_args}")
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
@@ -848,7 +598,7 @@ def apply_ebl(
             for template in templates.keys():
                 if key.replace(" ", "").startswith(template + "("):
                     # find all comma-delimited arguments
-                    args = re.findall(r'([^(,)]+)(?!.*\()', key)
+                    args = re.findall(r"([^(,)]+)(?!.*\()", key)
                     args = [arg.strip() for arg in args]
                     entity = templates[template].render(*args)
                     is_template = True
@@ -871,17 +621,21 @@ def apply_ebl(
                     entity = modify_entity(name, entity, params, dlc_level)
                     modified_count += 1
                     break
-            if ('class = "idTarget_Spawn";' in entity
-                    or 'class = "idTarget_Spawn_Parent";' in entity):
-                entity = add_entitydefs(entity, entitydefs)
+            if (
+                'class = "idTarget_Spawn";' in entity
+                or 'class = "idTarget_Spawn_Parent";' in entity
+            ):
+                entity = format_spawn_target(entity, entitydefs)
                 modified_count += 1
             fp.write(entity)
         fp.write("\n")
         # iterate added entities, apply changes, then write to output file
         for new_entity in added_entities:
-            if ('class = "idTarget_Spawn";' in new_entity
-                    or 'class = "idTarget_Spawn_Parent";' in new_entity):
-                new_entity = add_entitydefs(new_entity, entitydefs)
+            if (
+                'class = "idTarget_Spawn";' in new_entity
+                or 'class = "idTarget_Spawn_Parent";' in new_entity
+            ):
+                new_entity = format_spawn_target(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
     add_idai2s(modded_file, dlc_level)
@@ -903,4 +657,5 @@ def apply_ebl(
     print(f"{modified_count} entities out of {total_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
     debug_print(variables)
+    print(decorator_changes)
     return True

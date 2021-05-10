@@ -6,9 +6,10 @@ class EblTypeError(Exception):
     pass
 
 
-grammar = Grammar(r"""
+grammar = Grammar(
+    r"""
     DOCUMENT = (STATEMENTS)*
-    STATEMENTS = SPACE? (ENTITYEDIT / EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR)
+    STATEMENTS = SPACE? (ENTITYEDIT / EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR / DECORATOR)
 
     ASSIGNMENT = STRING EQUALS (NUMBER / MULTISTRING / ANYSTRING) SPACE?
     ENTITYEDIT = PATHSTRING "." EVENT
@@ -24,7 +25,8 @@ grammar = Grammar(r"""
     MULTISTRING = (SPACE_NO_NEWLINE? ANYSTRING)+ SPACE_NO_NEWLINE? ("," / &RPARENTHESES / "\n" / &";")
     ANYSTRING = (STRING / STRINGLITERAL)
 
-    EVENT = STRING SPACE? PARAM_LIST
+    DECORATOR = "@" SPACE? MULTISTRING SPACE?
+    EVENT = DECORATOR? STRING SPACE? PARAM_LIST
 
     WAITFORBLOCK = ("waitFor"/"waitfor") SPACE? STRING? LBRACE (EVENT / ASSIGNMENT)* RBRACE
     WAITFOR = ("waitFor"/"waitfor") SPACE? (EVENT / TIMER)
@@ -46,7 +48,8 @@ grammar = Grammar(r"""
     PATHSTRING = ~r'[\w/#+\[\]]+'
     STRINGLITERAL = ~r'"[\t\n\w/#+. ]+"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
-""")
+"""
+)
 
 
 class NodeVisitor(NodeVisitor):
@@ -67,9 +70,7 @@ class NodeVisitor(NodeVisitor):
 
     def visit_ENTITYEDIT(self, node, visited_children):
         obj, _, event = visited_children
-        return {"object": obj,
-                "function": event["event"],
-                "value": event["args"]}
+        return {"object": obj, "function": event["event"], "value": event["args"]}
 
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
@@ -79,7 +80,7 @@ class NodeVisitor(NodeVisitor):
 
     def visit_PARAM(self, node, visited_children):
         value = visited_children
-        #print(value[0])
+        # print(value[0])
         return value[0]
 
     def visit_NULLPARAM(self, node, visited_children):
@@ -91,25 +92,32 @@ class NodeVisitor(NodeVisitor):
 
     def visit_PARAM_LINE(self, node, visited_children):
         params = visited_children
-        #print("param_line:" + str(params))
+        # print("param_line:" + str(params))
         return params
 
     def visit_PARAM_TUPLE(self, node, visited_children):
         _, param_line, _, _, _, _ = visited_children
-        #print("param_tuple: " + str(param_line))
+        # print("param_tuple: " + str(param_line))
         return param_line
 
     def visit_PARAM_LIST(self, node, visited_children):
         param_tuples = visited_children
-        #print("param_list: " + str(param_tuples))
+        # print("param_list: " + str(param_tuples))
         return param_tuples
 
+    def visit_DECORATOR(self, node, visited_children):
+        _, _, name, _ = visited_children
+        return name
+
     def visit_EVENT(self, node, visited_children):
-        event_name, _, params = visited_children
+        decorator, event_name, _, params = visited_children
         if not isinstance(params, list):
+            params = []
             print("This should never happen")
-            return {"event": str(event_name), "args": []}
-        return {"event": str(event_name), "args": params}
+        decorator = decorator[0] if isinstance(decorator, list) else ""
+        if decorator:
+            print(f"decorator name is '{decorator}'")
+        return {"event": str(event_name), "args": params, "decorator": decorator}
 
     def visit_WAITFOR(self, node, visited_children):
         _, _, condition = visited_children
@@ -118,7 +126,8 @@ class NodeVisitor(NodeVisitor):
     def visit_WAITFORBLOCK(self, node, visited_children):
         _, _, keyword, _, conditions, _ = visited_children
         if not isinstance(conditions, list):
-            return {"event": "waitForBlock", "args": []}
+            print("This should never happen")
+            conditions = []
         keyword = keyword[0] if isinstance(keyword, list) else "all"
         return {"event": "waitForBlock", "args": conditions, "keyword": keyword}
 
@@ -138,7 +147,7 @@ class NodeVisitor(NodeVisitor):
         return str(node.text)
 
     def visit_STRINGLITERAL(self, node, visited_children):
-        expr = str(node.text).replace('"', '').replace(" ", "$^") + "$"
+        expr = str(node.text).replace('"', "").replace(" ", "$^") + "$"
         print(expr)
         return expr
 
@@ -150,9 +159,11 @@ class NodeVisitor(NodeVisitor):
         return output_str.strip()
 
     def visit_NUMBER(self, node, visited_children):
-        if (float(node.text).is_integer()
-                and "." not in node.text
-                and "+" not in node.text):
+        if (
+            float(node.text).is_integer()
+            and "." not in node.text
+            and "+" not in node.text
+        ):
             return int(node.text)
         else:
             return float(node.text)

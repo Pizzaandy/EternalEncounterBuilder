@@ -3,12 +3,11 @@ import shutil
 import subprocess
 import entities_parser as parser
 import chevron
-from textwrap import dedent
 
 
 def is_binary(filename):
     try:
-        with open(filename, 'tr') as check_file:  # try to open file in text mode
+        with open(filename, "tr") as check_file:  # try to open file in text mode
             check_file.read()
             return False
     except:  # if fail, then file is non-text (binary)
@@ -90,14 +89,17 @@ base_enemies = [
     "whiplash",
     "zombie_maykr",
     "zombie",
-    "zombie_t3"
+    "zombie_t3",
 ]
 
-dlc1_enemies = [
-    "bloodangel"
-]
+dlc1_enemies = ["bloodangel"]
 
-def generate_traversals(input_path, dlc_level, exe="EternalTraversalInfoGenerator/EternalTraversalInfoGenerator.exe"):
+
+def generate_traversals(
+    input_path,
+    dlc_level,
+    exe="EternalTraversalInfoGenerator/EternalTraversalInfoGenerator.exe",
+):
     if not Path(exe).exists():
         print("ERROR: EternalTraversalInfoGenerator not in folder!")
         return None
@@ -110,7 +112,10 @@ def generate_traversals(input_path, dlc_level, exe="EternalTraversalInfoGenerato
         enemies += dlc1_enemies
 
     for enemy in enemies:
-        p = subprocess.run([exe, input_path, enemy, "generated_traversals"], cwd='EternalTraversalInfoGenerator/')
+        p = subprocess.run(
+            [exe, input_path, enemy, "generated_traversals"],
+            cwd="EternalTraversalInfoGenerator/",
+        )
         print(enemy)
         if p.stderr:
             print(f"ERROR: {p.stderr}")
@@ -124,7 +129,8 @@ def generate_traversals(input_path, dlc_level, exe="EternalTraversalInfoGenerato
     return True
 
 
-marker_template = dedent("""\
+marker_template = (
+"""
 entity {
 	entityDef marker_{{name}} {
 	class = "idProp2";
@@ -163,10 +169,14 @@ entity {
 	}
 }
 }
-""")
+"""
+)
+
 
 def mark_spawn_targets(filename):
-    generated_string = '''// WARNING: AUTO-GENERATED! Anything past this point will be deleted!\n'''
+    generated_string = (
+        """// WARNING: AUTO-GENERATED! Anything past this point will be deleted!\n"""
+    )
 
     idTargets = parser.parse_entities(filename, "idTarget_Spawn")
     positions = []
@@ -174,28 +184,27 @@ def mark_spawn_targets(filename):
 
     for d in idTargets:
         count += 1
-        entityDef = [v for k,v in d.items() if k.startswith('entityDef')][0]
-        name = [k for k,v in d.items() if k.startswith('entityDef')][0]
+        entityDef = [v for k, v in d.items() if k.startswith("entityDef")][0]
+        name = [k for k, v in d.items() if k.startswith("entityDef")][0]
         name = name.replace("entityDef ", "")
         pos = entityDef["edit"]["spawnPosition"]
         if all(key in pos for key in ("x", "y", "z")):
             positions.append((pos["x"], pos["y"], pos["z"], name))
 
     for pos in positions:
-        new_daisy = chevron.render(template=marker_template, data={
-            "xpos":pos[0],
-            "ypos":pos[1],
-            "offset_ypos": pos[1] + 0.4,
-            "zpos":pos[2],
-            "name":pos[3]
-        })
+        new_daisy = chevron.render(
+            template=marker_template,
+            data={
+                "xpos": pos[0],
+                "ypos": pos[1],
+                "offset_ypos": pos[1] + 0.4,
+                "zpos": pos[2],
+                "name": pos[3],
+            },
+        )
         generated_string += "\n" + new_daisy
 
     print(f"Added visual markers for {count} spawn targets")
 
     with open(filename, "a") as fp:
         fp.write(generated_string)
-
-
-
-

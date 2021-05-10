@@ -128,10 +128,10 @@ setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Li
 spawn
 (Arachnotron, breach_wasteland_target_spawn_7, )
 (HellSoldier, breach_wasteland_target_spawn_10, )
-(HellSoldier, breach_wasteland_target_spawn_6, )
+(MechaZombie, breach_wasteland_target_spawn_6, )
 (HellSoldier, breach_wasteland_target_spawn_8, )
 (Arachnotron, breach_wasteland_target_spawn_36, )
-(HellSoldier, breach_wasteland_target_spawn_34, )
+(MechaZombie, breach_wasteland_target_spawn_34, )
 (Tyrant, breach_wasteland_target_spawn_1, opening_mancubus)
 
 //setFactionRelation(HellSoldier, , ZombieTier3, EMOTION_DESTROY_AT_ALL_COSTS)
@@ -161,9 +161,11 @@ spawn
 
 alertAI(true, false, , false)
 
-waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_intro_p2, true, false)
+waitFor any {
+	Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, wasteland_intro_p2, true, false)
+	AIRemaining(Mancubus, 0)(Tyrant, 0)
+}
 
-waitFor wait(0.2, false)
 spawn(Baron, breach_wasteland_target_spawn_29, )
 
 waitFor AIRemaining(Any, 0, , false)
@@ -298,6 +300,13 @@ breachtarg = breach_wasteland_arena_target_spawn_
 test = breachtarg + bruh +  "breachtargDreadKnight"; 
 test2 = test
 
+// remove air targets
+MODIFY breach_wasteland_arena_encounter_spawn_group_zone_1
+breachtarg = breach_wasteland_arena_target_spawn_
+edit/spawners.pop
+(breachtarg+52)
+(breachtarg+62)
+
 // new spawn targets
 ADD SpawnTarget(breach_cacos1, -1699.579956, -341.380005, -148.360001, Mat3[0 0 0])
 
@@ -319,15 +328,16 @@ activateCombatGrouping(breach_wasteland_arena_encounter_combat_role_manager_1, ,
 spawnMultiple(HellKnight, 2, group1, )
 
 waitFor 1 sec
-spawnMultiple
-(Imp, 5, group1, )
-(MechaZombie, 3, group1, )
 
-spawnMultiple(Revenant, 2, group1, )
+spawnMultiple
+(Imp, 5, group1)
+(MechaZombie, 3, group1)
+
+spawnMultiple(Revenant, 2, group1)
 
 waitFor 2 sec
 spawnMultiple(Revenant, 1, group1, )
-spawnMultiple(HellKnight, 2, group1, )
+spawnMultiple(HellKnight, 1, group1, )
 
 waitFor 2 sec
 spawnMultiple(Revenant, 2, group1, )
@@ -369,9 +379,9 @@ waitFor {
 	healthLevel(DoomHunter, 0.5, , false)
 	AIRemaining(DreadKnight, 1)
 }
-waitFor healthLevel(DreadKnight, 0.4)
+waitFor healthLevel(DreadKnight, 0.5)
 
-spawnMultiple(Mancubus, 1, group1, )
+spawnMultiple(Mancubus, 2, group1, )
 waitFor 1.5 sec
 spawnMultiple(Mancubus, 1, group1, )
 waitFor 1.5 sec
@@ -393,18 +403,17 @@ print(Armored baron should spawn here)
 spawnMultiple(ArmoredBaron, 1, group1)
 waitFor 1 sec
 spawnMultiple(ArmoredBaron, 1, group1)
-waitFor 1 sec
+waitFor 2 sec
 spawnMultiple(CyberMancubus, 1, group1)
 waitFor 1 sec
 spawnMultiple(CyberMancubus, 1, group1)
 waitFor 1 sec
 spawnMultiple(CyberMancubus, 1, group1)
+spawnMultiple(Revenant, 1, group1)
 
 waitFor AIRemaining(ArmoredBaron, 1)(CyberMancubus, 2)
-spawnMultiple(Pinky, 1, group1)
+spawnMultiple(Pinky, 2, group1)
 waitFor 3 sec
-spawnMultiple(Pinky, 1, group1)
-waitFor 2 sec
 spawnMultiple(Pinky, 1, group1)
 //spawn(PainElemental, breachtarg+55, )
 spawn(PainElemental, breachtarg+62, )
@@ -466,28 +475,26 @@ waitFor {
 	(Arachnotron, 2)
 }
 spawnMultiple(Revenant, 1, group1)
-spawnMultiple(Whiplash, 1, group1)
 
 waitFor AIRemaining(Tyrant, 1)
-AIHealthLevel(Tyrant, 0.7)
+waitFor healthLevel(Tyrant, 0.8)
 
 stopMaintain(Prowler)(Imp)
 removeAI(Prowler)
 maintainAI
 (Zombie, 4, -1, 3, 2, group1, , 0)
-(SIMP, 4, -1, 3, 2, group1, , 0)
+(Soldier, 6, -1, 3, 2, group1, , 0)
+(Revenant, 1, -1, 16, 2, group1, , 0)
 
 waitFor 2 sec
-
+spawnMultiple(SIMP, 2, group1)
 //targets = HellKnight Baron Pinky Whiplash PainElemental Mancubus DoomHunter
 //spawnPossessed(Marauder, breachtarg+55, , breachtarg+25, targets, , true)
-spawn(Marauder, breachtarg+34)(Marauder, breachtarg+25)
-waitFor healthLevel(Marauder, 0.5)
-spawn(DreadKnight, breachtarg+41)
-spawn(Baron, breachtarg+35)
+spawn(Marauder, breachtarg+34)(Marauder, breachtarg+25)(DoomHunter, breachtarg+41)
 waitFor AIRemaining(Marauder, 1)
+spawnMultiple(SIMP, 2, group1)
 
-stopMaintainAI(Imp)(SIMP)
+stopMaintainAI(Soldier)
 
 waitFor {
 	AIRemaining
@@ -507,7 +514,10 @@ waitFor {
 }
 
 forceChargeOnAllAI()
-damageAI(damage/triggerhurt/triggerhurt1000_instagib, Imp)
+damageAI
+(damage/triggerhurt/triggerhurt1000_instagib, Imp)
+(damage/triggerhurt/triggerhurt1000_instagib, Zombie)
+(damage/triggerhurt/triggerhurt1000_instagib, Soldier)
 removeAI(SIMP)(Prowler)
 
 waitFor AIRemaining(Any, 0, , false)
@@ -1060,9 +1070,9 @@ waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 alertAI(true, false, , false)
 waitFor 4 sec
+@anim forward_1000_down_1000
+spawn(Mancubus, cityroof+1)
 spawn
-(Mancubus, cityroof+0)
-(Mancubus, cityroof+1)
 (Mancubus, cityroof+2)
 (Mancubus, cityroof+3)
 (Mancubus, cityroof+4)
@@ -1371,16 +1381,10 @@ entity {
 MODIFY sound_sound_musicentity_1
 edit.set(initialSwitchState, samuelsbase_music)
 
-// remove air targets
-MODIFY breach_wasteland_arena_encounter_spawn_group_zone_1
-breachtarg = breach_wasteland_arena_target_spawn_
-edit/spawners.pop
-(breachtarg+52)
-(breachtarg+62)
 
 edit/spawners.add("value")
 
-// remove air targets 10 and 11
+// remove air spawn targets 10 and 11
 MODIFY city_rooftop_encounter_spawn_group_zone_1
 edit/spawners.pop
 (city_rooftop_target_spawn_10)
