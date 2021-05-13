@@ -1,3 +1,5 @@
+import re
+import compiler_constants as cc
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 
@@ -170,3 +172,7 @@ class NodeVisitor(NodeVisitor):
 
     def generic_visit(self, node, visited_children):
         return visited_children or node
+
+
+def ebl_syntax_check(filename):
+    pass

@@ -1066,12 +1066,13 @@ ADD SpawnTarget(platform_air_center, -731.46, -655.71, -129.05, Mat3[0 0 0])
 ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[0 0 0])
 REPLACE ENCOUNTER city_rooftop_encounter_manager_dlc2_1
 
-waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 alertAI(true, false, , false)
-waitFor 4 sec
+waitfor 4 sec
 @anim forward_1000_down_1000
 spawn(Mancubus, cityroof+1)
+// lol
 spawn
 (Mancubus, cityroof+2)
 (Mancubus, cityroof+3)

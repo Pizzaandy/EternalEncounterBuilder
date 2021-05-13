@@ -129,8 +129,7 @@ def generate_traversals(
     return True
 
 
-marker_template = (
-"""
+marker_template = """
 entity {
 	entityDef marker_{{name}} {
 	class = "idProp2";
@@ -170,7 +169,6 @@ entity {
 }
 }
 """
-)
 
 
 def mark_spawn_targets(filename):

@@ -1,3 +1,5 @@
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY )"
+
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
 # another reserved character for strings in quotes

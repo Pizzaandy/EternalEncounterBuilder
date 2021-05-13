@@ -44,12 +44,12 @@ def convert_to_ebl(events):
         game_name = event["eventCall"]["eventDef"]
         name = event_to_ebl[game_name]
         if "wait" in game_name and game_name != "wait":
-            name = "waitFor " + name
+            name = "waitfor " + name
         args = event["eventCall"]["args"]
-        for key, arg in args.items():
-            if key == "num":
+        for arg_key, arg in args.items():
+            if arg_key == "num":
                 continue
-            arg_value = list(arg.values())[0]
+            arg_value = list(arg_key.values())[0]
             if isinstance(arg_value, dict):
                 arg_value = list(arg_value.values())[0]
                 print(f"found decl = {arg_value}")

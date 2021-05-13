@@ -3,9 +3,7 @@ from eternalevents import is_number_or_keyword
 import eternaltools
 from entity_templates import EntityTemplate
 import entities_parser as parser
-from entities_parser import EntitiesSyntaxError
 import ebl_grammar
-from ebl_grammar import EblTypeError
 
 from textwrap import indent
 from dataclasses import dataclass
@@ -14,17 +12,8 @@ import re
 import time
 import compiler_constants as cc
 
-# from compiler_constants import (
-#     ENCOUNTER_SPAWN_NAMES,
-#     ENCOUNTER_SPAWN_ALIASES,
-#     BASE_ENTITYDEFS,
-#     DLC1_ENTITYDEFS,
-#     DLC2_ENTITYDEFS,
-#     SPACE_CHAR,
-#     LITERAL_CHAR,
-#     WAITFOR_KEYWORDS,
-#     ACTORPOPULATION,
-# )
+from ebl_grammar import EblTypeError
+from entities_parser import EntitiesSyntaxError
 
 # EBL = Eternal Builder Language, describes changes to .entities files
 ebl = ebl_grammar.NodeVisitor()
@@ -93,18 +82,15 @@ def str_to_class(classname):
 
 def get_event_args(classname):
     return [
-        i
-        for i in classname.__dict__.keys()
-        if not i.startswith("__") and not i.startswith("args")
+        arg
+        for arg in classname.__dict__.keys()
+        if not arg.startswith("__") and not arg.startswith("args")
     ]
 
 
 def strip_comments(s):
     pattern = r"//(.*)(?=[\r\n]+)"
     return re.sub(pattern, "", s)
-
-
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY )"
 
 
 def generate_ebl_segments(filename):
@@ -115,7 +101,7 @@ def generate_ebl_segments(filename):
     :return:
     """
     with open(filename) as fp:
-        segments = re.split(EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
+        segments = re.split(cc.EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
 
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
@@ -130,16 +116,13 @@ def generate_ebl_segments(filename):
             add_variable(var[0].strip(), var[1].strip())
 
     # yield tuples containing name, header command, and body text
-    cmd = ""
-    for i, segment in enumerate(segments[1:]):
-        if i % 2 == 0:
-            cmd = segment.strip()
-            continue
-        name = segment.split("\n")[0].strip()
+    for cmd, body in zip(*[iter(segments[1:])] * 2):
+        cmd = cmd.strip()
+        name = body.split("\n")[0].strip()
         if not name:
             raise EblTypeError(f"No entity name specified in header {cmd}")
-        segment = "\n".join(segment.split("\n")[1:])
-        yield name, (cmd, strip_comments(segment))
+        body = "\n".join(body.split("\n")[1:])
+        yield name, (cmd, strip_comments(body))
 
 
 def format_args(args, arg_count=-1) -> Union[list, str]:
@@ -151,7 +134,7 @@ def format_args(args, arg_count=-1) -> Union[list, str]:
             arg = arg.replace(cc.SPACE_CHAR, cc.SPACE_CHAR + " ").split()
             for word in arg:
                 old_word = word
-                word = word.replace("^", "")
+                word = word.replace(cc.SPACE_CHAR, "")
                 if word in cc.ENCOUNTER_SPAWN_NAMES:
                     args[i] += "ENCOUNTER_SPAWN_" + word + " "
                 elif word in cc.ENCOUNTER_SPAWN_ALIASES:
@@ -168,9 +151,12 @@ def format_args(args, arg_count=-1) -> Union[list, str]:
     return args[0] if arg_count == -1 else args
 
 
-# Consumes parsed EBL and generates a list of EternalEvents
 # TODO: use the structural pattern matching feature when it comes out lol
 def create_events(data) -> list:
+    """
+    Consumes parsed EBL and generates a list of EternalEvents
+    we do a little recursion
+    """
     if isinstance(data, list):
         output = []
         for item in data:
@@ -208,15 +194,15 @@ def create_events(data) -> list:
         if any(isinstance(i, list) for i in args_list):
             result = []
             for args in args_list:
-                args = format_args(args, arg_count)
                 if "decorator" in data and data["decorator"]:
                     add_decorator_command(data["decorator"], event_cls(*args))
+                args = format_args(args, arg_count)
                 result += [event_cls(*args)]
             return result
         else:
-            args_list = format_args(args_list, arg_count)
             if "decorator" in data and data["decorator"]:
                 add_decorator_command(data["decorator"], event_cls(*args_list))
+            args_list = format_args(args_list, arg_count)
             event_cls = event_cls(*args_list)
             return [event_cls]
 
@@ -224,8 +210,8 @@ def create_events(data) -> list:
 
 
 def add_decorator_command(decorator: str, event_cls: eternalevents.EternalEvent):
+    entity_name = None
     cmd = decorator
-
     if type(event_cls) in eternalevents.SPAWN_EVENTS:
         entity_name = concat_strings(event_cls.spawnTarget, is_expression=True)
 

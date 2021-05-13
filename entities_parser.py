@@ -8,7 +8,8 @@ class EntitiesSyntaxError(Exception):
     pass
 
 
-entity_grammar = Grammar(r"""
+entity_grammar = Grammar(
+    r"""
     #DOCUMENT = VERSION_LINES? ENTITY*
 
     #VERSION_LINES = "Version" SPACE INTEGER SPACE "HierarchyVersion" SPACE INTEGER SPACE
@@ -37,19 +38,20 @@ entity_grammar = Grammar(r"""
     BOOL    = "true" / "false"
     NULL    = "NULL"
     SPACE   = ~r"\s+"
-""")
+"""
+)
 
 
 class EntityVisitor(NodeVisitor):
     def parse(self, text):
-        """ Initialize private fields before parsing """
+        """Initialize private fields before parsing"""
         self.version = None
         self.hierarchy_version = None
         return super().parse(text)
 
     def visit_DOCUMENT(self, node, visited_children):
         _, entities = visited_children
-        #print("")
+        # print("")
         return entities
 
     def visit_VERSION_LINES(self, node, visited_children):
@@ -67,15 +69,15 @@ class EntityVisitor(NodeVisitor):
 
     def visit_LAYERS_BLOCK(self, node, visited_children):
         nodename, _, string, _ = visited_children
-        return (nodename.text, {"__layername__":string})
+        return nodename.text, {"__layername__": string}
 
     def visit_ENTITYDEF_BLOCK(self, node, visited_children):
         nodename, _, varname, _, assignments, _ = visited_children
-        return (f"{nodename.text} {varname}", dict(assignments))
+        return f"{nodename.text} {varname}", dict(assignments)
 
     def visit_ASSIGNMENT(self, node, visited_children):
         varname, _, value = visited_children
-        return (varname[0], value[0])
+        return varname[0], value[0]
 
     def visit_OBJECT(self, node, visited_children):
         _, assignments, _ = visited_children
@@ -136,7 +138,7 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
         if i == 0 and version_numbers:
             yield segment
             continue
-        if not clsname or f'''class = "{clsname}";''' in segment:
+        if not clsname or f"""class = "{clsname}";""" in segment:
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
     if clsname:
@@ -144,15 +146,17 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
 
 
 def parse_entities(filename, class_filter=""):
-    #with Pool(processes=mp.cpu_count()) as pool:
-        #data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    # with Pool(processes=mp.cpu_count()) as pool:
+    # data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
     data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
 
 # converts a parsed event back to .entities
 # shoutout to Chrispy
-NO_EQUALS = ('entityDef', 'layers')
+NO_EQUALS = ("entityDef", "layers")
+
+
 def generate_entity(parsed_entity, depth=0):
     s = ""
     if depth == 0:
@@ -163,11 +167,11 @@ def generate_entity(parsed_entity, depth=0):
         if do_item_numbering or key == "num":
             do_item_numbering = True
             if key == "num":
-                val = len(parsed_entity)-1
+                val = len(parsed_entity) - 1
             else:
                 key = f"item[{item_index}]"
                 item_index += 1
-            if item_index >= len(parsed_entity)-1:
+            if item_index >= len(parsed_entity) - 1:
                 item_index = 0
                 do_item_numbering = False
 
@@ -175,7 +179,7 @@ def generate_entity(parsed_entity, depth=0):
             s += key
             if not key.startswith(NO_EQUALS):
                 s += " ="
-            s += " {\n" + generate_entity(val, depth+1) + "}\n"
+            s += " {\n" + generate_entity(val, depth + 1) + "}\n"
         else:
             multiline = False
             if isinstance(val, bool):
@@ -193,14 +197,14 @@ def generate_entity(parsed_entity, depth=0):
 
 
 def minify(s):
-    return s.replace("\t","").replace("\n","")
+    return s.replace("\t", "").replace("\n", "")
 
 
 def unminify(s):
     # add newlines
     s = s.replace("{", "{\n")
-    s = s.replace("}","}\n")
-    s = s.replace(";",";\n")
+    s = s.replace("}", "}\n")
+    s = s.replace(";", ";\n")
 
     # add tabs
     res = ""
@@ -240,7 +244,7 @@ def verify_file(filename):
                 continue
             if line.strip().startswith("layers"):
                 layers_line = True
-            if not line.rstrip().endswith(("{","}",";")):
+            if not line.rstrip().endswith(("{", "}", ";")):
                 print(f"Missing punctuation on line {i+1}")
                 print(f"line {i+1}: {line}")
                 error_found = True
@@ -260,8 +264,10 @@ def list_checkpoints(filename):
             # if 'checkpointName = ' in line:
             #     name = line.replace('checkpointName = ',"").strip().strip(";").strip('"')
             #     cps += [name]
-            if 'playerSpawnSpot = ' in line:
-                name = line.replace('playerSpawnSpot = ',"").strip().strip(";").strip('"')
+            if "playerSpawnSpot = " in line:
+                name = (
+                    line.replace("playerSpawnSpot = ", "").strip().strip(";").strip('"')
+                )
                 cps += [name]
     for name in cps:
         print(name)
