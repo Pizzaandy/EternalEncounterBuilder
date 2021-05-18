@@ -24,11 +24,11 @@ grammar = Grammar(
 
     REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING / STRINGLITERAL) SPACE? ("," / &RPARENTHESES)
     NULLPARAM = SPACE? ("," / &RPARENCHAR)
-    MULTISTRING = (SPACE_NO_NEWLINE? ANYSTRING)+ SPACE_NO_NEWLINE? ("," / &RPARENTHESES / "\n" / &";")
+    MULTISTRING = SPACE? (SPACE_NO_NEWLINE? ANYSTRING)+ SPACE_NO_NEWLINE? ("," / &RPARENTHESES / "\n" / &";")
     ANYSTRING = (STRING / STRINGLITERAL)
 
     DECORATOR = "@" SPACE? MULTISTRING SPACE?
-    EVENT = DECORATOR? STRING SPACE? PARAM_LIST
+    EVENT = DECORATOR? STRING SPACE? ":"? SPACE? PARAM_LIST
 
     WAITFORBLOCK = ("waitFor"/"waitfor") SPACE? STRING? LBRACE (EVENT / ASSIGNMENT)* RBRACE
     WAITFOR = ("waitFor"/"waitfor") SPACE? (EVENT / TIMER)
@@ -112,7 +112,7 @@ class NodeVisitor(NodeVisitor):
         return name
 
     def visit_EVENT(self, node, visited_children):
-        decorator, event_name, _, params = visited_children
+        decorator, event_name, _, _, _, params = visited_children
         if not isinstance(params, list):
             params = []
             print("This should never happen")
@@ -149,15 +149,20 @@ class NodeVisitor(NodeVisitor):
         return str(node.text)
 
     def visit_STRINGLITERAL(self, node, visited_children):
-        expr = str(node.text).replace('"', "").replace(" ", "$^") + "$"
-        print(expr)
+        expr = str(node.text).replace('"', '').replace(" ", "$^")
+        if "$" not in expr:
+            expr = expr + "$"
+        print(f"expr is {expr}")
+        # print(expr)
         return expr
 
     def visit_MULTISTRING(self, node, visited_children):
-        string, _, _ = visited_children
+        _, string, _, _ = visited_children
         output_str = ""
         for i, item in enumerate(string):
             output_str += string[i][1] + " "
+        if "^" in output_str:
+            print(f"multistring with space char: '{output_str.strip()}'")
         return output_str.strip()
 
     def visit_NUMBER(self, node, visited_children):

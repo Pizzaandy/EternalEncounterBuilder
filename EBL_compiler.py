@@ -1,6 +1,6 @@
 import eternalevents
 from eternalevents import is_number_or_keyword
-import eternaltools
+from eternaltools import oodle, entity_tools
 from entity_templates import EntityTemplate
 import entities_parser as parser
 import ebl_grammar
@@ -21,7 +21,7 @@ ebl.grammar = ebl_grammar.grammar
 blacklist_entities = []
 
 variables = {}
-Settings = ""
+Settings = []
 templates = {}
 decorator_changes = {}
 debug_vars = False
@@ -105,7 +105,9 @@ def generate_ebl_segments(filename):
 
     if segments[0].startswith("SETTINGS"):
         print("SETTINGS header found!")
-        # Settings = segments[0]
+        global Settings
+        for line in segments[0].splitlines():
+            Settings += [line.strip()]
     else:
         print("No SETTINGS found")
 
@@ -128,24 +130,24 @@ def generate_ebl_segments(filename):
 def format_args(args, arg_count=-1) -> Union[list, str]:
     """Handles variables and fills in missing arguments"""
     args = args if isinstance(args, list) else [args]
-    for i, arg in enumerate(args):
+    for idx, arg in enumerate(args):
         if isinstance(arg, str):
-            args[i] = ""
+            args[idx] = ""
             arg = arg.replace(cc.SPACE_CHAR, cc.SPACE_CHAR + " ").split()
             for word in arg:
                 old_word = word
                 word = word.replace(cc.SPACE_CHAR, "")
                 if word in cc.ENCOUNTER_SPAWN_NAMES:
-                    args[i] += "ENCOUNTER_SPAWN_" + word + " "
+                    args[idx] += "ENCOUNTER_SPAWN_" + word + " "
                 elif word in cc.ENCOUNTER_SPAWN_ALIASES:
-                    args[i] += (
+                    args[idx] += (
                         "ENCOUNTER_SPAWN_" + cc.ENCOUNTER_SPAWN_ALIASES[word] + " "
                     )
                 else:
-                    args[i] += old_word + " "
-            args[i] = args[i].strip()
+                    args[idx] += old_word + " "
+            args[idx] = args[idx].strip()
         if arg is None:
-            args[i] = ""
+            args[idx] = ""
     while len(args) < arg_count:
         args += [""]
     return args[0] if arg_count == -1 else args
@@ -212,6 +214,10 @@ def create_events(data) -> list:
 def add_decorator_command(decorator: str, event_cls: eternalevents.EternalEvent):
     entity_name = None
     cmd = decorator
+    # parse decorator command
+    # (stuff)
+
+    # try to apply decorator command to EternalEvent
     if type(event_cls) in eternalevents.SPAWN_EVENTS:
         entity_name = concat_strings(event_cls.spawnTarget, is_expression=True)
 
@@ -264,16 +270,13 @@ def add_idai2s(filename, dlc_level):
 
 
 # cringe
-def rreplace(s, old, new, occurrence=0):
+def rreplace(s: str, old, new, occurrence=0):
     li = s.rsplit(old, occurrence)
     return new.join(li)
 
 
 def concat_strings(s, is_expression=False):
-    """
-    Okay this function is really nasty
-    If I ever find a reason to change it I will lol
-
+    """Warning: hacky
     Manipulates string by:
     a) replacing variable names with corresponding values
     b) handling the + operator and concatenating strings
@@ -286,16 +289,15 @@ def concat_strings(s, is_expression=False):
 
     if "+" not in s:
         for var, val in sorted_variables:
-            if is_expression:
-                # only replace entire expression if matched
+            if is_expression:  # only replace entire expression if matched
                 if len(var) == len(s.strip()):
                     s = s.replace(f"{var}", str(val))
                     break
-            else:
-                # replace all instances of matches in quotes
+            else:  # replace all instances of matches in quotes
                 if not is_number_or_keyword(s):
                     val = f'"{val}"'
                 s = s.replace(f'"{var}"', str(val))
+
         return s.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
     result = ""
@@ -303,6 +305,7 @@ def concat_strings(s, is_expression=False):
     for i, seg in enumerate(segments):
         seg = seg.lstrip() if i > 0 else seg
         seg = seg.rstrip() if i < len(segments) - 1 else seg
+        # find valid string characters near +
         potential_matches = re.findall(r"[$^\w]+", seg)
         first_match = potential_matches[0] if i > 0 else None
         last_match = potential_matches[-1] if i < len(segments) - 1 else None
@@ -323,7 +326,11 @@ def concat_strings(s, is_expression=False):
                         f"matched variable '{match}' and substituted '{str(val)}'"
                     )
                     debug_print(f"seg is now '{seg}'")
-
+        if "testing" in seg:
+            print(f"bruhhh '{seg}'")
+            print(
+                f"""bruhhh '{seg.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")}'"""
+            )
         result += seg
     return result.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
@@ -382,9 +389,10 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     return parser.generate_entity(entity)
 
 
-def edit_entity_fields(base_entity: str, edits: str) -> str:
+def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
     """
     Edits specific fields in the given entity
+    :param name:
     :param base_entity:
     :param edits:
     :return edited_entity:
@@ -400,41 +408,61 @@ def edit_entity_fields(base_entity: str, edits: str) -> str:
 
     entity_edits = ebl.parse(edits)
     for entity_edit in create_events(entity_edits):
-        if type(entity_edit) is not EntityEdit:
-            if type(entity_edit) is Assignment:
-                add_variable(entity_edit.name, entity_edit.value)
-                continue
-            else:
-                raise EblTypeError(
-                    "All lines under MODIFY header must be EntityEdits or Assignments"
-                )
-        func = entity_edit.func
-        values = entity_edit.value
-        path = entity_edit.object
-        keys = path.split("/")
+        # assignment or function
+        if type(entity_edit) is EntityEdit:
+            function_name = entity_edit.func
+            values = entity_edit.value
+            path = entity_edit.object
+        elif type(entity_edit) is Assignment:
+            # add_variable(entity_edit.name, entity_edit.value)
+            function_name = "set"
+            values = [[entity_edit.value]]
+            print(values)
+            path = entity_edit.name
+        else:
+            raise EblTypeError(
+                "All lines under MODIFY header must be EntityEdits or Assignments"
+            )
 
-        print(f"values is {values}")
+        keys = path.split("/")
+        unique_key_index = 0
+
         for value in values:
             dic = entity[entitydef]
-
-            if func in ["append", "add", "update", "set"]:
-                if not 2 >= len(value) >= 1:
+            if function_name == "add":
+                if len(value) != 1:
                     raise EblTypeError(
-                        f'Edit function "{func}" takes one or two arguments'
+                        f'Edit function "{function_name}" takes one argument'
                     )
                 for key in keys:
                     dic = dic.setdefault(key, {})
-                print(dic)
-                if len(value) == 2:
-                    if isinstance(value[1], str):
-                        value[1] = concat_strings(value[1], is_expression=True)
-                    dic[concat_strings(value[0])] = value[1]
-                else:
-                    dic = value[0]
+                value[0] = concat_strings(value[0], is_expression=True)
+                dic[f"__unique_{unique_key_index}__"] = value[0]
+                unique_key_index += 1
+                dic = {"num": len(dic), **dic}
+                print(dic, "FUUUUUU why")
 
-            if func in ["remove", "pop", "delete"]:
+            if function_name == "set":
                 if len(value) != 1:
-                    raise EblTypeError(f'Edit function "{func}" takes one argument')
+                    raise EblTypeError(
+                        f'Edit function "{function_name}" takes one argument'
+                    )
+                for key in keys[:-1]:
+                    dic = dic.setdefault(key, {})
+                if isinstance(value[0], str):
+                    value[0] = concat_strings(value[0], is_expression=True)
+                try:
+                    dic[concat_strings(keys[-1])] = value[0]
+                except TypeError:
+                    raise EblTypeError(
+                        f"value {concat_strings(keys[-1])} does not exist in entity {name}"
+                    )
+
+            if function_name == "pop":
+                if len(value) != 1:
+                    raise EblTypeError(
+                        f'Edit function "{function_name}" takes one argument'
+                    )
                 value = concat_strings(value[0], is_expression=True)
                 for key in keys:
                     dic = dic[key]
@@ -502,7 +530,7 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     return parser.generate_entity(entity)
 
 
-def modify_entity(name, entity: str, params, dlc_level) -> str:
+def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) -> str:
     """
     Applies changes to entity with given parameters
     :param name:
@@ -515,14 +543,17 @@ def modify_entity(name, entity: str, params, dlc_level) -> str:
     if cmd == "REPLACE ENCOUNTER":
         print(f"Replaced encounter {name}")
         return replace_encounter(entity, text, dlc_level)
-    if cmd == "REPLACE":
+    elif cmd == "REPLACE":
         print(f"Replaced entity {name}")
         return text
-    if cmd == "REMOVE":
+    elif cmd == "REMOVE":
         print(f"Removed entity {name}")
         return ""
-    if cmd == "MODIFY":
-        return edit_entity_fields(entity, text)
+    elif cmd == "MODIFY":
+        print(f"Modified fields in entity {name}")
+        return edit_entity_fields(name, entity, text)
+    else:
+        raise EblTypeError(f"Unknown command {cmd}")
 
 
 # Apply all changes in ebl_file to base_file and output to modded_file
@@ -548,7 +579,7 @@ def apply_ebl(
     modified_count = 0
     total_count = 0
 
-    eternaltools.decompress(base_file)
+    oodle.decompress_entities(base_file)
     dlc_level = get_dlc_level(base_file)
 
     # Add entitydefs with appropriate DLC level
@@ -569,7 +600,6 @@ def apply_ebl(
             t_name, t_args = key.split("(", 1)
             t_args = re.findall(r"([^(,)]+)(?!.*\()", t_args)
             t_args = [arg.strip() for arg in t_args]
-            # print(f"t_args is {t_args}")
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
 
     # compile EBL segments to eternalevents and add new entities
@@ -604,7 +634,7 @@ def apply_ebl(
             for name, params in deltas.items():
                 if f"entityDef {name} {{" in entity:
                     print(f"Found entity {name}")
-                    entity = modify_entity(name, entity, params, dlc_level)
+                    entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
                     break
             if (
@@ -628,17 +658,22 @@ def apply_ebl(
 
     if show_spawn_targets:
         print("Adding spawn target markers...")
-        eternaltools.mark_spawn_targets(modded_file)
+        entity_tools.mark_spawn_targets(modded_file)
 
     if generate_traversals:
         print("Generating traversal info...")
-        eternaltools.generate_traversals(modded_file, dlc_level)
+        # entity_tools.generate_traversals(modded_file, dlc_level)
+        # TODO: rewrite generate_traversals
 
     parser.verify_file(modded_file)
     parser.list_checkpoints(modded_file)
 
+    if "minify" in Settings:
+        print("Minifying modded file...")
+        parser.minify(modded_file)
+
     if compress_file:
-        eternaltools.compress(modded_file)
+        oodle.compress_entities(modded_file)
 
     print(f"{modified_count} entities out of {total_count-1} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")

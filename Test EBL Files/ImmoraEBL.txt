@@ -22,7 +22,7 @@ Wave mywave {
 	spawn(Arachnotron, hangar_target_spawn_27, )
 
 	waitFor wait(1, false)
-	spawn
+	spawn:
 	(DreadKnight, hangar_target_spawn_49)
 	(DreadKnight, hangar_target_spawn_40)
 	(DreadKnight, hangar_target_spawn_21)
@@ -32,7 +32,7 @@ Wave mywave {
 waitFor wait(1, false)
 spawn(Tyrant, hangar_target_spawn_2, )
 
-maintainAI
+maintainAI:
 (Imp, 3, -1, 3, 2, hangar_encounter_spawn_group_zone_1, , 5)
 (HellSoldier, 5, -1, 5, 2, hangar_encounter_spawn_group_zone_1, , 2)
 (Shotgunner, 4, -1, 2, 2, hangar_encounter_spawn_group_zone_1, , 5)
@@ -41,18 +41,18 @@ waitFor wait(3, false)
 spawn(CursedProwler, hangar_target_spawn_35, )
 
 waitFor AIHealthLevel(Tyrant, 0.600000024, , false)
-spawn
+spawn:
 (BloodAngel, hangar_target_spawn_26, )
 (Mancubus, hangar_target_spawn_34, )
 
 waitFor waitMulitpleConditions(2, ENCOUNTER_LOGICAL_OP_AND, false)
 
-waitFor AIRemaining
+waitFor AIRemaining:
 (BloodAngel, 0, , false)
 (Tyrant, 0, , false)
 
 targets = Carcass CyberMancubus Arachnotron Baron
-spawnPossessed
+spawnPossessed:
 (BloodAngel, hangar_target_spawn_49, , hangar_target_spawn_73, targets, , false)
 (BloodAngel, hangar_target_spawn_34, , hangar_target_spawn_73, targets, , false)
 (Mancubus, hangar_target_spawn_3, , hangar_target_spawn_73, targets, , false)
@@ -297,13 +297,11 @@ waitFor wait(1, false)
 group1 = breach_wasteland_arena_encounter_spawn_group_zone_1
 group2 = breach_wasteland_arena_encounter_spawn_group_zone_2
 breachtarg = breach_wasteland_arena_target_spawn_
-test = breachtarg + bruh +  "breachtargDreadKnight"; 
-test2 = test
 
 // remove air targets
-MODIFY breach_wasteland_arena_encounter_spawn_group_zone_1
 breachtarg = breach_wasteland_arena_target_spawn_
-edit/spawners.pop
+MODIFY breach_wasteland_arena_encounter_spawn_group_zone_1
+edit/spawners.pop:
 (breachtarg+52)
 (breachtarg+62)
 
@@ -336,93 +334,93 @@ spawnMultiple
 spawnMultiple(Revenant, 2, group1)
 
 waitFor 2 sec
-spawnMultiple(Revenant, 1, group1, )
-spawnMultiple(HellKnight, 1, group1, )
+spawnMultiple(Revenant, 2, group1, )
+spawnMultiple(HellKnight, 2, group1, )
 
 waitFor 2 sec
 spawnMultiple(Revenant, 2, group1, )
-spawnMultiple(HellKnight, 1, group1, )
+spawnMultiple(HellKnight, 2, group1, )
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 
 waitFor wait(1, false)
 alertAI(true, true, , false)
 
 waitFor 5 sec
-spawnMultiple(Prowler, 4, group1, )
-maintainAI
-(Imp, 3, -1, 3, 2, group1, , 0)
-(Gargoyle, 5, 10, 8, 0, group1, , 10)
-(MechaZombie, 2, 10, 8, 0, group1, , 10)
+spawnMultiple(Prowler, 4, group1)
+maintainAI:
+	//(Imp, 3, -1, 3, 2, group1, , 0)
+	(Gargoyle, 7, 10, 8, 0, group1, , 10)
+	(MechaZombie, 4, 10, 8, 0, group1, , 10)
 
-waitFor waitMulitpleConditions(3, ENCOUNTER_LOGICAL_OP_AND, false)
 waitFor {
 	AIRemaining
-	(DreadKnight, 1, , false)
-	(Revenant, 3, , false)
+	(HellKnight, 2, , false)
+	(Revenant, 4, , false)
 }
 
-spawnMultiple(DoomHunter, 1, group1)
+spawnMultiple(DoomHunter, 2, group1)
 waitFor 3 sec
-spawn(PainElemental, breachtarg+ 55, ) // breachtarg+55
-waitFor 3 sec
-spawn(Cacodemon, breachtarg+52, )
+spawn(PainElemental, breachtarg+55) // breachtarg+55
+waitFor 1 sec
+spawn(PainElemental, breachtarg+52)
 
 waitFor 2.5 sec
-spawnMultiple(Carcass, 3, group1, )
+spawnMultiple(Carcass, 3, group1)
 waitFor 5 sec
-spawnMultiple(DreadKnight, 2, group1, )
+spawnMultiple(DreadKnight, 2, group1)
 
 waitFor 1 sec
-spawnMultiple(MaykrDrone, 1, group1, )
+spawnMultiple(MaykrDrone, 1, group1)
 
 waitFor {
-	healthLevel(DoomHunter, 0.5, , false)
-	AIRemaining(DreadKnight, 1)
+	AIRemaining:
+	(DoomHunter, 1)
+	(DreadKnight, 1)
+	(PainElemental, 1)
 }
 waitFor healthLevel(DreadKnight, 0.5)
 
-spawnMultiple(Mancubus, 2, group1, )
+spawnMultiple(Mancubus, 2, group1)
 waitFor 1.5 sec
-spawnMultiple(Mancubus, 1, group1, )
+spawnMultiple(Mancubus, 1, group1)
 waitFor 1.5 sec
-spawnMultiple(Mancubus, 1, group1, )
+spawnMultiple(Mancubus, 1, group1)
 waitFor 1.5 sec
-spawnMultiple(Mancubus, 1, group1, )
+spawnMultiple(Mancubus, 1, group1)
 waitFor 1.5 sec
-spawnMultiple(Whiplash, 1, group1, )
-
-waitFor AIRemaining(Mancubus, 1)
+spawnMultiple(Whiplash, 3, group1)
 
 waitFor {
-	AIRemaining
-	(Mancubus, 1, , false)
-	(DoomHunter, 0, , false)
+	AIRemaining:
+	(Mancubus, 2)
+	(DoomHunter, 0)
 }
 
-print(Armored baron should spawn here)
+print("Armored baron should spawn here")
+spawnMultiple(ArmoredBaron, 1, group1)
+waitFor 0.6 sec
 spawnMultiple(ArmoredBaron, 1, group1)
 waitFor 1 sec
-spawnMultiple(ArmoredBaron, 1, group1)
-waitFor 2 sec
-spawnMultiple(CyberMancubus, 1, group1)
+spawnMultiple(CyberMancubus, 2, group1)
 waitFor 1 sec
 spawnMultiple(CyberMancubus, 1, group1)
 waitFor 1 sec
-spawnMultiple(CyberMancubus, 1, group1)
-spawnMultiple(Revenant, 1, group1)
+spawnMultiple:
+(CyberMancubus, 1, group1)
+(Revenant, 1, group1)
+(Baron, 2, group1)
 
-waitFor AIRemaining(ArmoredBaron, 1)(CyberMancubus, 2)
-spawnMultiple(Pinky, 2, group1)
-waitFor 3 sec
-spawnMultiple(Pinky, 1, group1)
-//spawn(PainElemental, breachtarg+55, )
+waitFor AIRemaining(ArmoredBaron, 1)
+spawnMultiple(Pinky, 4, group1)
 spawn(PainElemental, breachtarg+62, )
-stopMaintain(Gargoyle)
-maintainAI(Imp, 7, -1, 3, 2, group1, , 0)
+stopMaintainAI(Gargoyle)(MechaZombie)
+maintainAI:
+	(Imp, 8, -1, 3, 2, group1, , 0)
+	(Soldier, 5, -1, 3, 2, group1, , 0)
 
 waitFor all {
 	AIRemaining(ArmoredBaron, 0)
-	AIRemaining(PainElemental, 0)
+	AIRemaining(CyberMancubus, 1)
 }
 
 print(prepare to die)
@@ -438,6 +436,8 @@ waitFor 2 sec
 spawn(Cacodemon, breach_cacos1)
 waitFor 2 sec
 spawn(Cacodemon, breachtarg+55)
+waitfor 2 sec
+spawn(Cacodemon, breachtarg+56)
 
 waitFor AIRemaining(BloodMaykr, 1)
 
@@ -445,25 +445,16 @@ spawnArchvile(breachtarg+34, breach_wall_deck_encounter_archvile_template_1, myv
 waitFor 1 sec
 spawnArchvile(breachtarg+41, breach_wall_deck_encounter_archvile_template_1, myvile2)
 
-waitFor AIRemaining
-(PainElemental, 1)
-(Pinky, 1)
-(Archvile, 1)
-
+waitFor AIRemaining(Archvile, 1)
 waitFor healthLevel(Archvile, 0.4)
+
 spawnMultiple(Arachnotron, 3, group1)
 waitFor 4 sec
 spawnMultiple(Tyrant, 2, group1)
 waitFor 1 sec
-spawnMultiple(Whiplash, 1, group1)
-waitFor 1 sec
 spawn(Tyrant, breachtarg+41)
 
-// comment xd
-stopMaintainAI(Imp,)(MechaZombie, 0)
-maintainAI
-(Imp, 7, -1, 3, 2, group1, , 0)
-(Prowler, 1, -1, 6, 2, group1, , 0)
+maintainAI(Prowler, 1, -1, 6, 2, group1, , 0)
 
 waitFor 2 sec
 spawnMultiple(MaykrDrone, 1, group1)
@@ -474,7 +465,7 @@ waitFor {
 	(Tyrant, 2)
 	(Arachnotron, 2)
 }
-spawnMultiple(Revenant, 1, group1)
+spawnMultiple(Revenant, 3, group1)
 
 waitFor AIRemaining(Tyrant, 1)
 waitFor healthLevel(Tyrant, 0.8)
@@ -488,9 +479,15 @@ maintainAI
 
 waitFor 2 sec
 spawnMultiple(SIMP, 2, group1)
+
 //targets = HellKnight Baron Pinky Whiplash PainElemental Mancubus DoomHunter
-//spawnPossessed(Marauder, breachtarg+55, , breachtarg+25, targets, , true)
-spawn(Marauder, breachtarg+34)(Marauder, breachtarg+25)(DoomHunter, breachtarg+41)
+//spawnPossessed(Pinky, breachtarg+25, , breachtarg+25, targets, , true)
+
+print("testing" +  " testing2")
+spawn:
+	(Marauder, breachtarg+34)
+	(Marauder, breachtarg+25)
+	(DoomHunter, breachtarg+41)
 waitFor AIRemaining(Marauder, 1)
 spawnMultiple(SIMP, 2, group1)
 
@@ -1073,10 +1070,10 @@ waitfor 4 sec
 @anim forward_1000_down_1000
 spawn(Mancubus, cityroof+1)
 // lol
-spawn
-(Mancubus, cityroof+2)
-(Mancubus, cityroof+3)
-(Mancubus, cityroof+4)
+spawn:
+	(Mancubus, cityroof+2)
+	(Mancubus, cityroof+3)
+	(Mancubus, cityroof+4)
 
 maintainAI
 (Imp, 1, 10, 35, 0, city_rooftop_encounter_spawn_group_zone_1, , 40)
@@ -1087,7 +1084,7 @@ spawn(Baron, city_rooftop_target_spawn_2, )
 waitFor wait(1, false)
 spawn(Baron, city_rooftop_target_spawn_1, )
 
-//damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1 ZombieT1Screecher, )
+// damageAI(damage/triggerhurt/triggerhurt1000_instagib, ZombieTier1 ZombieT1Screecher, )
 forceChargeOnAllAI()
 
 waitFor AIRemaining(Any, 0, , false)
@@ -1130,7 +1127,7 @@ spawn(Imp, breach_wasteland_war_target_spawn_25, amb_imp_03)
 waitFor wait(0.75, false)
 spawn(Imp, breach_wasteland_war_target_spawn_26, amb_imp_04)
 
-waitFor AIRemaining(Any, 0, , false)
+waitFor AIRemaining(Any, 0)
 
 
 REPLACE ENCOUNTER oscar_encounter_manager_dragon_runners
@@ -1145,9 +1142,9 @@ waitFor AIRemaining(Any, 0, , false)
 
 
 MODIFY player_start_checkpoint1
-edit/targets.pop
-(target_interact_action_2)
-(target_show_2)
+edit/targets.pop:
+	(target_interact_action_2)
+	(target_show_2)
 
 TEMPLATE MeathookNode(name, x, y, z, cooldown) 
 entity { 
@@ -1380,20 +1377,18 @@ entity {
 }
 
 MODIFY sound_sound_musicentity_1
-edit.set(initialSwitchState, samuelsbase_music)
-
-
+edit/initialSwitchState = samuelsbase_music
 edit/spawners.add("value")
 
 // remove air spawn targets 10 and 11
 MODIFY city_rooftop_encounter_spawn_group_zone_1
-edit/spawners.pop
-(city_rooftop_target_spawn_10)
-(city_rooftop_target_spawn_11)
+edit/spawners.pop:
+	(city_rooftop_target_spawn_10)
+	(city_rooftop_target_spawn_11)
 
 // SHOOTER EDITS
 MODIFY shooters__envhazard_shooters_hell_on_earth_9
-edit/shooterList/item[0].set(firingInterval, 400)
+edit/shooterList/item[0]/firingInterval.set(400)
 
 
 ADD MeathookNode(lavapit1, -1684.150024, -243.100006, -135.509995, 3000)

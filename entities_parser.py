@@ -147,18 +147,21 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
 
 def parse_entities(filename, class_filter=""):
     # with Pool(processes=mp.cpu_count()) as pool:
-    # data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    #   data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
     data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
 
-# converts a parsed event back to .entities
-# shoutout to Chrispy
-NO_EQUALS = ("entityDef", "layers")
-
-
-def generate_entity(parsed_entity, depth=0):
+def generate_entity(parsed_entity: dict, depth=0) -> str:
+    """
+    Converts a parsed event back to .entities
+    shoutout to Chrispy
+    :param parsed_entity:
+    :param depth:
+    :return:
+    """
     s = ""
+    NO_EQUALS = ("entityDef", "layers")
     if depth == 0:
         s += "entity {\n\t"
     item_index = 0
@@ -185,7 +188,7 @@ def generate_entity(parsed_entity, depth=0):
             if isinstance(val, bool):
                 val = "true" if val else "false"
             elif isinstance(val, str):
-                # if string is multiline, unpack string
+                # if string is multiline, 'unpack' the string
                 multiline = "\n" in val
                 if not multiline:
                     val = f'"{val}"'
@@ -196,26 +199,34 @@ def generate_entity(parsed_entity, depth=0):
     return indent(s, "\t") if depth > 0 else s + "}\n"
 
 
-def minify(s):
-    return s.replace("\t", "").replace("\n", "")
+def minify(filename):
+    with open(filename, "r") as fp:
+        s = fp.read()
+    result = s.replace("\t", "").replace("\n", "")
+    with open(filename, "w") as fp:
+        s = fp.write(result)
 
 
-def unminify(s):
+def unminify(filename):
+    with open(filename, "r") as fp:
+        s = fp.read()
+
     # add newlines
     s = s.replace("{", "{\n")
     s = s.replace("}", "}\n")
     s = s.replace(";", ";\n")
 
-    # add tabs
-    res = ""
+    # add tabs (state machine moment)
+    result = ""
     indent_level = 0
     for line in s.splitlines():
         if "}" in line:
             indent_level -= 1
-        res += indent_level * "\t" + line + "\n"
+        result += indent_level * "\t" + line + "\n"
         if "{" in line:
             indent_level += 1
-    return res
+    with open(filename, "w") as fp:
+        fp.write(result)
 
 
 # quick-n-dirty punctuation check

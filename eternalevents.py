@@ -88,6 +88,7 @@ class EternalEvent:
         cls.args = args
 
         # add event class aliases to dicts
+        aliases = []
         if alias:
             aliases = alias if isinstance(alias, list) else [alias]
             for item in aliases:
@@ -96,8 +97,10 @@ class EternalEvent:
                 #     print(item, end=' ')
         default_alias = camelcase(cls.__name__)
         ebl_to_event[default_alias] = (cls.__name__, len(args))
+        event_to_ebl[default_alias] = aliases[0] if aliases else default_alias
         # if "wait" not in default_alias and "spawn"  in default_alias:
         #     print(default_alias, end=' ')
+
 
     def __init__(self, *args):
         for init_arg, (cls_name, cls_args) in zip(args, self.args):

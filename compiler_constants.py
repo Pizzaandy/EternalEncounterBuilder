@@ -2,13 +2,13 @@ EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE |^M
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
+
 # another reserved character for strings in quotes
 LITERAL_CHAR = "$"
 
-
 # waitFor block arguments
 WAITFOR_KEYWORDS = {"all": "ENCOUNTER_LOGICAL_OP_AND", "any": "ENCOUNTER_LOGICAL_OP_OR"}
-
+EBL_WAITFOR_KEYWORDS = {v: k for k, v in WAITFOR_KEYWORDS.items()}
 
 # ENCOUNTER_SPAWN + name
 ENCOUNTER_SPAWN_NAMES = [
