@@ -4,13 +4,14 @@ from eternaltools import oodle, entity_tools
 from entity_templates import EntityTemplate
 import entities_parser as parser
 import ebl_grammar
+import compiler_constants as cc
 
 from textwrap import indent
 from dataclasses import dataclass
 from typing import List, Union
 import re
 import time
-import compiler_constants as cc
+from copy import deepcopy
 
 from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
@@ -135,16 +136,20 @@ def format_args(args, arg_count=-1) -> Union[list, str]:
             args[idx] = ""
             arg = arg.replace(cc.SPACE_CHAR, cc.SPACE_CHAR + " ").split()
             for word in arg:
+                if word.endswith(cc.SPACE_CHAR):
+                    suffix = ""
+                else:
+                    suffix = " "
                 old_word = word
                 word = word.replace(cc.SPACE_CHAR, "")
                 if word in cc.ENCOUNTER_SPAWN_NAMES:
-                    args[idx] += "ENCOUNTER_SPAWN_" + word + " "
+                    args[idx] += "ENCOUNTER_SPAWN_" + word + suffix
                 elif word in cc.ENCOUNTER_SPAWN_ALIASES:
                     args[idx] += (
-                        "ENCOUNTER_SPAWN_" + cc.ENCOUNTER_SPAWN_ALIASES[word] + " "
+                        "ENCOUNTER_SPAWN_" + cc.ENCOUNTER_SPAWN_ALIASES[word] + suffix
                     )
                 else:
-                    args[idx] += old_word + " "
+                    args[idx] += old_word + suffix
             args[idx] = args[idx].strip()
         if arg is None:
             args[idx] = ""
@@ -171,7 +176,7 @@ def create_events(data) -> list:
             return [Assignment(data["variable"], data["value"])]
 
         if "function" in data:
-            print(f"function value is {data['value']}")
+            # print(f"function value is {data['value']}")
             return [EntityEdit(data["object"], data["function"], data["value"])]
 
         if data["event"] == "waitForBlock":
@@ -193,7 +198,7 @@ def create_events(data) -> list:
 
         # Assume nested argument list means a list of parameters
         args_list = data["args"]
-        if any(isinstance(i, list) for i in args_list):
+        if any(isinstance(item, list) for item in args_list):
             result = []
             for args in args_list:
                 if "decorator" in data and data["decorator"]:
@@ -302,13 +307,14 @@ def concat_strings(s, is_expression=False):
 
     result = ""
     segments = s.split("+")
-    for i, seg in enumerate(segments):
-        seg = seg.lstrip() if i > 0 else seg
-        seg = seg.rstrip() if i < len(segments) - 1 else seg
+    for idx, seg in enumerate(segments):
+        seg = seg.lstrip() if idx > 0 else seg
+        seg = seg.rstrip() if idx < len(segments) - 1 else seg
+
         # find valid string characters near +
         potential_matches = re.findall(r"[$^\w]+", seg)
-        first_match = potential_matches[0] if i > 0 else None
-        last_match = potential_matches[-1] if i < len(segments) - 1 else None
+        first_match = potential_matches[0] if idx > 0 else None
+        last_match = potential_matches[-1] if idx < len(segments) - 1 else None
 
         for j, match in enumerate([first_match, last_match]):
             if not match:
@@ -328,7 +334,7 @@ def concat_strings(s, is_expression=False):
                     debug_print(f"seg is now '{seg}'")
         if "testing" in seg:
             print(f"bruhhh '{seg}'")
-            print(
+            debug_print(
                 f"""bruhhh '{seg.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")}'"""
             )
         result += seg
@@ -414,7 +420,6 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
             values = entity_edit.value
             path = entity_edit.object
         elif type(entity_edit) is Assignment:
-            # add_variable(entity_edit.name, entity_edit.value)
             function_name = "set"
             values = [[entity_edit.value]]
             print(values)
@@ -439,7 +444,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 value[0] = concat_strings(value[0], is_expression=True)
                 dic[f"__unique_{unique_key_index}__"] = value[0]
                 unique_key_index += 1
-                dic = {"num": len(dic), **dic}
+                ref_dic = deepcopy(dic)
+                dic = {"num": len(ref_dic), **ref_dic}
                 print(dic, "FUUUUUU why")
 
             if function_name == "set":

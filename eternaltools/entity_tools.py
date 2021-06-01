@@ -52,10 +52,10 @@ def mark_spawn_targets(filename):
     positions = []
     count = 0
 
-    for d in idTargets:
+    for target in idTargets:
         count += 1
-        entityDef = [v for k, v in d.items() if k.startswith("entityDef")][0]
-        name = [k for k, v in d.items() if k.startswith("entityDef")][0]
+        entityDef = [v for k, v in target.items() if k.startswith("entityDef")][0]
+        name = [k for k, v in target.items() if k.startswith("entityDef")][0]
         name = name.replace("entityDef ", "")
         pos = entityDef["edit"]["spawnPosition"]
         if all(key in pos for key in ("x", "y", "z")):

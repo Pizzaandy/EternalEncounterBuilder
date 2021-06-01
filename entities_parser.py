@@ -272,9 +272,6 @@ def list_checkpoints(filename):
     print("\nCHECKPOINTS:")
     with open(filename) as fp:
         for line in fp.readlines():
-            # if 'checkpointName = ' in line:
-            #     name = line.replace('checkpointName = ',"").strip().strip(";").strip('"')
-            #     cps += [name]
             if "playerSpawnSpot = " in line:
                 name = (
                     line.replace("playerSpawnSpot = ", "").strip().strip(";").strip('"')

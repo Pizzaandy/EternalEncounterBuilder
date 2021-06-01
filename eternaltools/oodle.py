@@ -5,12 +5,13 @@ from pathlib import Path
 from io import BytesIO
 from sys import platform
 
+
 def is_binary(filename):
     try:
         with open(filename, "tr") as check_file:  # try open file in text mode
             check_file.read()
             return False
-    except Exception:  # if fail then file is non-text (binary)
+    except ValueError:  # if fail then file is non-text (binary)
         return True
 
 
@@ -42,7 +43,7 @@ def decompress_entities(filename, dest_filename="") -> bool:
         bio.seek(0x10)
         bytes_data = bio.read()
         if len(bytes_data) != compressed_size:
-            raise TypeError(
+            raise ValueError(
                 f"File size is {len(bytes_data)}, expected {compressed_size}. Bad file!"
             )
 
@@ -58,12 +59,12 @@ def decompress_entities(filename, dest_filename="") -> bool:
         oodle_path = "./oo2core_8_win64.dll"
 
     try:
-        oodle = ctypes.cdll.LoadLibrary(oodle_path)
+        oodlz_decompress = ctypes.cdll[oodle_path]["OodleLZ_Compress"]
     except OSError:
         raise FileNotFoundError(f"{oodle_path[2:]} not in folder!")
 
-    proto_decompress = ctypes.CFUNCTYPE(
-        ctypes.c_int,  # return type
+    oodlz_decompress.restype = ctypes.c_int
+    oodlz_decompress.argtypes = [
         ctypes.POINTER(ctypes.c_ubyte),  # src_buf
         ctypes.c_int,  # src_len
         ctypes.POINTER(ctypes.c_ubyte),  # dst
@@ -78,9 +79,7 @@ def decompress_entities(filename, dest_filename="") -> bool:
         ctypes.c_void_p,  # scratch
         ctypes.c_size_t,  # scratch_size
         ctypes.c_int,  # threadPhase
-    )
-
-    oodlz_decompress = proto_decompress(("OodleLZ_Decompress", oodle))
+    ]
 
     if (
         ret := oodlz_decompress(

@@ -9,7 +9,6 @@ class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
     """
-
     def __init__(self, name, template, args):
         self.name = name
         self.template = template

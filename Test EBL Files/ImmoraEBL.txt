@@ -483,7 +483,8 @@ spawnMultiple(SIMP, 2, group1)
 //targets = HellKnight Baron Pinky Whiplash PainElemental Mancubus DoomHunter
 //spawnPossessed(Pinky, breachtarg+25, , breachtarg+25, targets, , true)
 
-print("testing" +  " testing2")
+myvar = "___doom___ "
+print(myvar + "  testing2" + " testing3 ")
 spawn:
 	(Marauder, breachtarg+34)
 	(Marauder, breachtarg+25)
