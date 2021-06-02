@@ -33,7 +33,8 @@ def format_arg(arg):
     return res.strip()
 
 
-def convert_encounter_to_ebl(encounter):
+# TODO: rewrite this complete garbage
+def convert_encounter_to_ebl(encounter: str):
     """
     Don't even look at this
     it's horrific
@@ -66,18 +67,24 @@ def convert_encounter_to_ebl(encounter):
             game_name = event["eventCall"]["eventDef"]
             name = event_to_ebl[game_name]
         except KeyError:
-            game_name = game_name if game_name else "name not found"
+            game_name = game_name if game_name else "(name not found)"
             print(f"WARNING: unknown event '{game_name}'")
             continue
 
         if wait_block_count > 0:
             wait_block_count -= 1
             if wait_block_count == 0:
-                res += "}\n"
+                if name == last_name:
+                    wait_block_count += 1
+                    res += "\t"
+                else:
+                    res += "}\n"
             else:
                 res += "\t"
         elif "wait" in game_name and game_name != "wait":
             name = "waitfor " + name
+            if wait_block_count > 0:
+                res += "\t"
         elif game_name == "wait":
             last_name = name
             res += "waitfor "
@@ -123,12 +130,13 @@ def convert_encounter_to_ebl(encounter):
             res += param_line
             if repeat_count == 0:
                 index = res.rindex(f"{name}(") + len(name)
-                res = res[:index] + "\n" + res[index:]
+                add_tab = "\t" if wait_block_count > 0 else ""
+                res = res[:index] + ":\n" + add_tab + res[index:]
             repeat_count += 1
         else:
             if "wait" in game_name and wait_block_count == 0:
                 res += "\n"
-            elif repeat_count > 0:
+            elif repeat_count > 0 and wait_block_count == 0:
                 res += "\n"
             res += param_line
             repeat_count = 0

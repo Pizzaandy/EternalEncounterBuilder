@@ -152,6 +152,9 @@ def parse_entities(filename, class_filter=""):
     return data
 
 
+NO_EQUALS = ("entityDef", "layers")
+
+
 def generate_entity(parsed_entity: dict, depth=0) -> str:
     """
     Converts a parsed event back to .entities
@@ -161,7 +164,6 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
     :return:
     """
     s = ""
-    NO_EQUALS = ("entityDef", "layers")
     if depth == 0:
         s += "entity {\n\t"
     item_index = 0

@@ -512,10 +512,10 @@ waitFor {
 }
 
 forceChargeOnAllAI()
-damageAI
-(damage/triggerhurt/triggerhurt1000_instagib, Imp)
-(damage/triggerhurt/triggerhurt1000_instagib, Zombie)
-(damage/triggerhurt/triggerhurt1000_instagib, Soldier)
+damageAI:
+	(damage/triggerhurt/triggerhurt1000_instagib, Imp)
+	(damage/triggerhurt/triggerhurt1000_instagib, Zombie)
+	(damage/triggerhurt/triggerhurt1000_instagib, Soldier)
 removeAI(SIMP)(Prowler)
 
 waitFor AIRemaining(Any, 0, , false)
@@ -667,7 +667,15 @@ alertAI(true, false, , false)
 spawnMultiple(ZombieTier1, 4, breach_wall_deck_spawn_group_zone_wall_deck_gargs1, )
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
-spawnPossessed(HellKnight, breach_wall_deck_target_spawn_10, , breach_wall_deck_target_spawn_15, HellKnight, , true)
+spawnPossessed (
+	HellKnight, 
+	breach_wall_deck_target_spawn_10, 
+	"", 
+	breach_wall_deck_target_spawn_15, 
+	HellKnight, 
+	"", 
+	true
+)
 
 waitFor wait(2, false)
 maintainAI(ZombieTier1, 2, -1, 2, 1, breach_wall_deck_spawn_group_zone_wall_deck_gargs1, , 3)

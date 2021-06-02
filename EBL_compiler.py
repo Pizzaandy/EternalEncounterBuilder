@@ -491,11 +491,11 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     """
     entity = parser.ev.parse(spawn_target)
     entitydef = ""
-    name = ""
+    # name = ""
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
-            name = entitydef.replace("entityDef", "").strip()
+            # name = entitydef.replace("entityDef", "").strip()
     if not entitydef:
         print("ERROR: no entityDef component!")
         return spawn_target
@@ -514,10 +514,6 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     except KeyError:
         pass
     else:
-        # TODO: adjust spawn target formatting to preserve intro animations
-        if name in decorator_changes:
-            cmds = decorator_changes[name]
-            print(f"Applying command {cmds} to entity {name}")
         no_spawnanim = not spawn_editable["spawnAnim"]
         no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
         if no_spawnanim and no_add_targets:
@@ -603,6 +599,7 @@ def apply_ebl(
     # find + store entity templates
     for key, val in deltas.items():
         if val[0] == "TEMPLATE":
+            # TODO: make a PEG parser for this
             t_name, t_args = key.split("(", 1)
             t_args = re.findall(r"([^(,)]+)(?!.*\()", t_args)
             t_args = [arg.strip() for arg in t_args]
@@ -620,6 +617,7 @@ def apply_ebl(
             for template in templates.keys():
                 if key.replace(" ", "").startswith(template + "("):
                     # find all comma-delimited arguments
+                    # TODO: make a PEG parser for this
                     args = re.findall(r"([^(,)]+)(?!.*\()", key)
                     args = [arg.strip() for arg in args]
                     entity = templates[template].render(*args)
@@ -670,6 +668,7 @@ def apply_ebl(
         print("Generating traversal info...")
         # entity_tools.generate_traversals(modded_file, dlc_level)
         # TODO: rewrite generate_traversals
+        # give sauce proteh >:(
 
     parser.verify_file(modded_file)
     parser.list_checkpoints(modded_file)

@@ -162,7 +162,7 @@ class SpawnPossessedAI(EternalEvent, alias="spawnPossessed"):
     spawnTarget = "entity"
     spirit_allowedAITypes = "eEncounterSpawnType_t"
     spirit_allowedGroupLabel = "string*"
-    spirit_aiTypeExplicitFiltering = "bool"
+    spirit_aiTypeExplicitFiltering = "bool=true"
 
 
 class SpawnSpirit(EternalEvent):
