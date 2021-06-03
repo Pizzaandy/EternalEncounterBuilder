@@ -2,6 +2,7 @@ import eternalevents
 import entities_parser as parser
 from entities_parser import EntitiesSyntaxError
 import compiler_constants as cc
+from eternaltools import oodle
 
 fp = "Test Entities/e5m3_hell.entities"
 event_to_ebl = eternalevents.event_to_ebl
@@ -58,7 +59,14 @@ def convert_encounter_to_ebl(encounter: str):
     last_name = ""
     repeat_count = 0
     wait_block_count = 0
+    wait_newline = ""
+    i = 0
+
     for key, event in events.items():
+        # wtf????
+        i += 1
+        if i == 3:
+            wait_newline = "\n"
         params = []
         if key == "num":
             continue
@@ -90,12 +98,12 @@ def convert_encounter_to_ebl(encounter: str):
             else:
                 res += "\t"
         elif "wait" in game_name and game_name != "wait":
-            name = "\nwaitfor " + name
+            name = wait_newline + "waitfor " + name
             if wait_block_count > 0:
                 res += "\t"
         elif game_name == "wait":
             last_name = name
-            res += "\nwaitfor "
+            res += wait_newline + "waitfor "
             for arg_key, arg in args.items():
                 if arg_key == "num":
                     res += str(arg) + " sec\n"
@@ -106,7 +114,7 @@ def convert_encounter_to_ebl(encounter: str):
             if arg_key == "num":
                 if game_name == "waitMulitpleConditions":
                     wait_block_count = arg
-                    res += "\nwaitfor "
+                    res += wait_newline + "waitfor "
                 continue
             arg_value = next(iter(arg.items()))[1]
             if game_name == "waitMulitpleConditions":
@@ -151,8 +159,8 @@ def convert_encounter_to_ebl(encounter: str):
 
 
 def generate_ebl_file(entities_file, ebl_file):
+    # oodle.decompress_entities(entities_file)
     encounters = parser.generate_entity_segments(entities_file, "idEncounterManager")
     with open(ebl_file, "w") as f:
         for entity in encounters:
             f.write(convert_encounter_to_ebl(entity))
-    # print(event_to_ebl)

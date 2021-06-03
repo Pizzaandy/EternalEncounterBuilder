@@ -1,0 +1,1241 @@
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_2
+
+activate(ai_combat_target_relay_24, Meathook Point - Off)
+spawn:
+(ZombieTier1, ai_combat_target_spawn_214)
+(ZombieTier1, ai_combat_target_spawn_215)
+(ZombieTier1, ai_combat_target_spawn_216)
+(HellSoldier, ai_combat_target_spawn_217)
+(HellSoldier, ai_combat_target_spawn_218)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, intro_flag_01, true, false)
+spawn(HellSoldier, ai_combat_target_spawn_222)
+
+waitfor 2 sec
+spawn(HellSoldier, ai_combat_target_spawn_223)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, intro_flag_02, true, false)
+spawn(ShotgunSoldier, ai_combat_target_spawn_2)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_3)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_4)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 2, 1, ai_combat_encounter_spawn_group_zone_13, , 4)
+
+waitfor AIRemaining(CyberMancubus Revenant, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_4
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate:
+(ai_combat_target_relay_1, DMC Gate - On)
+(ai_combat_target_relay_14, Nav Obstacle - On)
+(ai_combat_target_change_layer_2, Bridge Teleports - On)
+(screecher_tutorial, Screecher Tutorial)
+
+waitfor 2 sec
+spawn:
+(Carcass, ai_combat_target_spawn_16)
+(Carcass, ai_combat_target_spawn_17)
+
+waitfor 2 sec
+spawn:
+(ZombieT1Screecher, ai_combat_target_spawn_324)
+(ZombieT1Screecher, ai_combat_target_spawn_325)
+(ZombieT1Screecher, ai_combat_target_spawn_364)
+(ZombieT1Screecher, ai_combat_target_spawn_365)
+
+waitfor 2 sec
+maintainAI(Imp, 4, -1, 2, 3, ai_combat_encounter_spawn_group_zone_2, , 4)
+
+waitfor 2 sec
+spawn:
+(HellKnight, ai_combat_target_spawn_326)
+(Cacodemon, ai_combat_target_spawn_224)
+
+waitfor AIRemaining(HellKnight Cacodemon, 0, , false)
+spawn:
+(Cacodemon, ai_combat_target_spawn_225)
+(HellKnight, ai_combat_target_spawn_172)
+
+waitfor AIRemaining(Carcass HellKnight Cacodemon, 0, , false)
+stopMaintainAI(Any)
+forceChargeOnAllAI()
+
+waitfor AIRemaining(Imp, 0, , false)
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieT1Screecher)
+
+waitfor 2 sec
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_14, Nav Obstacle - Off)
+(ai_combat_target_relay_1, DMC Gate - Off)
+(ai_combat_target_relay_25, DMC Gate - FX)
+(ai_combat_village_entrance_wall_control, Breakable Activate)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate(ai_combat_target_change_layer_1, Bridge Teleports - Off)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_4, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_5
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+spawn:
+(ZombieTier1, ai_combat_target_spawn_7)
+(ZombieTier1, ai_combat_target_spawn_8)
+
+waitfor 2 sec
+spawn(PainElemental, ai_combat_target_spawn_9)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_10)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_11)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_12)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_13)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_14)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_6
+
+activate:
+(ai_combat_target_relay_12, Nav Obstacle - On)
+(ai_combat_target_relay_15, Foundtain Nav - On)
+
+waitfor Flag:
+(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_screecher_intro_01, true, false)
+(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_screecher_intro_02, true, false)
+spawn(ArmoredBaron, ai_combat_target_spawn_246)
+activate:
+(ai_combat_target_relay_6, DMC Gate - On)
+(armored_baron_tutorial, Armored Baron Tutorial Codex)
+
+waitfor 2 sec
+alertAI(true, true, , false)
+maintainAI(ZombieTier1, 2, -1, 3, 1, ai_combat_encounter_spawn_group_zone_14, armored_baron_zombies, 6)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+
+waitfor all {
+	Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_screecher_intro_03, true, false)
+	AIRemaining(ArmoredBaron, 0, , false)
+}
+activate(ai_combat_target_relay_15, Fountain Nav - Off)
+stopMaintainAI(ZombieTier1, armored_baron_zombies)
+spawn(SuperTentacle, ai_combat_target_spawn_55)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+activate(village_statue_break, Statue Break)
+
+waitfor 2 sec
+maintainAI:
+(Imp, 4, -1, 2, 3, ai_combat_encounter_spawn_group_zone_5, village_imps, 4)
+(ZombieTier1, 4, -1, 3, 3, ai_combat_encounter_spawn_group_zone_12, , 6)
+
+waitfor AIRemaining(ArmoredBaron SuperTentacle, 0, , false)
+activate(village_target_relay_36, Activate Meathook Grapple)
+
+waitfor 2 sec
+spawn(Arachnotron, ai_combat_target_spawn_72)
+
+waitfor 2 sec
+spawn(Arachnotron, ai_combat_target_spawn_73)
+
+waitfor 2 sec
+
+waitfor AIRemaining(Arachnotron, 1, , false)
+spawn(ArmoredBaron, ai_combat_target_spawn_250)
+
+waitfor AIRemaining(Arachnotron ArmoredBaron SuperTentacle, 0, , false)
+spawn(CyberMancubus, ai_combat_target_spawn_75)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_74)
+
+waitfor 2 sec
+spawn(HellKnight, ai_combat_target_spawn_363)
+
+waitfor AIRemaining(HellKnight CyberMancubus, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+forceChargeOnAllAI()
+
+waitfor AIRemaining(Imp, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+
+waitfor 2 sec
+maintainAI(Imp, 13, -1, 1, 12, ai_combat_encounter_spawn_group_zone_5, , 2)
+
+waitfor 2 sec
+alertAI(true, true, , false)
+forceChargeOnAllAI()
+
+waitfor killCount(Any, 20, , false)
+stopMaintainAI(Any)
+forceChargeOnAllAI()
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(village_disable_post_combat, Disable Meathook and Bouncepads)
+(ai_combat_target_relay_6, DMC Gate - Off)
+(ai_combat_target_relay_26, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(village_secret_switch_control)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_7, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_7
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+activate(ai_combat_target_relay_2, DMC Gate - On)
+
+waitfor 2 sec
+spawn(HellKnight, ai_combat_target_spawn_347)
+alertAI(true, true, , false)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 2, 0, ai_combat_encounter_spawn_group_zone_3, , 4)
+
+waitfor AIRemaining(HellKnight, 0, , false)
+spawn(HellKnight, ai_combat_target_spawn_347)
+
+waitfor 2 sec
+spawn(ZombieT1Screecher, ai_combat_target_spawn_181)
+
+waitfor 2 sec
+spawn(HellKnight, ai_combat_target_spawn_372)
+
+waitfor AIRemaining(HellKnight, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1 ZombieT1Screecher)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_2, DMC Gate - Off)
+(ai_combat_target_relay_28, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_11, Checkpoint - Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_8
+
+activate:
+(village_upper_surprise_blocker_control, Blockers On)
+(ai_combat_target_relay_3, DMC Gate - On)
+spawn(Mancubus, ai_combat_target_spawn_29)
+
+waitfor 2 sec
+spawn(Mancubus, ai_combat_target_spawn_30)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(village_upper_surprise_blocker_control, Blockers Off)
+(ai_combat_target_relay_3, DMC Gate - Off)
+(ai_combat_target_relay_27, DMC Gate - FX)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_9
+
+activate(ai_combat_target_relay_4, Break Wall)
+spawn(DreadKnight, ai_combat_target_spawn_31)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc1_10
+
+waitfor 2 sec
+activate(ai_combat_target_relay_5, Nav Obstacle - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate(ai_combat_target_change_layer_3, Fog Teleports - On)
+
+waitfor 2 sec
+spawn(BuffPod, ai_combat_target_spawn_52)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_44)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_45)
+
+waitfor AIRemaining(ShotgunSoldier, 0, , false)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 1, -1, 2, 0, ai_combat_encounter_spawn_group_zone_4, , 4)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_44)
+
+waitfor 2 sec
+spawn(ShotgunSoldier, ai_combat_target_spawn_45)
+
+waitfor AIRemaining(ShotgunSoldier, 0, , false)
+
+waitfor 2 sec
+spawn(HellKnight, ai_combat_target_spawn_43)
+
+waitfor AIRemaining(ShotgunSoldier HellKnight, 0, , false)
+
+waitfor 2 sec
+forceChargeOnAllAI()
+spawn(Imp, ai_combat_target_spawn_50)
+
+waitfor 2 sec
+spawn(Imp, ai_combat_target_spawn_48)
+
+waitfor 2 sec
+spawn(Imp, ai_combat_target_spawn_51)
+
+waitfor 2 sec
+spawn(Imp, ai_combat_target_spawn_49)
+
+waitfor AIRemaining(Imp HellKnight, 0, , false)
+
+waitfor 2 sec
+spawn(Pinky, ai_combat_target_spawn_38)
+
+waitfor AIRemaining(Pinky, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(ZombieTier1, 0, , false)
+
+waitfor 2 sec
+activate:
+(ai_combat_target_relay_13, Show Blood Punch Refills)
+(ai_combat_target_relay_5, Nav Obstacle - Off)
+(village_target_relay_11, Fog - Off)
+(ai_combat_target_change_layer_1, Fog Teleports - Off)
+
+waitfor 2 sec
+activate(ai_combat_target_change_layer_2, Bridge Teleports - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+spawn(Pinky, ai_combat_target_spawn_239)
+
+waitfor 2 sec
+spawn(Pinky, ai_combat_target_spawn_240)
+
+waitfor 2 sec
+spawn(Pinky, ai_combat_target_spawn_241)
+
+waitfor 2 sec
+spawn(Pinky, ai_combat_target_spawn_242)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 2, 1, ai_combat_encounter_spawn_group_zone_2, , 4)
+
+waitfor AIRemaining(Pinky BuffPod, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+
+waitfor AIRemaining(Any, 0, , false)
+activate(ai_combat_target_change_layer_1, Bridge Teleports - Off)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(village_target_relay_22, Open Gate)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_5, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_1
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate:
+(village_upper_blockers_control, Blockers On)
+(ai_combat_target_relay_7, DMC Gate - On)
+(ai_combat_target_relay_19, Church Nav Obstacle - On)
+(village_target_relay_39, Wolf Nav Obstacle - On)
+spawn(Imp, ai_combat_target_spawn_78)
+
+waitfor 2 sec
+spawn(HellSoldier, ai_combat_target_spawn_254)
+
+waitfor 2 sec
+spawn(HellSoldier, ai_combat_target_spawn_255)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 2, 1, ai_combat_encounter_spawn_group_zone_6, , 4)
+
+waitfor AIRemaining(Imp, 0, , false)
+maintainAI(Imp, 5, -1, 1, 4, ai_combat_encounter_spawn_group_zone_17, church_courtyard_imps, 3)
+
+waitfor killCount(Imp, 8, church_courtyard_imps, false)
+spawn(Whiplash, ai_combat_target_spawn_343)
+
+waitfor 2 sec
+spawn(Whiplash, ai_combat_target_spawn_344)
+
+waitfor AIRemaining(Whiplash, 0, , false)
+stopMaintainAI(Imp, church_courtyard_imps)
+
+waitfor AIRemaining(Imp, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate:
+(ai_combat_target_relay_19, Church Nav Obstacle - Off)
+(ai_combat_target_relay_7, DMC Gate - Off)
+(ai_combat_target_relay_27, DMC Gate - FX)
+(village_upper_blockers_control, Blockers Off)
+(village_target_relay_39, Wolf Nav Obstacle - Off)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_39, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_2
+
+activate:
+(ai_combat_target_relay_8, Blockers - On)
+(village_upper_blockers_control, Arena Blockers On)
+(ai_combat_sludge_torch_blocker_control, Sludge Torch Blocker - On)
+
+waitfor 2 sec
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate(ai_combat_church_courtyard_wading_control, Wading - On)
+
+waitfor 2 sec
+activate(ai_combat_target_show_4, Show Health Packs)
+spawnMultiple(ZombieTier1, 6, ai_combat_encounter_spawn_group_zone_7)
+
+waitfor 2 sec
+spawn(ZombieT1Screecher, ai_combat_target_spawn_96)
+
+waitfor AIRemaining(ZombieTier1, 0, , false)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp, ZombieT1Screecher)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 9, -1, 1, 8, ai_combat_encounter_spawn_group_zone_7, , 2)
+
+waitfor 2 sec
+
+waitfor killCount(ZombieTier1, 15, , false)
+spawn(Mancubus, ai_combat_target_spawn_114)
+
+waitfor 2 sec
+spawn(ZombieT1Screecher, ai_combat_target_spawn_96)
+
+waitfor healthLevel(Mancubus, 0.25, , false)
+spawn(Mancubus, ai_combat_target_spawn_115)
+
+waitfor AIRemaining(Mancubus, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(ZombieTier1, 0, , false)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp, ZombieT1Screecher)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate(ai_combat_church_courtyard_wading_control, Wading - Off)
+
+waitfor 2 sec
+activate:
+(ai_combat_sludge_torch_blocker_control, Sludge Torch Blocker - Off)
+(ai_combat_target_relay_8, Blockers - Off)
+(village_target_relay_14, Fog - Off)
+(village_upper_blockers_control, Arena Blockers Off)
+(ai_combat_target_relay_17, Activate Trap Trigger)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_17, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_8
+
+alertAI(true, true, , false)
+spawn:
+(ShotgunSoldier, ai_combat_target_spawn_210)
+(ShotgunSoldier, ai_combat_target_spawn_211)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_barn, true, false)
+spawn(Revenant, ai_combat_target_spawn_237)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_9
+
+spawn(Mancubus, ai_combat_target_spawn_212)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_10
+
+spawn(HellSoldier, ai_combat_target_spawn_238)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_11
+
+alertAI(true, true, , false)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_cliffs_landing, true, false)
+spawn(Cacodemon, ai_combat_target_spawn_259)
+
+waitfor 2 sec
+spawn(Cacodemon, ai_combat_target_spawn_260)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_12
+
+alertAI(true, true, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+spawn(CyberMancubus, ai_combat_target_spawn_261)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_262)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_263)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_264)
+
+waitfor 2 sec
+maintainAI(Imp, 6, -1, 1, 5, ai_combat_encounter_spawn_group_zone_15, , 3)
+
+waitfor AIRemaining(CyberMancubus, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(sound_vo_control_02, Intern VO)
+
+waitfor 2 sec
+activate:
+(ai_combat_target_relay_16, DMC Gates - Off)
+(ai_combat_target_relay_29, DMC Gate - FX)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_13
+
+activate(ai_stone_imp_tutorial, Stone Imp Tutorial)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, village_ravine_01, true, false)
+activate(ai_combat_target_relay_38, DMC Gate - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+alertAI(true, true, , false)
+spawn:
+(StoneImp, ai_combat_target_spawn_332)
+(HellSoldier, ai_combat_target_spawn_341)
+
+waitfor 2 sec
+spawn:
+(HellSoldier, ai_combat_target_spawn_342)
+(StoneImp, ai_combat_target_spawn_333)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 2, 1, ai_combat_encounter_spawn_group_zone_18, , 4)
+
+waitfor AIRemaining(StoneImp, 0, , false)
+maintainAI(StoneImp, 4, -1, 1, 3, ai_combat_encounter_spawn_group_zone_19, stone_imp_intro, 3)
+
+waitfor killCount(StoneImp, 8, , false)
+stopMaintainAI(StoneImp, stone_imp_intro)
+
+waitfor AIRemaining(StoneImp, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_38, DMC Gate - Off)
+(ai_combat_target_relay_39, DMC Gate - FX)
+(ai_activate_ravine_switch, Activate Switch)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+
+
+REPLACE ENCOUNTER arena_encounter_manager_dlc2_1
+
+activate(arena_target_relay_3, DMC Gate - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+spawn(Revenant, arena_target_spawn_17)
+
+waitfor 2 sec
+spawn(Revenant, arena_target_spawn_18)
+
+waitfor 2 sec
+spawn(Revenant, arena_target_spawn_19)
+
+waitfor 2 sec
+spawn(Revenant, arena_target_spawn_20)
+
+waitfor 2 sec
+spawn(Revenant, arena_target_spawn_21)
+
+waitfor 2 sec
+activate(arena_spirit_tutorial, Spirit Tutorial)
+maintainAI:
+(Imp, 3, -1, 2, 2, arena_encounter_spawn_group_zone_1, catacomb_imps, 4)
+(HellSoldier, 3, -1, 3, 2, arena_encounter_spawn_group_zone_1, catacomb_soldiers, 6)
+
+waitfor AIRemaining(Revenant, 2, , false)
+spawn(Cacodemon, arena_target_spawn_22)
+
+waitfor 2 sec
+spawn(Cacodemon, arena_target_spawn_23)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_24)
+
+waitfor AIRemaining(HellKnight Cacodemon Revenant, 0, , false)
+maintainAI(ShotgunSoldier, 2, -1, 4, 1, arena_encounter_spawn_group_zone_1, catacomb_soldiers, 8)
+spawn(Arachnotron, arena_target_spawn_25)
+
+waitfor 2 sec
+spawn(Arachnotron, arena_target_spawn_27)
+
+waitfor 2 sec
+spawnSpirit(arena_target_spawn_26, Arachnotron, , false)
+
+waitfor AIRemaining(Arachnotron, 0, , false)
+stopMaintainAI(Any)
+forceChargeOnAllAI()
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, Imp HellSoldier ShotgunSoldier)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+
+waitfor 2 sec
+spawn(Tyrant, arena_target_spawn_117)
+
+waitfor 2 sec
+spawn(Tyrant, arena_target_spawn_118)
+
+waitfor 2 sec
+maintainAI:
+(ZombieTier3, 4, -1, 3, 3, arena_encounter_spawn_group_zone_1, , 6)
+(Imp, 4, -1, 2, 3, arena_encounter_spawn_group_zone_1, catacomb_imps, 4)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_24)
+
+waitfor AIRemaining(HellKnight Tyrant, 0, , false)
+stopMaintainAI(Any)
+forceChargeOnAllAI()
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp, ZombieTier3)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate:
+(arena_target_relay_3, DMC Gate - Off)
+(arena_target_relay_10, DMC Gate - FX)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_21, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_3
+
+alertAI(true, true, , false)
+activate:
+(mountain_pass_target_relay_36, Activate Combat Meathook)
+(ai_combat_target_relay_18, Activate Jumppads)
+(mountain_pass_target_relay_30, Meathook Points - Off)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+spawn:
+(Revenant, ai_combat_target_spawn_328)
+(Revenant, ai_combat_target_spawn_329)
+(Spectre, ai_combat_target_spawn_288)
+
+waitfor 2 sec
+spawn(Spectre, ai_combat_target_spawn_289)
+
+waitfor 2 sec
+spawn(Spectre, ai_combat_target_spawn_290)
+
+waitfor 2 sec
+spawn(Spectre, ai_combat_target_spawn_291)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 4, -1, 2, 3, ai_combat_encounter_spawn_group_zone_8, , 4)
+
+waitfor all {
+	AIRemaining:
+	(Revenant, 0, , false)
+	(Spectre, 1, , false)
+}
+spawn(StoneImp, ai_combat_target_spawn_292)
+
+waitfor 2 sec
+spawn(StoneImp, ai_combat_target_spawn_293)
+
+waitfor 2 sec
+spawn(StoneImp, ai_combat_target_spawn_294)
+
+waitfor 2 sec
+spawn(StoneImp, ai_combat_target_spawn_295)
+
+waitfor all {
+	AIRemaining:
+	(Spectre, 0, , false)
+	(StoneImp, 2, , false)
+}
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+spawn(DreadKnight, ai_combat_target_spawn_296)
+
+waitfor 2 sec
+spawn(DreadKnight, ai_combat_target_spawn_297)
+
+waitfor 2 sec
+spawn(Arachnotron, ai_combat_target_spawn_298)
+
+waitfor 2 sec
+spawn(Arachnotron, ai_combat_target_spawn_299)
+
+waitfor AIRemaining(DreadKnight, 0, , false)
+spawn(ArmoredBaron, ai_combat_target_spawn_331)
+
+waitfor AIRemaining(StoneImp DreadKnight Arachnotron ArmoredBaron, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+
+waitfor AIRemaining(ZombieTier1, 0, , false)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp, ZombieT1Screecher)
+
+waitfor 2 sec
+
+waitfor AIRemaining(Any, 0, , false)
+activate(mountain_pass_target_relay_31, Meathook Points - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_25, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_5
+
+alertAI(true, true, , false)
+spawn:
+(ZombieTier3, ai_combat_target_spawn_140)
+(ZombieTier3, ai_combat_target_spawn_141)
+(ZombieTier3, ai_combat_target_spawn_142)
+
+waitfor AIRemaining(Any, 0, , false)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_6
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+activate(ai_combat_target_relay_10, DMC Gate - On)
+
+waitfor 2 sec
+activate(ai_combat_target_relay_11, Barrels - Spawn)
+
+waitfor 2 sec
+alertAI(true, true, , false)
+forceChargeOnAllAI()
+spawnMultiple(Imp, 10, ai_combat_encounter_spawn_group_zone_9)
+
+waitfor killCount(Imp, 8, , false)
+spawnMultiple(Imp, 10, ai_combat_encounter_spawn_group_zone_9)
+
+waitfor killCount(Imp, 8, , false)
+spawnMultiple(Pinky, 6, ai_combat_encounter_spawn_group_zone_9)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_10, DMC Gate - Off)
+(ai_combat_target_relay_41, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_7
+
+spawn(Turret, ai_combat_target_spawn_357)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, mountain_pass_end_01, true, false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate(ai_combat_target_relay_34, DMC Gate - On)
+spawn(ArmoredBaron, ai_combat_target_spawn_348)
+activate(ai_combat_target_relay_33, Water Splash FX)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 1, 1, ai_combat_encounter_spawn_group_zone_20, mountain_top_water_zombies, 3)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, mountain_pass_end_02, true, false)
+spawn(CyberMancubus, ai_combat_target_spawn_187)
+
+waitfor 2 sec
+spawn(CyberMancubus, ai_combat_target_spawn_188)
+
+waitfor 2 sec
+spawn(Mancubus, ai_combat_target_spawn_189)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 3, 1, ai_combat_encounter_spawn_group_zone_11, , 6)
+
+waitfor AIRemaining(Mancubus CyberMancubus ArmoredBaron Turret, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_4
+
+activate(ai_combat_target_relay_9, DMC Gate - On)
+spawn(CyberMancubus, ai_combat_target_spawn_133)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, mountain_pass_01, true, false)
+alertAI(true, true, , false)
+spawn:
+(HellSoldier, ai_combat_target_spawn_303)
+(HellSoldier, ai_combat_target_spawn_304)
+(HellSoldier, ai_combat_target_spawn_305)
+(HellKnight, ai_combat_target_spawn_139)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_9, DMC Gate - Off)
+(ai_combat_target_relay_30, DMC Gate - FX)
+(mountain_pass_target_relay_34, Activate Meathook)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_14
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+activate(ai_combat_target_relay_23, DMC Gate - On)
+
+waitfor 2 sec
+activate(ai_blood_angel_tutorial, Blood Angel - Tutorial)
+
+waitfor 2 sec
+spawn(BloodAngel, ai_combat_target_spawn_306)
+
+waitfor 2 sec
+maintainAI(Imp, 3, -1, 2, 2, ai_combat_encounter_spawn_group_zone_16, , 4)
+
+waitfor AIRemaining(BloodAngel, 0, , false)
+spawn(Prowler, ai_combat_target_spawn_361)
+
+waitfor 2 sec
+spawn(Prowler, ai_combat_target_spawn_362)
+
+waitfor 2 sec
+spawn(BloodAngel, ai_combat_target_spawn_307)
+
+waitfor AIRemaining(BloodAngel, 0, , false)
+
+waitfor 2 sec
+spawn(BloodAngel, ai_combat_target_spawn_306)
+
+waitfor AIRemaining(BloodAngel, 0, , false)
+spawn(BloodAngel, ai_combat_target_spawn_307)
+
+waitfor AIRemaining(Prowler BloodAngel, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(ai_combat_target_relay_40, Activate Combat Trigger)
+(mountain_pass_target_relay_38, Activate Monkey Bars)
+(ai_combat_target_relay_23, DMC Gate - Off)
+(ai_combat_target_relay_32, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+waitfor 2 sec
+activate(checkpoints_target_relay_53, Checkpoint Save)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_15
+
+activate(ai_combat_target_relay_36, DMC Gate - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+spawn(SuperTentacle, ai_combat_target_spawn_327)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 2, -1, 1, 1, ai_combat_encounter_spawn_group_zone_20, mountain_top_water_zombies, 3)
+spawn(Arachnotron, ai_combat_target_spawn_353)
+activate(ai_combat_target_relay_33, Water Splash FX)
+
+waitfor 2 sec
+spawn(Arachnotron, ai_combat_target_spawn_354)
+
+waitfor AIRemaining(Arachnotron, 1, , false)
+spawn(Baron, ai_combat_target_spawn_371)
+activate(ai_combat_target_relay_33, Water Splash FX)
+
+waitfor healthLevel(Baron, 0.5, , false)
+spawn(Baron, ai_combat_target_spawn_371)
+activate(ai_combat_target_relay_33, Water Splash FX)
+
+waitfor AIRemaining(Arachnotron Baron SuperTentacle, 0, , false)
+stopMaintainAI(Any)
+
+waitfor 2 sec
+damage(damage/triggerhurt/triggerhurt1000_instagib_dlc_sp_explode, ZombieTier1)
+
+waitfor 2 sec
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate:
+(ai_combat_target_relay_36, DMC Gate - Off)
+(ai_combat_target_relay_37, DMC Gate - FX)
+(crossing_nether_lake_target_relay_1, Cinematic Trigger - On)
+
+
+
+REPLACE ENCOUNTER ai_combat_encounter_manager_dlc2_16
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+
+waitfor 2 sec
+spawn(Marauder, ai_combat_target_spawn_366)
+
+waitfor 2 sec
+spawn(Marauder, ai_combat_target_spawn_367)
+
+waitfor 2 sec
+spawn(Marauder, ai_combat_target_spawn_368)
+
+waitfor 2 sec
+spawn(Marauder, ai_combat_target_spawn_369)
+
+waitfor 2 sec
+spawn(Marauder, ai_combat_target_spawn_370)
+
+waitfor 2 sec
+maintainAI(ZombieTier1, 4, -1, 2, 3, ai_combat_encounter_spawn_group_zone_8, , 4)
+
+waitfor AIRemaining(Marauder, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+
+
+
+REPLACE ENCOUNTER _example_encounter_manager_0
+
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+spawn:
+(Whiplash, arena_target_spawn_65)
+(CyberMancubus, arena_target_spawn_67)
+
+waitfor 2 sec
+spawn:
+(Whiplash, arena_target_spawn_66)
+(CyberMancubus, arena_target_spawn_68)
+
+waitfor 2 sec
+maintainAI(Imp, 6, -1, 2, 5, arena_encounter_spawn_group_zone_2, , 4)
+
+waitfor AIRemaining(CyberMancubus, 0, , false)
+spawn(Whiplash, arena_target_spawn_69)
+
+waitfor 2 sec
+spawn(Whiplash, arena_target_spawn_70)
+
+waitfor AIRemaining(Whiplash, 1, , false)
+spawn(Cacodemon, arena_target_spawn_71)
+
+waitfor 2 sec
+spawn(Cacodemon, arena_target_spawn_72)
+
+waitfor 2 sec
+spawn(Cacodemon, arena_target_spawn_73)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_74)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_75)
+
+waitfor AIRemaining(HellKnight Cacodemon Whiplash, 0, , false)
+maintainAI(Prowler, 2, -1, 3, 1, arena_encounter_spawn_group_zone_2, , 6)
+spawn(CursedProwler, arena_target_spawn_76)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+
+waitfor 2 sec
+spawn(Pinky, arena_target_spawn_77)
+
+waitfor 2 sec
+spawn(Pinky, arena_target_spawn_78)
+
+waitfor 2 sec
+spawn(Pinky, arena_target_spawn_79)
+
+waitfor 2 sec
+spawn(Pinky, arena_target_spawn_80)
+
+waitfor AIRemaining(Pinky, 1, , false)
+spawn(Carcass, arena_target_spawn_81)
+
+waitfor 2 sec
+spawn(Carcass, arena_target_spawn_82)
+
+waitfor 2 sec
+spawn(BloodAngel, arena_target_spawn_83)
+
+waitfor 2 sec
+spawn(Baron, arena_target_spawn_84)
+
+waitfor AIRemaining(CursedProwler Carcass Pinky BloodAngel Baron, 0, , false)
+stopMaintainAI(Any)
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(arena_target_relay_9, DMC Gate - Off)
+(arena_target_relay_11, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate:
+(func_emitter_3, Gore Nest - Spawn FX)
+(target_relay_escalation_1_done, Encounter 01 - Finished)
+
+waitfor 2 sec
+activate(target_relay_checkpoint_1, Checkpoint - Save)
+
+
+
+REPLACE ENCOUNTER _example_encounter_manager_2
+
+activate:
+(target_relay_escalation_3_explode, Gore Nest - Explode)
+(arena_target_relay_9, DMC Gate - On)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Music - Light)
+maintainAI:
+(Imp, 4, -1, 2, 3, arena_encounter_spawn_group_zone_2, , 4)
+(HellSoldier, 4, -1, 3, 3, arena_encounter_spawn_group_zone_2, , 6)
+
+waitfor 2 sec
+spawn:
+(Cacodemon, arena_target_spawn_71)
+(Cacodemon, arena_target_spawn_72)
+
+waitfor 2 sec
+spawn:
+(Cacodemon, arena_target_spawn_73)
+(Cacodemon, arena_target_spawn_120)
+
+waitfor 2 sec
+spawn:
+(PainElemental, arena_target_spawn_126)
+(PainElemental, arena_target_spawn_127)
+
+waitfor AIRemaining(Cacodemon PainElemental, 0, , false)
+spawn(HellKnight, arena_target_spawn_121)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_122)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_123)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_124)
+
+waitfor 2 sec
+spawn(HellKnight, arena_target_spawn_125)
+
+waitfor AIRemaining(HellKnight, 0, , false)
+spawn(CyberMancubus, arena_target_spawn_109)
+
+waitfor 2 sec
+spawn(CyberMancubus, arena_target_spawn_110)
+
+waitfor 2 sec
+spawn(CyberMancubus, arena_target_spawn_111)
+
+waitfor 2 sec
+spawn(Mancubus, arena_target_spawn_128)
+
+waitfor 2 sec
+spawn(Mancubus, arena_target_spawn_129)
+
+waitfor AIRemaining(Mancubus CyberMancubus, 0, , false)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Music - Heavy)
+spawnArchvile(arena_target_spawn_112, arena_encounter_archvile_template_1, )
+
+waitfor AIRemaining(Archvile, 0, , false)
+spawnArchvile(arena_target_spawn_113, arena_encounter_archvile_template_1, )
+
+waitfor AIRemaining(Carcass HellKnight DreadKnight Spectre Mancubus CyberMancubus Arachnotron Revenant Whiplash Baron Archvile, 0, , false)
+
+waitfor 2 sec
+spawn(Tyrant, arena_target_spawn_102)
+
+waitfor 2 sec
+spawn(Tyrant, arena_target_spawn_103)
+
+waitfor 2 sec
+spawn(DoomHunter, arena_target_spawn_104)
+
+waitfor 2 sec
+spawn(DoomHunter, arena_target_spawn_105)
+
+waitfor AIRemaining(DoomHunter Tyrant, 0, , false)
+stopMaintainAI(Any)
+forceChargeOnAllAI()
+
+waitfor AIRemaining(Any, 0, , false)
+activate:
+(arena_target_relay_9, DMC Gate - Off)
+(arena_target_relay_11, DMC Gate - FX)
+setMusicState(sound_sound_musicentity_1, music_ghost_states/main_ambient, Music - Ambient)
+activate(target_relay_escalation_3_done, Escalation 03 - Finished)
+
+waitfor 2 sec
+activate(target_relay_checkpoint_3, Checkpoint - Save)
+
+
+
+REPLACE ENCOUNTER tutorial_example_encounter_manager_hammer
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+maintainAI(Any, 1, 9999, 0, 0, tutorial_encounter_spawn_group_zone_hammer, , 0)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, stop_zombies, false, false)
+stopMaintainAI(Any)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , false, false)
+
+
+
+REPLACE ENCOUNTER tutorial_example_encounter_manager_frozen_burning
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+maintainAI(Any, 2, 9999, 0, 1, tutorial_encounter_spawn_group_zone_frozen_burning, , 0)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, stop_zzombies, false, false)
+stopMaintainAI(Any)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , false, false)
+
+
+
+REPLACE ENCOUNTER tutorial_example_encounter_manager_ammo1
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+spawn(ZombieTier1, tutorial_target_spawn_sentinel_hammer_tutorial_glory_kill1)
+
+waitfor killCount(ZombieTier1, 1, , false)
+activate(tutorial_target_relay_glory_kills_done)
+
+waitfor 2 sec
+activate(tutorial_example_trigger_exit_ammo1)
+
+
+
+REPLACE ENCOUNTER tutorial_example_encounter_manager_ammo
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+spawn(Arachnotron, tutorial_target_spawn_sentinel_hammer_tutorial_ammo1)
+
+waitfor statCount(STAT_WEAKPOINT_DISABLE_ARACHNOTRON, 1, false)
+activate(tutorial_target_relay_weak_point_done)
+
+waitfor 2 sec
+activate(tutorial_example_trigger_exit_ammo)
+
+
+
+REPLACE ENCOUNTER tutorial_example_encounter_manager_hammer1
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+maintainAI(Any, 1, 9999, 0, 0, tutorial_encounter_spawn_group_zone_hammer1, , 0)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, stop_zombies, false, false)
+stopMaintainAI(Any)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , false, false)
+
+
+
+REPLACE ENCOUNTER tutorial_encounter_manager_hide_slayer_1
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, show_slayer_1, false, false)
+
+
+
+REPLACE ENCOUNTER tutorial_encounter_manager_hide_slayer_2
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , false, false)
+
+waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, show_slayer_2, false, false)
+
+
+
