@@ -6,11 +6,11 @@ from io import BytesIO
 from sys import platform
 
 
-def is_binary(filename):
+def is_binary(filename) -> bool:
     try:
         with open(filename, "tr") as check_file:  # try open file in text mode
             check_file.read()
-            return False
+            return True
     except ValueError:  # if fail then file is non-text (binary)
         return True
 

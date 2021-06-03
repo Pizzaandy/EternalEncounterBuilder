@@ -1076,6 +1076,8 @@ waitfor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, , true, false)
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_heavy, Start Heavy)
 alertAI(true, false, , false)
 waitfor 4 sec
+
+// coming soon!
 @anim forward_1000_down_1000
 spawn(Mancubus, cityroof+1)
 // lol

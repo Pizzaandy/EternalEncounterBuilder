@@ -41,18 +41,20 @@ def convert_encounter_to_ebl(encounter: str):
     :param encounter:
     :return:
     """
+    res = ""
     parsed_encounter = parser.ev.parse(encounter)
     try:
         entitydef = ""
         for key in parsed_encounter:
             if key.startswith("entityDef"):
                 entitydef = key
+                entity_name = entitydef.replace("entityDef ", "").strip()
         events = parsed_encounter[entitydef]["edit"]["encounterComponent"][
             "entityEvents"
         ]["item[0]"]["events"]
     except KeyError:
         raise EntitiesSyntaxError("encounterComponent events not found")
-    res = ""
+    res += f"REPLACE ENCOUNTER {entity_name}\n\n"
     last_name = ""
     repeat_count = 0
     wait_block_count = 0
@@ -61,7 +63,10 @@ def convert_encounter_to_ebl(encounter: str):
         if key == "num":
             continue
 
-        # try to find entity name idk
+        args = event["eventCall"]["args"]
+        print(args)
+
+        # try to find entity's name idk
         game_name = ""
         try:
             game_name = event["eventCall"]["eventDef"]
@@ -76,32 +81,32 @@ def convert_encounter_to_ebl(encounter: str):
             if wait_block_count == 0:
                 if name == last_name:
                     wait_block_count += 1
+                    if repeat_count == 1:
+                        # what the fuck?
+                        wait_block_count += 3
                     res += "\t"
-                else:
+                elif wait_block_count == 0:
                     res += "}\n"
             else:
                 res += "\t"
         elif "wait" in game_name and game_name != "wait":
-            name = "waitfor " + name
+            name = "\nwaitfor " + name
             if wait_block_count > 0:
                 res += "\t"
         elif game_name == "wait":
             last_name = name
-            res += "waitfor "
+            res += "\nwaitfor "
             for arg_key, arg in args.items():
                 if arg_key == "num":
                     res += str(arg) + " sec\n"
                     break
             continue
 
-        args = event["eventCall"]["args"]
-        print(args)
-
         for arg_key, arg in args.items():
             if arg_key == "num":
                 if game_name == "waitMulitpleConditions":
                     wait_block_count = arg
-                    res += "waitfor "
+                    res += "\nwaitfor "
                 continue
             arg_value = next(iter(arg.items()))[1]
             if game_name == "waitMulitpleConditions":
@@ -134,15 +139,15 @@ def convert_encounter_to_ebl(encounter: str):
                 res = res[:index] + ":\n" + add_tab + res[index:]
             repeat_count += 1
         else:
-            if "wait" in game_name and wait_block_count == 0:
-                res += "\n"
-            elif repeat_count > 0 and wait_block_count == 0:
-                res += "\n"
+            # if "wait" in game_name and wait_block_count == 0:
+            #      res += "\n"
+            # elif repeat_count > 0 and wait_block_count == 0:
+            #     res += "\n"
             res += param_line
             repeat_count = 0
         last_name = name
 
-    return res
+    return res + "\n\n\n"
 
 
 def generate_ebl_file(entities_file, ebl_file):
