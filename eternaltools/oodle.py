@@ -2,17 +2,21 @@ import ctypes
 import os
 import shutil
 from pathlib import Path
-from io import BytesIO
 from sys import platform
 
 
-def is_binary(filename) -> bool:
-    try:
-        with open(filename, "tr") as check_file:  # try open file in text mode
-            check_file.read()
+def is_compressed(filename) -> bool:
+    with open(filename, "rb") as file:
+        file.seek(0x0)
+        uncompressed_size = int.from_bytes(file.read(8), "little")
+        file.seek(0x8)
+        compressed_size = int.from_bytes(file.read(8), "little")
+        file.seek(0x10)
+        bytes_data = file.read()
+        if len(bytes_data) == compressed_size:
             return True
-    except ValueError:  # if fail then file is non-text (binary)
-        return True
+        else:
+            return False
 
 
 def decompress_entities(filename, dest_filename="") -> bool:
@@ -24,8 +28,8 @@ def decompress_entities(filename, dest_filename="") -> bool:
     :param dest_filename:
     :return:
     """
-    if not is_binary(filename):
-        print("File is already decompressed")
+    if not is_compressed(filename):
+        print("File is already decompressed!")
         if dest_filename:
             shutil.copy(filename, dest_filename)
         return False
@@ -33,19 +37,18 @@ def decompress_entities(filename, dest_filename="") -> bool:
     dest_filename = filename if not dest_filename else dest_filename
 
     with open(filename, "rb") as file:
-        file_data = file.read()
-
-    with BytesIO(file_data) as bio:
-        bio.seek(0x0)
-        uncompressed_size = int.from_bytes(bio.read(8), "little")
-        bio.seek(0x8)
-        compressed_size = int.from_bytes(bio.read(8), "little")
-        bio.seek(0x10)
-        bytes_data = bio.read()
-        if len(bytes_data) != compressed_size:
-            raise ValueError(
-                f"File size is {len(bytes_data)}, expected {compressed_size}. Bad file!"
-            )
+        # file_data = file.read()
+        file.seek(0x0)
+        uncompressed_size = int.from_bytes(file.read(8), "little")
+        file.seek(0x8)
+        compressed_size = int.from_bytes(file.read(8), "little")
+        file.seek(0x10)
+        bytes_data = file.read()
+        # this check if performed by is_compressed
+        # if len(bytes_data) != compressed_size:
+        #     raise ValueError(
+        #         f"File size is {len(bytes_data)}, expected {compressed_size}. Bad file!"
+        #     )
 
     compressed_buf = ctypes.create_string_buffer(bytes_data)
     compressed_data = ctypes.cast(compressed_buf, ctypes.POINTER(ctypes.c_ubyte))
@@ -59,7 +62,7 @@ def decompress_entities(filename, dest_filename="") -> bool:
         oodle_path = "./oo2core_8_win64.dll"
 
     try:
-        oodlz_decompress = ctypes.cdll[oodle_path]["OodleLZ_Compress"]
+        oodlz_decompress = ctypes.cdll[oodle_path]["OodleLZ_Decompress"]
     except OSError:
         raise FileNotFoundError(f"{oodle_path[2:]} not in folder!")
 
@@ -103,7 +106,7 @@ def decompress_entities(filename, dest_filename="") -> bool:
         print(f"expected size of {uncompressed_size}, got '{ret}' :(")
         return True
 
-    with open(dest_filename, "w") as file:
+    with open(dest_filename, "w+") as file:
         file.write(ctypes.string_at(decompressed_buf).decode())
 
     if dest_filename:
@@ -122,8 +125,8 @@ def compress_entities(filename, dest_filename="") -> bool:
     :param dest_filename:
     :return:
     """
-    if is_binary(filename):
-        print("File is already compressed")
+    if is_compressed(filename):
+        print("File is already compressed!")
         if dest_filename:
             shutil.copy(filename, dest_filename)
         return False
@@ -174,7 +177,7 @@ def compress_entities(filename, dest_filename="") -> bool:
         print(f"{compressed_size} is negative, compression failed!")
         return True
 
-    with open(dest_filename, "wb") as file:
+    with open(dest_filename, "wb+") as file:
         file.write(size.to_bytes(8, "little"))
         file.write(compressed_size.to_bytes(8, "little"))
         file.write(compressed_buf[0:compressed_size])

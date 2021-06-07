@@ -1082,9 +1082,9 @@ waitfor 4 sec
 spawn(Mancubus, cityroof+1)
 // lol
 spawn:
-	(Mancubus, cityroof+2)
-	(Mancubus, cityroof+3)
-	(Mancubus, cityroof+4)
+(Mancubus, cityroof+2)
+(Mancubus, cityroof+3)
+(Mancubus, cityroof+4)
 
 maintainAI
 (Imp, 1, 10, 35, 0, city_rooftop_encounter_spawn_group_zone_1, , 40)
@@ -1157,7 +1157,7 @@ edit/targets.pop:
 	(target_interact_action_2)
 	(target_show_2)
 
-TEMPLATE MeathookNode(name, x, y, z, cooldown) 
+TEMPLATE MeathookNode(name, x, y, z, cooldown)
 entity { 
 	entityDef {{name}}_target_ai_proxy_meathook {
 	class = "idTarget_SmartAIProxy";

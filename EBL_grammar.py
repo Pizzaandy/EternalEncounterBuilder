@@ -48,7 +48,7 @@ grammar = Grammar(
     SPACE_NO_NEWLINE = ~r"[\t ]+"
     STRING = ~r'[\w/#+.]+'
     PATHSTRING = ~r'[\w/#+\[\]]+'
-    STRINGLITERAL = ~r'"[\t\n\w/#+. ]+"'
+    STRINGLITERAL = ~r'"[\t\n\w/#+. ]*"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """
 )
@@ -149,7 +149,7 @@ class NodeVisitor(NodeVisitor):
         return str(node.text)
 
     def visit_STRINGLITERAL(self, node, visited_children):
-        expr = str(node.text).replace('"', '').replace(" ", "$^")
+        expr = str(node.text).replace('"', "").replace(" ", "$^")
         if "$" not in expr:
             expr = expr + "$"
         print(f"expr is {expr}")

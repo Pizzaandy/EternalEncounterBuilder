@@ -8,3 +8,4 @@ ignore_this/
 testing_compilation.py
 EternalTraversalInfoGenerator/
 RPCInterface/
+test_compression.py

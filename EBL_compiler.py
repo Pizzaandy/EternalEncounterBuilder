@@ -24,7 +24,7 @@ blacklist_entities = []
 variables = {}
 Settings = []
 templates = {}
-decorator_changes = {}
+decorator_changes = []
 debug_vars = False
 
 
@@ -219,39 +219,18 @@ def create_events(data) -> list:
 def add_decorator_command(decorator: str, event_cls: eternalevents.EternalEvent):
     entity_name = None
     cmd = decorator
-    # parse decorator command
-    # (stuff)
 
-    # try to apply decorator command to EternalEvent
+    # Decide what to do based on event type
     if type(event_cls) in eternalevents.SPAWN_EVENTS:
         entity_name = concat_strings(event_cls.spawnTarget, is_expression=True)
-
-    if entity_name in decorator_changes:
-        decorator_changes[entity_name] += [cmd]
-    else:
-        decorator_changes[entity_name] = [cmd]
+    global decorator_changes
+    decorator_changes += [(entity_name, cmd, event_cls)]
 
 
-# TODO: this is just dumb, find a better way
-def get_dlc_level(filename) -> int:
-    """
-    Checks dlc level of file by checking first 50 lines for keywords
-    :param filename:
-    :return dlc_level:
-    """
-    head = ""
-    with open(filename) as fp:
-        for i in range(1, 50):
-            head += fp.readline()
-
-    if "dlc2" in head:
-        dlc_level = 2
-    elif "dlc1" in head:
-        dlc_level = 1
-    else:
-        dlc_level = 0
-    print(f"DLC Level: {dlc_level}")
-    return dlc_level
+def apply_decorator_command(
+    entity: str, cmd: str, event_cls: eternalevents.EternalEvent
+):
+    print(f"APPLYING {cmd} TO {entity} WITH CLASS {event_cls}")
 
 
 def add_idai2s(filename, dlc_level):
@@ -311,7 +290,7 @@ def concat_strings(s, is_expression=False):
         seg = seg.lstrip() if idx > 0 else seg
         seg = seg.rstrip() if idx < len(segments) - 1 else seg
 
-        # find valid string characters near +
+        # find valid strings near +
         potential_matches = re.findall(r"[$^\w]+", seg)
         first_match = potential_matches[0] if idx > 0 else None
         last_match = potential_matches[-1] if idx < len(segments) - 1 else None
@@ -578,26 +557,26 @@ def apply_ebl(
     :return success:
     """
     tic = time.time()
-    modified_count = 0
     total_count = 0
+    modified_count = 0
 
     oodle.decompress_entities(base_file)
-    dlc_level = get_dlc_level(base_file)
+    dlc_level = 2
 
     # Add entitydefs with appropriate DLC level
+    # TODO: remove this?
     entitydefs = cc.BASE_ENTITYDEFS
     if dlc_level >= 2:
         entitydefs += cc.DLC2_ENTITYDEFS
     if dlc_level >= 1:
         entitydefs += cc.DLC1_ENTITYDEFS
 
-    # get all file deltas
-    segments = generate_ebl_segments(ebl_file)
-    deltas = dict(segments)
+    # get file deltas
+    deltas = list(generate_ebl_segments(ebl_file))
     added_entities = []
 
     # find + store entity templates
-    for key, val in deltas.items():
+    for key, val in deltas:
         if val[0] == "TEMPLATE":
             # TODO: make a PEG parser for this
             t_name, t_args = key.split("(", 1)
@@ -605,10 +584,10 @@ def apply_ebl(
             t_args = [arg.strip() for arg in t_args]
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
 
-    # compile EBL segments to eternalevents and add new entities
-    for key, val in deltas.items():
+    # compile EBL segments to eternalevents and find new entities
+    for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
-            deltas[key] = (val[0], compile_ebl_encounter(val[1]))
+            deltas[idx] = (val[0], compile_ebl_encounter(val[1]))
             # debug_print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
 
         if val[0] == "ADD":
@@ -635,7 +614,10 @@ def apply_ebl(
         # iterate vanilla entities, apply changes, then write to output file
         for entity in entities:
             total_count += 1
-            for name, params in deltas.items():
+            for decorated_entity, cmd, event_cls in decorator_changes:
+                if f"entityDef {decorated_entity} {{" in entity:
+                    apply_decorator_command(decorated_entity, cmd, event_cls)
+            for name, params in deltas:
                 if f"entityDef {name} {{" in entity:
                     print(f"Found entity {name}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
@@ -651,6 +633,7 @@ def apply_ebl(
         fp.write("\n")
         # iterate added entities, apply changes, then write to output file
         for new_entity in added_entities:
+            total_count += 1
             if (
                 'class = "idTarget_Spawn";' in new_entity
                 or 'class = "idTarget_Spawn_Parent";' in new_entity
@@ -680,8 +663,11 @@ def apply_ebl(
     if compress_file:
         oodle.compress_entities(modded_file)
 
-    print(f"{modified_count} entities out of {total_count-1} modified!")
+    added_count = len(added_entities)
+    total_count -= 1
+    print(f"Added {added_count} new entities")
+    print(f"{modified_count} entities out of {total_count} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
-    debug_print(variables)
+    # debug_print(variables)
     print(decorator_changes)
     return True
