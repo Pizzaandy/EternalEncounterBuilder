@@ -157,8 +157,7 @@ NO_EQUALS = ("entityDef", "layers")
 
 def generate_entity(parsed_entity: dict, depth=0) -> str:
     """
-    Converts a parsed event back to .entities
-    shoutout to Chrispy
+    Converts a parsed event back to .entities -- shoutout to Chrispy
     :param parsed_entity:
     :param depth:
     :return:
