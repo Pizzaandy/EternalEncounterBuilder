@@ -94,7 +94,7 @@ def strip_comments(s):
     return re.sub(pattern, "", s)
 
 
-def generate_ebl_segments(filename):
+def split_ebl_at_headers(filename):
     """
     Splits an EBL file into segments at headers
     returns a tuple with EBL code and encounter name
@@ -118,6 +118,7 @@ def generate_ebl_segments(filename):
             var = line.split("=")
             add_variable(var[0].strip(), var[1].strip())
 
+    res = []
     # yield tuples containing name, header command, and body text
     for cmd, body in zip(*[iter(segments[1:])] * 2):
         cmd = cmd.strip()
@@ -125,7 +126,9 @@ def generate_ebl_segments(filename):
         if not name:
             raise EblTypeError(f"No entity name specified in header {cmd}")
         body = "\n".join(body.split("\n")[1:])
-        yield name, (cmd, strip_comments(body))
+        res += [(name, (cmd, strip_comments(body)))]
+
+    return res
 
 
 def format_args(args, arg_count=-1) -> Union[list, str]:
@@ -537,6 +540,17 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
         raise EblTypeError(f"Unknown command {cmd}")
 
 
+def compile_encounters_in_deltas(delta):
+    name, val = delta
+    cmd, encounter = val
+    # print(f"cmd is {cmd}")
+    if cmd == "REPLACE ENCOUNTER":
+        # print(f"Compiling encounter starting with: {encounter.splitlines()[1:3]}")
+        return name, (cmd, compile_ebl_encounter(encounter))
+    else:
+        return delta
+
+
 # Apply all changes in ebl_file to base_file and output to modded_file
 def apply_ebl(
     ebl_file,
@@ -572,8 +586,7 @@ def apply_ebl(
         entitydefs += cc.DLC1_ENTITYDEFS
 
     # get file deltas
-    deltas = list(generate_ebl_segments(ebl_file))
-    print(deltas)
+    deltas = split_ebl_at_headers(ebl_file)
     added_entities = []
 
     # find + store entity templates
@@ -585,11 +598,10 @@ def apply_ebl(
             t_args = [arg.strip() for arg in t_args]
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
 
-    # compile EBL segments to eternalevents and find new entities
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
             deltas[idx] = key, (val[0], compile_ebl_encounter(val[1]))
-            # print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
+            print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
 
         if val[0] == "ADD":
             entity = ""
@@ -669,6 +681,4 @@ def apply_ebl(
     print(f"Added {added_count} new entities")
     print(f"{modified_count} entities out of {total_count} modified!")
     print(f"Done processing in {time.time() - tic:.1f} seconds")
-    # debug_print(variables)
-    print(decorator_changes)
     return True
