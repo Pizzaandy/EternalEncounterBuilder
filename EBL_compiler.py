@@ -1,4 +1,6 @@
 import eternalevents
+from qt_ui import ui
+from pathlib import Path
 from eternalevents import is_number_or_keyword
 from eternaltools import oodle, entity_tools
 from entity_templates import EntityTemplate
@@ -30,7 +32,15 @@ debug_vars = False
 
 def debug_print(string):
     if debug_vars:
-        print(string)
+        ui_log(string)
+
+
+def ui_log(s):
+    try:
+        ui.log(s)
+        print(f"ui logged {s}")
+    except Exception as e:
+        print(e)
 
 
 @dataclass
@@ -52,7 +62,7 @@ def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified variable {varname} = {value}")
     else:
-        print(f"Added variable {varname} = {value}")
+        ui_log(f"Added variable {varname} = {value}")
 
     ignore_quotes = "+" not in value
     new_value = format_args(value)
@@ -94,10 +104,11 @@ def strip_comments(s):
     return re.sub(pattern, "", s)
 
 
-def split_ebl_at_headers(filename):
+def split_ebl_at_headers(filename) -> list:
     """
     Splits an EBL file into segments at headers
-    returns a tuple with EBL code and encounter name
+    returns a list of tuples with EBL code and encounter name
+    Also strips comments!
     :param filename:
     :return:
     """
@@ -105,18 +116,18 @@ def split_ebl_at_headers(filename):
         segments = re.split(cc.EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
 
     if segments[0].startswith("SETTINGS"):
-        print("SETTINGS header found!")
+        ui_log("SETTINGS header found!")
         global Settings
         for line in segments[0].splitlines():
             Settings += [line.strip()]
     else:
-        print("No SETTINGS found")
+        ui_log("No SETTINGS found")
 
     # handle variables at top of document
-    for line in segments[0].splitlines():
-        if line.count("=") == 1:
-            var = line.split("=")
-            add_variable(var[0].strip(), var[1].strip())
+    # for line in segments[0].splitlines():
+    #     if line.count("=") == 1:
+    #         var = line.split("=")
+    #         add_variable(var[0].strip(), var[1].strip())
 
     res = []
     # yield tuples containing name, header command, and body text
@@ -124,7 +135,10 @@ def split_ebl_at_headers(filename):
         cmd = cmd.strip()
         name = body.split("\n")[0].strip()
         if not name:
-            raise EblTypeError(f"No entity name specified in header {cmd}")
+            if cmd == "INIT":
+                name = None
+            else:
+                raise EblTypeError(f"No entity name specified in header {cmd}")
         body = "\n".join(body.split("\n")[1:])
         res += [(name, (cmd, strip_comments(body)))]
 
@@ -179,7 +193,7 @@ def create_events(data) -> list:
             return [Assignment(data["variable"], data["value"])]
 
         if "function" in data:
-            # print(f"function value is {data['value']}")
+            # ui_log(f"function value is {data['value']}")
             return [EntityEdit(data["object"], data["function"], data["value"])]
 
         if data["event"] == "waitForBlock":
@@ -233,33 +247,27 @@ def add_decorator_command(decorator: str, event_cls: eternalevents.EternalEvent)
 def apply_decorator_command(
     entity: str, cmd: str, event_cls: eternalevents.EternalEvent
 ):
-    print(f"APPLYING {cmd} TO {entity} WITH CLASS {type(event_cls)}")
+    ui_log(f"Applying '{cmd}' to '{entity}' with class '{type(event_cls)}'")
 
 
 def add_idai2s(filename, dlc_level):
     file = open(filename, "a")
 
     with open("idAI2_base.txt", "r") as fp_base:
-        print("Added base game idAI2s")
+        ui_log("Added base game idAI2s")
         file.write(fp_base.read())
 
     if dlc_level >= 2:
         with open("idAI2_dlc2.txt") as fp_dlc2:
             file.write(fp_dlc2.read())
-        print("Added DLC2 idAI2s")
+        ui_log("Added DLC2 idAI2s")
 
     if dlc_level >= 1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
             file.write(fp_dlc1.read())
-        print("Added DLC1 idAI2s")
+        ui_log("Added DLC1 idAI2s")
 
     file.close()
-
-
-# cringe
-def rreplace(s: str, old, new, occurrence=0):
-    li = s.rsplit(old, occurrence)
-    return new.join(li)
 
 
 def concat_strings(s, is_expression=False):
@@ -271,6 +279,11 @@ def concat_strings(s, is_expression=False):
     :param is_expression: whether all of s must be matched if there is no + in string
     :return modified_string:
     """
+
+    def rreplace(_s: str, old, new, occurrence=0):
+        li = _s.rsplit(old, occurrence)
+        return new.join(li)
+
     items = variables.items()
     sorted_variables = sorted(items, key=lambda x: len(x[0]), reverse=True)
 
@@ -293,7 +306,6 @@ def concat_strings(s, is_expression=False):
         seg = seg.lstrip() if idx > 0 else seg
         seg = seg.rstrip() if idx < len(segments) - 1 else seg
 
-        # find valid strings near +
         potential_matches = re.findall(r"[$^\w]+", seg)
         first_match = potential_matches[0] if idx > 0 else None
         last_match = potential_matches[-1] if idx < len(segments) - 1 else None
@@ -314,8 +326,9 @@ def concat_strings(s, is_expression=False):
                         f"matched variable '{match}' and substituted '{str(val)}'"
                     )
                     debug_print(f"seg is now '{seg}'")
+
         if "testing" in seg:
-            print(f"bruhhh '{seg}'")
+            ui_log(f"bruhhh '{seg}'")
             debug_print(
                 f"""bruhhh '{seg.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")}'"""
             )
@@ -323,10 +336,11 @@ def concat_strings(s, is_expression=False):
     return result.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
 
-def compile_ebl_encounter(s) -> str:
+def compile_ebl(s, vars_only=False) -> str:
     """
     Compiles EBL to encounterComponent events
     :param s:
+    :param vars_only:
     :return events:
     """
     result = ""
@@ -339,6 +353,8 @@ def compile_ebl_encounter(s) -> str:
     for event in events:
         if isinstance(event, Assignment):
             add_variable(event.name, event.value)
+            continue
+        if vars_only:
             continue
         event_string = concat_strings(str(event))
         result += f"item[{item_index}]" + " = {\n" + indent(event_string, "\t") + "}\n"
@@ -370,10 +386,10 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
         entity[entitydef]["edit"]["aiTypeDefAssignments"] = cc.ACTORPOPULATION[
             dlc_level
         ]
-        # print(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
+        # ui_log(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
     except KeyError:
-        print("ERROR: Unable to replace encounter")
-        print(entity[entitydef]["edit"])
+        ui_log("ERROR: Unable to replace encounter")
+        ui_log(entity[entitydef]["edit"])
     return parser.generate_entity(entity)
 
 
@@ -404,7 +420,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
         elif type(entity_edit) is Assignment:
             function_name = "set"
             values = [[entity_edit.value]]
-            print(values)
+            ui_log(values)
             path = entity_edit.name
         else:
             raise EblTypeError(
@@ -428,7 +444,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 unique_key_index += 1
                 ref_dic = deepcopy(dic)
                 dic = {"num": len(ref_dic), **ref_dic}
-                print(dic, "FUUUUUU why")
+                # ui_log(dic, "FUUUUUU why")
 
             if function_name == "set":
                 if len(value) != 1:
@@ -479,7 +495,7 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
             entitydef = key
             # name = entitydef.replace("entityDef", "").strip()
     if not entitydef:
-        print("ERROR: no entityDef component!")
+        ui_log("ERROR: no entityDef component!")
         return spawn_target
 
     existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
@@ -525,37 +541,26 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
     """
     cmd, text = params
     if cmd == "REPLACE ENCOUNTER":
-        print(f"Replaced encounter {name}")
+        ui_log(f"Replaced encounter {name}")
         return replace_encounter(entity, text, dlc_level)
     elif cmd == "REPLACE":
-        print(f"Replaced entity {name}")
+        ui_log(f"Replaced entity {name}")
         return text
     elif cmd == "REMOVE":
-        print(f"Removed entity {name}")
+        ui_log(f"Removed entity {name}")
         return ""
     elif cmd == "MODIFY":
-        print(f"Modified fields in entity {name}")
+        ui_log(f"Modified fields in entity {name}")
         return edit_entity_fields(name, entity, text)
     else:
         raise EblTypeError(f"Unknown command {cmd}")
-
-
-def compile_encounters_in_deltas(delta):
-    name, val = delta
-    cmd, encounter = val
-    # print(f"cmd is {cmd}")
-    if cmd == "REPLACE ENCOUNTER":
-        # print(f"Compiling encounter starting with: {encounter.splitlines()[1:3]}")
-        return name, (cmd, compile_ebl_encounter(encounter))
-    else:
-        return delta
 
 
 # Apply all changes in ebl_file to base_file and output to modded_file
 def apply_ebl(
     ebl_file,
     base_file,
-    modded_file,
+    output_folder,
     compress_file=True,
     show_spawn_targets=False,
     generate_traversals=True,
@@ -564,7 +569,7 @@ def apply_ebl(
     Applies all changes in an EBL file to a copy of a vanilla entities file
     :param ebl_file: EBL file describing all file changes
     :param base_file: The vanilla entities file to modify
-    :param modded_file: The output file path
+    :param output_folder: The output folder
     :param compress_file: Whether the output file should be compressed
     :param show_spawn_targets: Whether visual spawn target markers should be added to the file
     :param generate_traversals: Whether traversal info should be added to the file
@@ -600,10 +605,15 @@ def apply_ebl(
 
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
-            deltas[idx] = key, (val[0], compile_ebl_encounter(val[1]))
-            print(f"Compiling encounter starting with: {val[1].splitlines()[1:3]}")
+            deltas[idx] = key, (val[0], compile_ebl(val[1]))
+            debug_print(
+                f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
+            )
 
-        if val[0] == "ADD":
+        elif val[0] == "INIT":
+            compile_ebl(val[1], vars_only=True)
+
+        elif val[0] == "ADD":
             entity = ""
             is_template = False
             for template in templates.keys():
@@ -614,15 +624,17 @@ def apply_ebl(
                     args = [arg.strip() for arg in args]
                     entity = templates[template].render(*args)
                     is_template = True
-                    print(f"Added new instance of {key}")
+                    ui_log(f"Added new instance of {key}")
             if not is_template:
                 entity = val[1].strip()
-                print(f"Added entity {key}")
+                ui_log(f"Added entity {key}")
             added_entities += [entity.strip()]
 
     # get vanilla entities from base file
     entities = parser.generate_entity_segments(base_file, version_numbers=True)
 
+    entities_name = Path(base_file).name
+    modded_file = str(output_folder) + "/" + entities_name
     with open(modded_file, "w") as fp:
         # iterate vanilla entities, apply changes, then write to output file
         for entity in entities:
@@ -630,9 +642,10 @@ def apply_ebl(
             for decorated_entity, cmd, event_cls in decorator_changes:
                 if f"entityDef {decorated_entity} {{" in entity:
                     apply_decorator_command(decorated_entity, cmd, event_cls)
+
             for name, params in deltas:
                 if f"entityDef {name} {{" in entity:
-                    print(f"Found entity {name}")
+                    ui_log(f"Found entity {name}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
                     break
@@ -657,11 +670,11 @@ def apply_ebl(
     add_idai2s(modded_file, dlc_level)
 
     if show_spawn_targets:
-        print("Adding spawn target markers...")
+        ui_log("Adding spawn target markers...")
         entity_tools.mark_spawn_targets(modded_file)
 
     if generate_traversals:
-        print("Generating traversal info...")
+        ui_log("Generating traversal info...")
         # entity_tools.generate_traversals(modded_file, dlc_level)
         # TODO: rewrite generate_traversals
         # give sauce proteh >:(
@@ -670,7 +683,7 @@ def apply_ebl(
     parser.list_checkpoints(modded_file)
 
     if "minify" in Settings:
-        print("Minifying modded file...")
+        ui_log("Minifying modded file...")
         parser.minify(modded_file)
 
     if compress_file:
@@ -678,7 +691,8 @@ def apply_ebl(
 
     added_count = len(added_entities)
     total_count -= 1
-    print(f"Added {added_count} new entities")
-    print(f"{modified_count} entities out of {total_count} modified!")
-    print(f"Done processing in {time.time() - tic:.1f} seconds")
+    ui_log(f"Added {added_count} new entities")
+    ui_log(f"{modified_count} entities out of {total_count} modified!")
+    ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
+    ui_log(variables)
     return True
