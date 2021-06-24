@@ -29,14 +29,20 @@ templates = {}
 decorator_changes = []
 debug_vars = False
 
+worker_object = None
+
+def ui_log(s):
+    #qt_ui.ui.log_browser.appendPlainText(str(s))
+    try:
+        worker_object.worker_log(str(s))
+        # qt_ui.worker_log(str(s))
+    except Exception as e:
+        print(e)
+
 
 def debug_print(string):
     if debug_vars:
         ui_log(string)
-
-
-def ui_log(s):
-    qt_ui.ui.log_browser.appendPlainText(str(s))
 
 
 @dataclass

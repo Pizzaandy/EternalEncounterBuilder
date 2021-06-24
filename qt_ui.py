@@ -4,24 +4,69 @@ from pathlib import Path
 
 
 class Worker(QtCore.QObject):
-    def __init__(self, queue):
-        super().init()
-        self.queue = queue
+    finished = QtCore.pyqtSignal()
+    log_data = QtCore.pyqtSignal(str)
+
+    def worker_log(self, s):
+        self.log_data.emit(s)
 
     def run(self):
-        build()
+        compiler.worker_object = self
+        ebl_file = ui.ebl_file_box.toPlainText()
+        entities_file = ui.base_entities_box.toPlainText()
+        output_folder = ui.output_file_box.toPlainText()
+        compress = ui.compress_box.isChecked()
+        show_targets = ui.show_targets_box.isChecked()
+
+        # clear_log()
+        do_compile = True
+
+        if not ebl_file or not Path(ebl_file).exists():
+            self.worker_log("EBL file does not exist!")
+            do_compile = False
+
+        if not entities_file or not Path(entities_file).exists():
+            self.worker_log("Entities file does not exist!")
+            do_compile = False
+
+        if not output_folder or not Path(output_folder).exists():
+            self.worker_log("Output folder does not exist!")
+            do_compile = False
+
+        if not do_compile:
+            self.worker_log("Failed to compile!")
+            self.finished.emit()
+            return
+
+        try:
+            compiler.apply_ebl(
+                ebl_file, entities_file, output_folder, compress, show_targets
+            )
+        except Exception as e:
+            print(e)
+            self.worker_log(e)
+            self.worker_log("Failed to compile!")
+
+        self.finished.emit()
 
 
 class Ui_MainWindow(object):
+    def __init__(self):
+        self.worker = Worker()
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(628, 563)
         MainWindow.setMaximumSize(QtCore.QSize(628, 563))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.centralwidget.sizePolicy().hasHeightForWidth()
+        )
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setMinimumSize(QtCore.QSize(628, 522))
         self.centralwidget.setObjectName("centralwidget")
@@ -79,6 +124,7 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.build_btn.setFont(font)
         self.build_btn.setObjectName("build_btn")
+        self.build_btn.clicked.connect(self.build_process)
         self.ebl_file_label = QtWidgets.QLabel(self.centralwidget)
         self.ebl_file_label.setGeometry(QtCore.QRect(20, 80, 151, 21))
         self.ebl_file_label.setMaximumSize(QtCore.QSize(628, 522))
@@ -133,9 +179,13 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Encounter Builder"))
-        self.base_entities_label.setText(_translate("MainWindow", "Base .entities file"))
+        self.base_entities_label.setText(
+            _translate("MainWindow", "Base .entities file")
+        )
         self.compress_box.setText(_translate("MainWindow", "Compress"))
-        self.show_targets_box.setText(_translate("MainWindow", "Visualize Spawn Targets"))
+        self.show_targets_box.setText(
+            _translate("MainWindow", "Visualize Spawn Targets")
+        )
         self.ebl_fileselect.setText(_translate("MainWindow", "..."))
         self.base_entities_fileselect.setText(_translate("MainWindow", "..."))
         self.build_btn.setText(_translate("MainWindow", "Build"))
@@ -143,29 +193,39 @@ class Ui_MainWindow(object):
         self.output_fileselect.setText(_translate("MainWindow", "..."))
         self.output_file_label.setText(_translate("MainWindow", "Output path"))
 
-    def start_worker(self):
-        worker = Worker()
+    def build_process(self):
+        try:
+            clear_log()
+            self.worker = Worker()
+            self.thread = QtCore.QThread()
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.worker.log_data.connect(self.log)
+            self.thread.start()
+
+            self.build_btn.setEnabled(False)
+            self.thread.finished.connect(lambda: self.build_btn.setEnabled(True))
+        except Exception as e:
+            print(e)
+
+    def log(self, s):
+        self.log_browser.appendPlainText(str(s))
 
 
 import sys
+
 ui = Ui_MainWindow()
 app = QtWidgets.QApplication(sys.argv)
 Win = QtWidgets.QMainWindow()
 ui.setupUi(Win)
 
-log_str = ""
-def log(s):
-    #ui.log_browser.appendPlainText(str(s))
-    global log_str
-    log_str += str(s) + "\n"
-
 
 def set_base_entities_fp():
-    log("bruh")
     fp = QtWidgets.QFileDialog.getOpenFileName(
-        Win,
-        'Select an Entities File',
-        filter="Entities file (*.entities)"
+        Win, "Select an Entities File", filter="Entities file (*.entities)"
     )
     print(fp)
     if not fp[0]:
@@ -175,9 +235,7 @@ def set_base_entities_fp():
 
 def set_ebl_fp(window):
     fp = QtWidgets.QFileDialog.getOpenFileName(
-        window,
-        'Select an EBL File',
-        filter="EBL file (*.ebl, *.txt)"
+        window, "Select an EBL File", filter="EBL file (*.ebl, *.txt)"
     )
     if not fp[0]:
         return
@@ -187,7 +245,7 @@ def set_ebl_fp(window):
 def set_output_fp():
     fp = QtWidgets.QFileDialog.getExistingDirectory(
         Win,
-        'Select an Output Folder',
+        "Select an Output Folder",
     )
     if not fp:
         return
@@ -198,52 +256,9 @@ def clear_log():
     ui.log_browser.clear()
 
 
-def build():
-    ebl_file = ui.ebl_file_box.toPlainText()
-    entities_file = ui.base_entities_box.toPlainText()
-    output_folder = ui.output_file_box.toPlainText()
-    compress = ui.compress_box.isChecked()
-    show_targets = ui.show_targets_box.isChecked()
-
-    clear_log()
-    do_compile = True
-
-    if not ebl_file or not Path(ebl_file).exists():
-        log("EBL file does not exist!")
-        do_compile = False
-
-    if not entities_file or not Path(entities_file).exists():
-        log("Entities file does not exist!")
-        do_compile = False
-
-    if not output_folder or not Path(output_folder).exists():
-        log("Output folder does not exist!")
-        do_compile = False
-
-    if not do_compile:
-        log("Failed to compile!")
-        return
-
-    try:
-        compiler.apply_ebl(
-            ebl_file,
-            entities_file,
-            output_folder,
-            compress,
-            show_targets
-        )
-    except Exception as e:
-        log(e)
-        log("Failed to compile!")
-
-
-
 if __name__ == "__main__":
     Win.show()
     ui.base_entities_fileselect.clicked.connect(set_base_entities_fp)
     ui.ebl_fileselect.clicked.connect(set_ebl_fp)
     ui.output_fileselect.clicked.connect(set_output_fp)
-    ui.build_btn.clicked.connect(build)
     sys.exit(app.exec_())
-
-
