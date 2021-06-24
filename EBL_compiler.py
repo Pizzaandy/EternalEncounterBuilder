@@ -1,5 +1,5 @@
 import eternalevents
-from qt_ui import ui
+import qt_ui
 from pathlib import Path
 from eternalevents import is_number_or_keyword
 from eternaltools import oodle, entity_tools
@@ -36,11 +36,7 @@ def debug_print(string):
 
 
 def ui_log(s):
-    try:
-        ui.log(s)
-        print(f"ui logged {s}")
-    except Exception as e:
-        print(e)
+    qt_ui.ui.log_browser.appendPlainText(str(s))
 
 
 @dataclass
@@ -694,5 +690,5 @@ def apply_ebl(
     ui_log(f"Added {added_count} new entities")
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
-    ui_log(variables)
+    debug_print(variables)
     return True

@@ -1,17 +1,18 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'TestUI.ui'
-#
-# Created by: PyQt5 UI code generator 5.9.2
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ebl_compiler as compiler
 from pathlib import Path
 
-class Ui_MainWindow(object):
 
+class Worker(QtCore.QObject):
+    def __init__(self, queue):
+        super().init()
+        self.queue = queue
+
+    def run(self):
+        build()
+
+
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(628, 563)
@@ -142,8 +143,8 @@ class Ui_MainWindow(object):
         self.output_fileselect.setText(_translate("MainWindow", "..."))
         self.output_file_label.setText(_translate("MainWindow", "Output path"))
 
-    def log(self, s):
-        self.log_browser.appendPlainText(str(s))
+    def start_worker(self):
+        worker = Worker()
 
 
 import sys
@@ -152,15 +153,22 @@ app = QtWidgets.QApplication(sys.argv)
 Win = QtWidgets.QMainWindow()
 ui.setupUi(Win)
 
+log_str = ""
+def log(s):
+    #ui.log_browser.appendPlainText(str(s))
+    global log_str
+    log_str += str(s) + "\n"
+
 
 def set_base_entities_fp():
+    log("bruh")
     fp = QtWidgets.QFileDialog.getOpenFileName(
         Win,
         'Select an Entities File',
         filter="Entities file (*.entities)"
     )
     print(fp)
-    if fp[0] == "":
+    if not fp[0]:
         return
     ui.base_entities_box.setPlainText(str(fp[0]))
 
@@ -191,44 +199,44 @@ def clear_log():
 
 
 def build():
-    clear_log()
-
     ebl_file = ui.ebl_file_box.toPlainText()
     entities_file = ui.base_entities_box.toPlainText()
     output_folder = ui.output_file_box.toPlainText()
     compress = ui.compress_box.isChecked()
     show_targets = ui.show_targets_box.isChecked()
 
+    clear_log()
     do_compile = True
 
     if not ebl_file or not Path(ebl_file).exists():
-        ui.log("EBL file does not exist!")
+        log("EBL file does not exist!")
         do_compile = False
 
     if not entities_file or not Path(entities_file).exists():
-        ui.log("Entities file does not exist!")
+        log("Entities file does not exist!")
         do_compile = False
 
-    if not ebl_file or not Path(ebl_file).exists():
-        ui.log("Output folder does not exist!")
+    if not output_folder or not Path(output_folder).exists():
+        log("Output folder does not exist!")
         do_compile = False
 
     if not do_compile:
-        ui.log("Failed to compile!")
+        log("Failed to compile!")
         return
+
     try:
         compiler.apply_ebl(
             ebl_file,
             entities_file,
             output_folder,
             compress,
-            show_targets,
+            show_targets
         )
     except Exception as e:
-        ui.log(e)
-        ui.log("Failed to compile!")
+        log(e)
+        log("Failed to compile!")
 
-    ui.log("Success!")
+
 
 if __name__ == "__main__":
     Win.show()
