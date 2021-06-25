@@ -6,6 +6,8 @@ SETTINGS
 // Sir Gecko
 
 // bigarena2
+
+
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_1
 
 setMusicState("sound_sound_musicentity_1", music_ghost_states/main_heavy, Start Heavy)
@@ -104,6 +106,7 @@ activate
 
 waitFor wait(1, false)
 
+
 REPLACE ENCOUNTER hangar_encounter_manager_dlc2_2
 spawnMultiple(StoneImp, 5, hangar_encounter_spawn_group_zone_2, )
 
@@ -120,6 +123,7 @@ activate
 (hangar_target_relay_checkpoint, Checkpoint)
 
 waitFor wait(1, false)
+
 
 // introarena
 
@@ -174,6 +178,8 @@ spawn(Baron, breach_wasteland_target_spawn_29)
 spawn(Pinky, breach_wasteland_target_spawn_16)
 
 waitFor AIRemaining(Any, 0, , false)
+
+
 
 REPLACE ENCOUNTER breach_wasteland_encounter_manager_dlc2_2
 spawn:
@@ -297,6 +303,8 @@ activate
 (objective_target_relay_4, show new poi)
 
 waitFor wait(1, false)
+
+
 
 // bigarena1
 
@@ -662,6 +670,7 @@ activate(breach_wall_deck_target_relay_dmc_gate, Remove Blockers)
 
 
 
+
 REPLACE ENCOUNTER breach_wall_deck_encounter_manager_dlc2_2
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
 spawn
@@ -718,6 +727,7 @@ waitFor AIRemaining(Any, 0, , false)
 
 
 
+
 REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_1
 spawnMultiple
 (ZombieTier3, 3, breach_wall_base_encounter_spawn_group_zone_garg1, )
@@ -747,6 +757,7 @@ waitFor AIRemaining(Any, 0, , false)
 
 
 
+
 REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_2
 
 waitFor Flag(ENCOUNTER_EVENT_FLAG_COMMIT, , true, false)
@@ -770,6 +781,8 @@ alertAI(true, true, , false)
 
 waitFor wait(2, false)
 maintainAI(ZombieTier1, 3, 10, 2, 3, breach_wall_base_encounter_spawn_group_zone_garg2, , 5)
+
+
 
 waitFor AIRemaining(SuperTentacle, 0, , false)
 stopMaintainAI(Any, )
@@ -821,6 +834,7 @@ waitFor wait(1, false)
 
 
 
+
 REPLACE ENCOUNTER breach_wall_base_encounter_manager_dlc2_4
 setMusicState(sound_sound_musicentity_1, music_ghost_states/main_light, Start Light)
 spawn(StoneImp, breach_wall_base_target_spawn_29, )
@@ -866,12 +880,14 @@ waitFor wait(1, false)
 
 
 
+
 REPLACE ENCOUNTER city_lower_encounter_manager_2
 
 waitFor wait(1, false)
 spawn(DreadKnight, city_lower_target_spawn_9, )
 
 waitFor AIRemaining(Any, 0, , false)
+
 
 
 
@@ -884,6 +900,7 @@ activate(city_lower_target_relay_trooper_route_a1, start_path_a1)
 waitFor Flag(ENCOUNTER_EVENT_FLAG_USER_EVENT, city_front_troops, true, false)
 
 waitFor AIRemaining(Any, 0, , false)
+
 
 
 
@@ -1033,6 +1050,7 @@ spawnMultiple(ChaingunSoldier, 2, city_lower_encounter_spawn_group_zone_5, city_
 waitFor AIRemaining(Any, 0, , false)
 
 
+
 // cityrevealarena
 // city_reveal_encounter_spawn_group_zone_1
 // city_reveal_encounter_spawn_group_zone_2
@@ -1052,6 +1070,7 @@ waitFor any {
 	AIRemaining(Mancubus, 0)
 	AIRemaining(Tyrant, 0)
 }
+
 
 // platformarena
 // city_rooftop_encounter_spawn_group_zone_1
@@ -1148,6 +1167,8 @@ spawn(Imp, breach_wasteland_war_target_spawn_26, amb_imp_04)
 waitFor AIRemaining(Any, 0)
 
 
+
+
 REPLACE ENCOUNTER oscar_encounter_manager_dragon_runners
 spawn(Imp, oscar_target_spawn_1, dragon_runners)
 
@@ -1157,6 +1178,7 @@ spawn(Imp, oscar_target_spawn_2, dragon_runners)
 waitFor wait(2, false)
 
 waitFor AIRemaining(Any, 0, , false)
+
 
 
 MODIFY player_start_checkpoint1

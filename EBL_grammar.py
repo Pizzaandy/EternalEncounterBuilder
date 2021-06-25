@@ -152,7 +152,7 @@ class NodeVisitor(NodeVisitor):
         expr = str(node.text).replace('"', "").replace(" ", "$^")
         if "$" not in expr:
             expr = expr + "$"
-        print(f"expr is {expr}")
+        # print(f"expr is {expr}")
         # print(expr)
         return expr
 

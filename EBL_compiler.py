@@ -137,7 +137,7 @@ def split_ebl_at_headers(filename) -> list:
         cmd = cmd.strip()
         name = body.split("\n")[0].strip()
         if not name:
-            if cmd == "INIT":
+            if cmd == "END":
                 name = None
             else:
                 raise EblTypeError(f"No entity name specified in header {cmd}")
@@ -329,11 +329,6 @@ def concat_strings(s, is_expression=False):
                     )
                     debug_print(f"seg is now '{seg}'")
 
-        if "testing" in seg:
-            ui_log(f"bruhhh '{seg}'")
-            debug_print(
-                f"""bruhhh '{seg.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")}'"""
-            )
         result += seg
     return result.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
@@ -422,7 +417,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
         elif type(entity_edit) is Assignment:
             function_name = "set"
             values = [[entity_edit.value]]
-            ui_log(values)
+            # ui_log(values)
             path = entity_edit.name
         else:
             raise EblTypeError(
@@ -444,8 +439,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 value[0] = concat_strings(value[0], is_expression=True)
                 dic[f"__unique_{unique_key_index}__"] = value[0]
                 unique_key_index += 1
-                ref_dic = deepcopy(dic)
-                dic = {"num": len(ref_dic), **ref_dic}
+                #ref_dic = deepcopy(dic)
+                #dic = {"num": len(ref_dic), **ref_dic}
                 # ui_log(dic, "FUUUUUU why")
 
             if function_name == "set":
@@ -546,13 +541,13 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
         ui_log(f"Replaced encounter {name}")
         return replace_encounter(entity, text, dlc_level)
     elif cmd == "REPLACE":
-        ui_log(f"Replaced entity {name}")
+        ui_log(f"Replaced {name}")
         return text
     elif cmd == "REMOVE":
-        ui_log(f"Removed entity {name}")
+        ui_log(f"Removed {name}")
         return ""
     elif cmd == "MODIFY":
-        ui_log(f"Modified fields in entity {name}")
+        ui_log(f"Modified fields in {name}")
         return edit_entity_fields(name, entity, text)
     else:
         raise EblTypeError(f"Unknown command {cmd}")
@@ -612,7 +607,7 @@ def apply_ebl(
                 f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
             )
 
-        elif val[0] == "INIT":
+        elif val[0] == "END":
             compile_ebl(val[1], vars_only=True)
 
         elif val[0] == "ADD":
@@ -676,7 +671,8 @@ def apply_ebl(
         entity_tools.mark_spawn_targets(modded_file)
 
     if generate_traversals:
-        ui_log("Generating traversal info...")
+        pass
+        # ui_log("Generating traversal info...")
         # entity_tools.generate_traversals(modded_file, dlc_level)
         # TODO: rewrite generate_traversals
         # give sauce proteh >:(

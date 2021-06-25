@@ -161,7 +161,7 @@ class Ui_MainWindow(object):
         self.log_browser.setReadOnly(True)
         font = QtGui.QFont()
         font.setFamily("Consolas")
-        font.setPointSize(10)
+        font.setPointSize(8)
         self.log_browser.setFont(font)
         self.log_browser.setObjectName("log_browser")
         MainWindow.setCentralWidget(self.centralwidget)

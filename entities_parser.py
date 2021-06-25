@@ -167,6 +167,14 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
         s += "entity {\n\t"
     item_index = 0
     do_item_numbering = False
+
+    first_key = list(parsed_entity.keys())[0]
+    if first_key.startswith("__unique"):
+        updict = {"num": 0}
+        old_dict = parsed_entity
+        parsed_entity = {**updict, **old_dict}
+        print("updated dict with __unique key")
+
     for key, val in parsed_entity.items():
         if do_item_numbering or key == "num":
             do_item_numbering = True
