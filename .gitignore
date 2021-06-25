@@ -1,6 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.spec
+*.png
+*.ico
+*.png~
 .idea/
 idFileDeCompressor.exe
 oo2core_8_win64.dll
@@ -9,3 +13,5 @@ testing_compilation.py
 EternalTraversalInfoGenerator/
 RPCInterface/
 test_compression.py
+build/
+dist/

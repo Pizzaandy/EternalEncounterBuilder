@@ -276,7 +276,7 @@ def verify_file(filename):
     return error_found
 
 
-def list_checkpoints(filename):
+def list_checkpoints(filename) -> list:
     cps = []
     print("\nCHECKPOINTS:")
     with open(filename) as fp:
@@ -286,6 +286,4 @@ def list_checkpoints(filename):
                     line.replace("playerSpawnSpot = ", "").strip().strip(";").strip('"')
                 )
                 cps += [name]
-    for name in cps:
-        print(name)
-    print("")
+    return cps

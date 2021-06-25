@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import List, Union
 import re
 import time
-from copy import deepcopy
+
 
 from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
@@ -31,8 +31,9 @@ debug_vars = False
 
 worker_object = None
 
+
 def ui_log(s):
-    #qt_ui.ui.log_browser.appendPlainText(str(s))
+    # qt_ui.ui.log_browser.appendPlainText(str(s))
     try:
         worker_object.worker_log(str(s))
         # qt_ui.worker_log(str(s))
@@ -439,8 +440,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 value[0] = concat_strings(value[0], is_expression=True)
                 dic[f"__unique_{unique_key_index}__"] = value[0]
                 unique_key_index += 1
-                #ref_dic = deepcopy(dic)
-                #dic = {"num": len(ref_dic), **ref_dic}
+                # ref_dic = deepcopy(dic)
+                # dic = {"num": len(ref_dic), **ref_dic}
                 # ui_log(dic, "FUUUUUU why")
 
             if function_name == "set":
@@ -602,10 +603,14 @@ def apply_ebl(
 
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
-            deltas[idx] = key, (val[0], compile_ebl(val[1]))
-            debug_print(
-                f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
-            )
+            try:
+                deltas[idx] = key, (val[0], compile_ebl(val[1]))
+                debug_print(
+                    f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
+                )
+            except Exception as e:
+                ui_log(e)
+                return
 
         elif val[0] == "END":
             compile_ebl(val[1], vars_only=True)
@@ -621,7 +626,7 @@ def apply_ebl(
                     args = [arg.strip() for arg in args]
                     entity = templates[template].render(*args)
                     is_template = True
-                    ui_log(f"Added new instance of {key}")
+                    ui_log(f"Added instance of {key}")
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
@@ -678,7 +683,9 @@ def apply_ebl(
         # give sauce proteh >:(
 
     parser.verify_file(modded_file)
-    parser.list_checkpoints(modded_file)
+    checkpoints = parser.list_checkpoints(modded_file)
+    for cp in checkpoints:
+        ui_log(cp)
 
     if "minify" in Settings:
         ui_log("Minifying modded file...")
