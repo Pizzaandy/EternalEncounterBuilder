@@ -13,6 +13,8 @@
 // TEMPLATE
 // INIT
 
+// these will be discussed in no particular order
+
 
 SETTINGS
 // certain keywords can be written under SETTINGS
@@ -27,7 +29,7 @@ REPLACE ENCOUNTER encounter_entity_name
 // EVENTS
 ////////////////
 
-// encounters are made of EVENTs!
+// encounters are made of EVENTs
 // write an event like this:
 spawnSingleAI(Arachnotron, spawn_target_1, group_label)
 // If you don't know what the arguments are, look them up in ((TODO: make resource for this))
@@ -41,9 +43,10 @@ spawn(Arachnotron, spawn_target_1, group_label)
 spawn(Arachnotron, spawn_target_1, ) // the 3rd argument is blank
 maintain(Soldier, 4, -1, 4, 3, my_macro+6, , 9) // the 2nd argument from the right is blank
 
-// there are usually optional arguments at the ends of events.
+// there are sometimes optional arguments at the ends of events.
 // You can simply remove these:
-spawn(Arachnotron, spawn_target_1)
+spawn(Arachnotron, spawn_target, )
+spawn(Arachnotron, spawn_target)
 
 // Some arguments have default values! Check ((TODO: make resource for this))
 // to see which arguments have default values.
@@ -66,8 +69,8 @@ spawn(CyberMancubus, spawn_target_3)
 ////////////////
 
 // the waitfor keyword is used for WAIT EVENTS
-waitfor 3.5 sec
-waitfor AIRemaining(Mancubus, 0)
+waitfor 3.5 sec // wait 3.5 seconds
+waitfor AIRemaining(Mancubus, 0) // wait until all the mancubi are dead
 
 // use waitfor blocks to check multiple conditions
 waitfor any {
@@ -266,3 +269,19 @@ ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[0 0 0])
 // Mat3
 // Mat2
 // Vec3
+
+
+////////////////
+// FUTURE FEATURES
+////////////////
+
+// Spawn Animation Tags
+// these directives can be used to change spawn animations
+// they are WIP
+
+@portal
+@anim forward_1000_down_1000
+spawn(Chaingunner, target)
+
+@teleport 5 sec
+spawn(CursedProwler, target)

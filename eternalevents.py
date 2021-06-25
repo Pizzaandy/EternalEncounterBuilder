@@ -172,6 +172,12 @@ class SpawnSpirit(EternalEvent):
     aiTypeExplicitFiltering = "bool"
 
 
+class SpawnBuffPod(EternalEvent):
+    spawnTarget = "entity"
+    buffpod_label = "string"
+    buffedai_label = "string"
+
+
 class SetMusicState(EternalEvent):
     target = "entity"
     stateDecl = "decl:soundstate"
@@ -225,6 +231,13 @@ class ClearFactionOverrides(EternalEvent):
 
 class ForceChargeOnAllAI(EternalEvent):
     pass
+
+
+class ForceAIToFlee(EternalEvent):
+    spawnType = "eEncounterSpawnType_t"
+    group_label = "string"
+    radius = "float"
+    immediateDespawn = "bool=false"
 
 
 class WaitMulitpleConditions(EternalEvent):
@@ -310,8 +323,28 @@ class RemoveAI(EternalEvent, alias="remove"):
     group_label = "string*"
 
 
+class MigrateAIFromExternalScript(EternalEvent):
+    encounterScript = "entity"
+    eventFlag = "eEncounterEventFlags_t"
+    userFlag = "string"
+
+
 class SetNextScriptIndex(EternalEvent):
     nextScriptIndex = "int"
+
+
+class SetNextScriptIndexRandom(EternalEvent):
+    minScriptIndex = "int"
+    maxScriptIndex = "int"
+
+
+class setAIMemoryKey(EternalEvent):
+    spawnType = "eEncounterSpawnType_t"
+    group_label = "string"
+    memoryKey = "string"
+    value = "int"
+    includeNewSpawns = "bool"
+    stringValue = "string"
 
 
 class ProceedToNextScript(EternalEvent):

@@ -12,6 +12,7 @@ blacklist = [
     "ENCOUNTER_DO_NOT_USE_MAX_HEAVY",
     "ENCOUNTER_DO_NOT_USE_MAX_SUPER",
     "ENCOUNTER_DO_NOT_USE_AMBIENT",
+    "ENCOUNTER_DO_NOT_USE_MAX_COMMON"
 ]
 
 
@@ -43,7 +44,11 @@ def convert_encounter_to_ebl(encounter: str):
     :return:
     """
     res = ""
-    parsed_encounter = parser.ev.parse(encounter)
+    try:
+        parsed_encounter = parser.ev.parse(encounter)
+    except Exception as e:
+        print(f"WARNING: {e}")
+        return ""
     try:
         entitydef = ""
         for key in parsed_encounter:
@@ -54,7 +59,9 @@ def convert_encounter_to_ebl(encounter: str):
             "entityEvents"
         ]["item[0]"]["events"]
     except KeyError:
-        raise EntitiesSyntaxError("encounterComponent events not found")
+        print("WARNING: encounterComponent events not found")
+        return ""
+        #raise EntitiesSyntaxError("encounterComponent events not found")
     res += f"REPLACE ENCOUNTER {entity_name}\n\n"
     last_name = ""
     repeat_count = 0
@@ -164,3 +171,55 @@ def generate_ebl_file(entities_file, ebl_file):
     with open(ebl_file, "w") as f:
         for entity in encounters:
             f.write(convert_encounter_to_ebl(entity))
+
+
+blacklist = [
+    "tutorial",
+    "pvp",
+    "shell",
+]
+
+
+def generate_for_all_entities(resources_dir, output_dir):
+    import os
+    from eternaltools import oodle
+
+    for root, dirs, files in os.walk(resources_dir):
+        for name in files:
+            if name.endswith(".entities"):
+                if any(substr in name for substr in blacklist):
+                    continue
+                fpath = os.path.join(root, name)
+                print(f"found {fpath}")
+                oodle.decompress_entities(fpath, os.path.join(output_dir, name))
+
+    for root, dirs, files in os.walk(output_dir):
+        for file in files:
+            fpath = os.path.join(root, file)
+            print(f"fpath is {fpath}")
+            generate_ebl_file(fpath, os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"))
+            print("generating ebl for {file}")
+
+
+if __name__ == "__main__":
+    _resources_dir = r"C:\AndyStuff\DoomModding\__RESOURCES__"
+    output_dir = r"GeneratedEBL"
+    # generate_for_all_entities(_resources_dir, _output_dir)
+
+    # import os
+    # mydir = os.walk(output_dir)
+    # for root, dirs, files in mydir:
+    #     for file in files:
+    #         fpath = os.path.join(root, file)
+    #         print(f"fpath is {fpath}")
+    #         generate_ebl_file(fpath, os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"))
+    #         print("generating ebl for {file}")
+    import os
+    for root, dirs, files in os.walk(_resources_dir):
+        for name in files:
+            if name.endswith(".entities"):
+                if any(substr in name for substr in blacklist):
+                    continue
+                fpath = os.path.join(root, name)
+                print(f"found {fpath}")
+                oodle.compress_entities(fpath, output_dir)

@@ -205,13 +205,13 @@ waitfor AIRemaining(Any, 0, , false)
 
 
 REPLACE ENCOUNTER breach_wasteland_arena_encounter_manager_dlc2_1
-setFactionRelation
+setFactionRelation:
 (StoneImp, , DreadKnight, EMOTION_DESTROY_AT_ALL_COSTS)
 (DreadKnight, , StoneImp, EMOTION_DESTROY_AT_ALL_COSTS)
 (Gargoyle, , Revenant, EMOTION_DESTROY_AT_ALL_COSTS)
 (Revenant, , Gargoyle, EMOTION_DESTROY_AT_ALL_COSTS)
 
-spawn
+spawn:
 (Revenant, breach_wasteland_arena_target_spawn_1, )
 (Revenant, breach_wasteland_arena_target_spawn_14, )
 (DreadKnight, breach_wasteland_arena_target_spawn_9, )

@@ -58,6 +58,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(628, 563)
         MainWindow.setMaximumSize(QtCore.QSize(628, 563))
+        MainWindow.setWindowIcon(QtGui.QIcon("hammer_logo.ico"))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
@@ -233,9 +234,9 @@ def set_base_entities_fp():
     ui.base_entities_box.setPlainText(str(fp[0]))
 
 
-def set_ebl_fp(window):
+def set_ebl_fp():
     fp = QtWidgets.QFileDialog.getOpenFileName(
-        window, "Select an EBL File", filter="EBL file (*.ebl, *.txt)"
+        Win, "Select an EBL File", filter="EBL file (*.ebl)"
     )
     if not fp[0]:
         return
