@@ -604,10 +604,7 @@ def apply_ebl(
 
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
-            print(
-                #f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
-                f"Compiling encounter:\n [START]{val[1]}[END]"
-            )
+            # print(f"Compiling encounter:\n [START]{val[1]}[END]")
             try:
                 deltas[idx] = key, (val[0], compile_ebl(val[1]))
             except Exception as e:
@@ -678,7 +675,7 @@ def apply_ebl(
 
     if show_spawn_targets:
         ui_log("Adding spawn target markers...")
-        entity_tools.mark_spawn_targets(modded_file)
+        ui_log(entity_tools.mark_spawn_targets(modded_file))
 
     if generate_traversals:
         pass

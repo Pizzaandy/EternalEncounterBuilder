@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icons">
+        <file alias="hammer_logo.ico">hammer_logo.ico</file>
+    </qresource>
+</RCC>

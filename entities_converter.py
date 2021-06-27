@@ -27,7 +27,7 @@ def format_arg(arg):
         return arg
 
     for word in str(arg).split():
-        if word in blacklist:
+        if word.strip() in blacklist:
             continue
         if word.replace("ENCOUNTER_SPAWN_", "") in cc.ENCOUNTER_SPAWN_NAMES:
             word = snake_to_camel(word.replace("ENCOUNTER_SPAWN_", ""))
@@ -184,7 +184,7 @@ def generate_ebl_file(entities_file, ebl_file):
             f.write(convert_encounter_to_ebl(entity))
 
 
-blacklist = [
+blacklist2 = [
     "tutorial",
     "pvp",
     "shell",
@@ -198,7 +198,7 @@ def generate_for_all_entities(resources_dir, output_dir):
     for root, dirs, files in os.walk(resources_dir):
         for name in files:
             if name.endswith(".entities"):
-                if any(substr in name for substr in blacklist):
+                if any(substr in name for substr in blacklist2):
                     continue
                 fpath = os.path.join(root, name)
                 print(f"found {fpath}")

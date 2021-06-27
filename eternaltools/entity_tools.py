@@ -1,6 +1,6 @@
 import chevron
 import entities_parser as parser
-import math
+
 
 marker_template = """
 entity {
@@ -108,6 +108,7 @@ entity {
 
 Z_LABEL_OFFSET = 0.45
 
+
 def mark_spawn_targets(filename):
     def is_close(pos1, pos2, min_distance=2):
         dx = abs(pos1[0] - pos2[0])
@@ -174,8 +175,9 @@ def mark_spawn_targets(filename):
         )
         generated_string += "\n" + new_daisy
 
-    print(f"Added visual markers for {count} spawn targets")
-    print(f"NEARBY GROUPS: \n {nearby_groups}")
+    # print(f"NEARBY GROUPS: \n {nearby_groups}")
 
     with open(filename, "a") as fp:
         fp.write(generated_string)
+
+    return f"Added visual markers for {count} spawn targets"

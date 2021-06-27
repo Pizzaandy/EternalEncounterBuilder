@@ -215,7 +215,6 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
                     val = f'"{val}"'
 
             if is_layername:
-                # print(key)
                 s += str(val) + "\n"
             else:
                 s += f"{key} = {str(val)}"

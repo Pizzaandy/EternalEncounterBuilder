@@ -1,6 +1,10 @@
+import resources
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ebl_compiler as compiler
 from pathlib import Path
+
+import sys
+import os
 
 
 class Worker(QtCore.QObject):
@@ -19,7 +23,6 @@ class Worker(QtCore.QObject):
         compress = ui.compress_box.isChecked()
         show_targets = ui.show_targets_box.isChecked()
 
-        # clear_log()
         do_compile = True
 
         if not ebl_file or not Path(ebl_file).exists():
@@ -59,7 +62,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(628, 563)
         MainWindow.setMaximumSize(QtCore.QSize(628, 563))
-        MainWindow.setWindowIcon(QtGui.QIcon("hammer_logo.ico"))
+        MainWindow.setWindowIcon(QtGui.QIcon(':/icons/hammer_logo.ico'))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
@@ -191,7 +194,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Encounter Builder"))
         self.base_entities_label.setText(
-            _translate("MainWindow", "Base .entities file")
+            _translate("MainWindow", "Vanilla .entities file")
         )
         self.checkpoints_box.setText(_translate("MainWindow", "List Checkpoints"))
         self.compress_box.setText(_translate("MainWindow", "Compress"))
@@ -226,8 +229,6 @@ class Ui_MainWindow(object):
     def log(self, s):
         self.log_browser.appendPlainText(str(s))
 
-
-import sys
 
 ui = Ui_MainWindow()
 app = QtWidgets.QApplication(sys.argv)
