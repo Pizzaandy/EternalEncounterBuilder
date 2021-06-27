@@ -559,6 +559,7 @@ def apply_ebl(
     ebl_file,
     base_file,
     output_folder,
+    show_checkpoints=False,
     compress_file=True,
     show_spawn_targets=False,
     generate_traversals=True,
@@ -603,14 +604,18 @@ def apply_ebl(
 
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
+            print(
+                #f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
+                f"Compiling encounter:\n [START]{val[1]}[END]"
+            )
             try:
                 deltas[idx] = key, (val[0], compile_ebl(val[1]))
-                debug_print(
-                    f"Compiling encounter starting with: {val[1].splitlines()[1:3]}"
-                )
             except Exception as e:
-                ui_log(e)
+                #ui_log(e)
+                print(e)
                 return
+
+            print("success!")
 
         elif val[0] == "END":
             compile_ebl(val[1], vars_only=True)
@@ -683,9 +688,11 @@ def apply_ebl(
         # give sauce proteh >:(
 
     parser.verify_file(modded_file)
-    checkpoints = parser.list_checkpoints(modded_file)
-    for cp in checkpoints:
-        ui_log(cp)
+    if show_checkpoints:
+        checkpoints = parser.list_checkpoints(modded_file)
+        ui_log("\nCHECKPOINTS:")
+        for cp in checkpoints:
+            ui_log(cp)
 
     if "minify" in Settings:
         ui_log("Minifying modded file...")

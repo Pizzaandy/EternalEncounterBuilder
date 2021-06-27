@@ -12,7 +12,7 @@ blacklist = [
     "ENCOUNTER_DO_NOT_USE_MAX_HEAVY",
     "ENCOUNTER_DO_NOT_USE_MAX_SUPER",
     "ENCOUNTER_DO_NOT_USE_AMBIENT",
-    "ENCOUNTER_DO_NOT_USE_MAX_COMMON"
+    "ENCOUNTER_DO_NOT_USE_MAX_COMMON",
 ]
 
 
@@ -33,6 +33,9 @@ def format_arg(arg):
             word = snake_to_camel(word.replace("ENCOUNTER_SPAWN_", ""))
         res += word + " "
     return res.strip()
+
+
+SPECIAL_CHARS = "():-"
 
 
 # TODO: rewrite this complete garbage
@@ -61,7 +64,7 @@ def convert_encounter_to_ebl(encounter: str):
     except KeyError:
         print("WARNING: encounterComponent events not found")
         return ""
-        #raise EntitiesSyntaxError("encounterComponent events not found")
+        # raise EntitiesSyntaxError("encounterComponent events not found")
     res += f"REPLACE ENCOUNTER {entity_name}\n\n"
     last_name = ""
     repeat_count = 0
@@ -97,8 +100,7 @@ def convert_encounter_to_ebl(encounter: str):
                 if name == last_name:
                     wait_block_count += 1
                     if repeat_count == 1:
-                        # what the fuck?
-                        wait_block_count += 3
+                        wait_block_count += 3  # what the fuck?
                     res += "\t"
                 elif wait_block_count == 0:
                     res += "}\n"
@@ -108,12 +110,13 @@ def convert_encounter_to_ebl(encounter: str):
             name = wait_newline + "waitfor " + name
             if wait_block_count > 0:
                 res += "\t"
-        elif game_name == "wait":
+
+        if game_name == "wait" and wait_block_count == 0:
             last_name = name
             res += wait_newline + "waitfor "
             for arg_key, arg in args.items():
-                if arg_key == "num":
-                    res += str(arg) + " sec\n"
+                if arg_key == "item[0]":
+                    res += str(arg["float"]) + " sec\n"
                     break
             continue
 
@@ -134,6 +137,12 @@ def convert_encounter_to_ebl(encounter: str):
                 arg_value = next(iter(arg_value.items()))[1]
                 print(f"found decl = {arg_value}")
             arg_value = format_arg(arg_value)
+            if (
+                isinstance(arg_value, str)
+                and any(char in arg_value for char in SPECIAL_CHARS)
+                and not eternalevents.is_number_or_keyword(arg_value)
+            ):
+                arg_value = f'"{arg_value}"'
             params.append(arg_value)
 
         if game_name == "waitMulitpleConditions":
@@ -162,6 +171,8 @@ def convert_encounter_to_ebl(encounter: str):
             repeat_count = 0
         last_name = name
 
+    if wait_block_count > 0:
+        res += "}\n"
     return res + "\n\n\n"
 
 
@@ -197,29 +208,27 @@ def generate_for_all_entities(resources_dir, output_dir):
         for file in files:
             fpath = os.path.join(root, file)
             print(f"fpath is {fpath}")
-            generate_ebl_file(fpath, os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"))
+            generate_ebl_file(
+                fpath,
+                os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"),
+            )
+            print("generating ebl for {file}")
+
+    mydir = os.walk(output_dir)
+    for root, dirs, files in mydir:
+        for file in files:
+            if file.endswith(".ebl"):
+                continue
+            fpath = os.path.join(root, file)
+            print(f"fpath is {fpath}")
+            generate_ebl_file(
+                fpath,
+                os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"),
+            )
             print("generating ebl for {file}")
 
 
 if __name__ == "__main__":
     _resources_dir = r"C:\AndyStuff\DoomModding\__RESOURCES__"
-    output_dir = r"GeneratedEBL"
-    # generate_for_all_entities(_resources_dir, _output_dir)
-
-    # import os
-    # mydir = os.walk(output_dir)
-    # for root, dirs, files in mydir:
-    #     for file in files:
-    #         fpath = os.path.join(root, file)
-    #         print(f"fpath is {fpath}")
-    #         generate_ebl_file(fpath, os.path.join(output_dir, str(file).removesuffix(".entities") + ".ebl"))
-    #         print("generating ebl for {file}")
-    import os
-    for root, dirs, files in os.walk(_resources_dir):
-        for name in files:
-            if name.endswith(".entities"):
-                if any(substr in name for substr in blacklist):
-                    continue
-                fpath = os.path.join(root, name)
-                print(f"found {fpath}")
-                oodle.compress_entities(fpath, output_dir)
+    _output_dir = r"C:\AndyStuff\DoomModding\EncounterBuilder\GeneratedEBL"
+    generate_for_all_entities(_resources_dir, _output_dir)

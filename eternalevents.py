@@ -130,7 +130,7 @@ class StaggeredAISpawn(EternalEvent, alias="spawnStaggered"):
     maxSpawnStagger = "float"
 
 
-class StopMaintainingAICount(EternalEvent, alias=["stopMaintainAI", "stopMaintain"]):
+class StopMaintainingAICount(EternalEvent, alias=["stopMaintain", "stopMaintainAI"]):
     spawnType = "eEncounterSpawnType_t"
     group_label = "string*"
 
@@ -246,7 +246,7 @@ class WaitMulitpleConditions(EternalEvent):
     disableAIHighlight = "bool=false"
 
 
-class Wait(EternalEvent):
+class Wait(EternalEvent, alias="time"):
     seconds = "float"
     disableAIHighlight = "bool=false"
 
@@ -305,7 +305,7 @@ class WaitForStatCount(EternalEvent, alias="statCount"):
     disableAIHighlight = "bool=false"
 
 
-class WaitForEventFlag(EternalEvent, alias="Flag"):
+class WaitForEventFlag(EternalEvent, alias="flag"):
     eventFlag = "eEncounterEventFlags_t"
     userFlag = "string*"
     testIfAlreadyRaised = "bool"

@@ -15,6 +15,7 @@ class Worker(QtCore.QObject):
         ebl_file = ui.ebl_file_box.toPlainText()
         entities_file = ui.base_entities_box.toPlainText()
         output_folder = ui.output_file_box.toPlainText()
+        show_checkpoints = ui.checkpoints_box.isChecked()
         compress = ui.compress_box.isChecked()
         show_targets = ui.show_targets_box.isChecked()
 
@@ -40,7 +41,7 @@ class Worker(QtCore.QObject):
 
         try:
             compiler.apply_ebl(
-                ebl_file, entities_file, output_folder, compress, show_targets
+                ebl_file, entities_file, output_folder, show_checkpoints, compress, show_targets
             )
         except Exception as e:
             print(e)
@@ -96,6 +97,15 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.ebl_file_box.setFont(font)
         self.ebl_file_box.setObjectName("ebl_file_box")
+
+        self.checkpoints_box = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkpoints_box.setGeometry(QtCore.QRect(20, 350, 200, 17))
+        self.checkpoints_box.setMaximumSize(QtCore.QSize(628, 522))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.checkpoints_box.setFont(font)
+        self.checkpoints_box.setObjectName("checkpoints_box")
+
         self.compress_box = QtWidgets.QCheckBox(self.centralwidget)
         self.compress_box.setGeometry(QtCore.QRect(20, 380, 121, 17))
         self.compress_box.setMaximumSize(QtCore.QSize(628, 522))
@@ -183,6 +193,7 @@ class Ui_MainWindow(object):
         self.base_entities_label.setText(
             _translate("MainWindow", "Base .entities file")
         )
+        self.checkpoints_box.setText(_translate("MainWindow", "List Checkpoints"))
         self.compress_box.setText(_translate("MainWindow", "Compress"))
         self.show_targets_box.setText(
             _translate("MainWindow", "Visualize Spawn Targets")

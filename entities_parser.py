@@ -17,7 +17,7 @@ entity_grammar = Grammar(
     ENTITY_PROPS  = (ENTITYDEF_BLOCK / LAYERS_BLOCK / ASSIGNMENT)
 
     ENTITYDEF_BLOCK = "entityDef" SPACE VARNAME LBRACE ASSIGNMENT* RBRACE
-    LAYERS_BLOCK    = "layers" LBRACE STRING RBRACE
+    LAYERS_BLOCK    = "layers" LBRACE LAYERS_STRING RBRACE
     ASSIGNMENT      = VARIABLE EQUALS (OBJECT / LITERAL)
 
     OBJECT     = LBRACE ASSIGNMENT+ RBRACE
@@ -33,6 +33,7 @@ entity_grammar = Grammar(
 
     VARNAME = ~r"\w+"
     STRING  = '"' ~r"[^\"]*" '"'
+    LAYERS_STRING = ~r'[\s\w/"]+'
     NUMBER  = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
     INTEGER = ~r"[-]?\d+"
     BOOL    = "true" / "false"
@@ -68,8 +69,13 @@ class EntityVisitor(NodeVisitor):
         return visited_children[0]
 
     def visit_LAYERS_BLOCK(self, node, visited_children):
-        nodename, _, string, _ = visited_children
-        return nodename.text, {"__layername__": string}
+        _, _, strings, _ = visited_children
+        # print(f"strings is {strings}")
+        lines = strings.splitlines()
+        lines = [
+            line.replace("\t", "").replace(" ", "") for line in lines if line.strip()
+        ]
+        return "layers", {f"__layername_{idx}__": s for idx, s in enumerate(lines)}
 
     def visit_ENTITYDEF_BLOCK(self, node, visited_children):
         nodename, _, varname, _, assignments, _ = visited_children
@@ -97,6 +103,10 @@ class EntityVisitor(NodeVisitor):
     def visit_STRING(self, node, visited_children):
         _, string, _ = visited_children
         return str(string.text)
+
+    def visit_LAYERS_STRING(self, node, visited_children):
+        # print(str(node.text))
+        return str(node.text)
 
     def visit_NUMBER(self, node, visited_children):
         if float(node.text).is_integer():
@@ -194,16 +204,23 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
             s += " {\n" + generate_entity(val, depth + 1) + "}\n"
         else:
             multiline = False
+            is_layername = key.startswith("__layername")
             if isinstance(val, bool):
                 val = "true" if val else "false"
             elif isinstance(val, str):
                 # if string is multiline, 'unpack' the string
+                # otherwise, enclose in quotes
                 multiline = "\n" in val
-                if not multiline:
+                if not multiline and not is_layername:
                     val = f'"{val}"'
-            s += f"{key} = {str(val)}"
-            if not multiline:
-                s += ";\n"
+
+            if is_layername:
+                # print(key)
+                s += str(val) + "\n"
+            else:
+                s += f"{key} = {str(val)}"
+                if not multiline:
+                    s += ";\n"
 
     return indent(s, "\t") if depth > 0 else s + "}\n"
 
@@ -244,7 +261,7 @@ def verify_file(filename):
     print("Checking file...")
     error_found = False
     depth = 0
-    layers_line = False
+    layers_block = False
     last_entity_line = 0
     with open(filename) as fp:
         for i, line in enumerate(fp.readlines()):
@@ -252,18 +269,18 @@ def verify_file(filename):
                 depth += line.count("{")
             if "}" in line:
                 depth -= 1
+                layers_block = False
             if line.strip() == "entity {":
                 if depth != 1:
                     print(f"Unmatched braces in entity starting at line {i+1}")
                     return True
                 last_entity_line = i
-            if layers_line:
-                layers_line = False
+            if layers_block:
                 continue
             if i < 2 or not line.strip() or line.lstrip().startswith("//"):
                 continue
             if line.strip().startswith("layers"):
-                layers_line = True
+                layers_block = True
             if not line.rstrip().endswith(("{", "}", ";")):
                 print(f"Missing punctuation on line {i+1}")
                 print(f"line {i+1}: {line}")
@@ -278,7 +295,6 @@ def verify_file(filename):
 
 def list_checkpoints(filename) -> list:
     cps = []
-    print("\nCHECKPOINTS:")
     with open(filename) as fp:
         for line in fp.readlines():
             if "playerSpawnSpot = " in line:

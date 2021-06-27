@@ -10,7 +10,7 @@ class EblTypeError(Exception):
 
 grammar = Grammar(
     r"""
-    DOCUMENT = (STATEMENTS)*
+    DOCUMENT = (STATEMENTS)* SPACE?
     STATEMENTS = SPACE? (ENTITYEDIT / EVENT / WAVE / ASSIGNMENT / WAITFORBLOCK / WAITFOR / DECORATOR)
 
     ASSIGNMENT = STRING EQUALS (NUMBER / MULTISTRING / ANYSTRING) SPACE?
@@ -22,7 +22,7 @@ grammar = Grammar(
     PARAM_LINE = PARAM*
     PARAM = NULLPARAM / REALPARAM / MULTISTRING
 
-    REALPARAM = SPACE? (NUMBER / STRING / MULTISTRING / STRINGLITERAL) SPACE? ("," / &RPARENTHESES)
+    REALPARAM = SPACE? (NUMBER / STRING / STRINGLITERAL / MULTISTRING) SPACE? ("," / &RPARENTHESES)
     NULLPARAM = SPACE? ("," / &RPARENCHAR)
     MULTISTRING = SPACE? (SPACE_NO_NEWLINE? ANYSTRING)+ SPACE_NO_NEWLINE? ("," / &RPARENTHESES / "\n" / &";")
     ANYSTRING = (STRING / STRINGLITERAL)
@@ -46,9 +46,9 @@ grammar = Grammar(
 
     SPACE = ~r"[\s;]+"
     SPACE_NO_NEWLINE = ~r"[\t ]+"
-    STRING = ~r'[\w/#+-.]+'
+    STRING = ~r'[\w/#+.]+'
     PATHSTRING = ~r'[\w/#+\[\]]+'
-    STRINGLITERAL = ~r'"[\t\n\w/#+-. ]*"'
+    STRINGLITERAL = ~r'"[\s\w/#+.\-():]*"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"
 """
 )
@@ -57,7 +57,7 @@ grammar = Grammar(
 class NodeVisitor(NodeVisitor):
     def visit_DOCUMENT(self, node, visited_children):
         output = []
-        event_list = visited_children
+        event_list, _ = visited_children
         for event in event_list:
             output.append(event)
         return output
@@ -153,7 +153,7 @@ class NodeVisitor(NodeVisitor):
         if "$" not in expr:
             expr = expr + "$"
         # print(f"expr is {expr}")
-        # print(expr)
+        print(f"string literal: '{expr}'")
         return expr
 
     def visit_MULTISTRING(self, node, visited_children):

@@ -1,4 +1,4 @@
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER|^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY |^END)"
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY |^END)"
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
@@ -110,8 +110,8 @@ ENCOUNTER_SPAWN_ALIASES = {
     "Carcass": "CARCASS",
     "BigChungus": "CARCASS",
     "Archvile": "ARCHVILE",
-    "BuffPod": "BUFF_POD",
     "BuffTotem": "BUFF_POD",
+    "BuffPod": "BUFF_POD",
     "Spirit": "SPIRIT",
     "Turret": "TURRET",
     "SuperTentacle": "SUPER_TENTACLE",
@@ -172,7 +172,7 @@ DLC2_ENTITYDEFS = [
 ACTORPOPULATION = [
     "actorpopulation/default/default_no_bosses",
     "actorpopulation/default/dlc1",
-    "actorpopulation/default/dlc2_demonic_soldier",
+    "actorpopulation/default/dlc2", # dlc2_demonic_soldier
 ]
 
 
