@@ -357,4 +357,4 @@ class DesignerComment(EternalEvent, alias="print"):
     printToConsole = "bool=true"
 
 
-SPAWN_EVENTS = [SpawnSingleAI, SpawnArchvile, SpawnPossessedAI]
+SPAWN_TARGET_EVENTS = [SpawnSingleAI, SpawnArchvile, SpawnPossessedAI]

@@ -162,7 +162,7 @@ def parse_entities(filename, class_filter=""):
     return data
 
 
-NO_EQUALS = ("entityDef", "layers")
+NO_EQUALS = ("entityDef ", "layers")
 
 
 def generate_entity(parsed_entity: dict, depth=0) -> str:

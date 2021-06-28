@@ -255,7 +255,7 @@ entity {
 
 // creating two spawn targets with our template:
 ADD SpawnTarget(platform_air_center, -731.46, -655.71, -129.05, Mat3[0 0 0])
-ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[0 0 0])
+ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[90 0 0])
 
 // you may notice the funky Mat3[0 0 0] argument at the end.
 // that is a special type of built-in template that can be used to easily
@@ -266,13 +266,17 @@ ADD SpawnTarget(platform_air_left, -706.27, -625.8, -131.35, Mat3[0 0 0])
 // Mat2
 // Vec3
 
+////////////////
+// KNOWN ISSUES
+////////////////
+
 
 ////////////////
 // FUTURE FEATURES
 ////////////////
 
-// Spawn Animation Tags
-// these directives can be used to change spawn animations
+// Tags
+// these directives can be used to change 
 // they are WIP
 
 @portal

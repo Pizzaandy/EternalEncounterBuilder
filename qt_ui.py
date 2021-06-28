@@ -16,16 +16,19 @@ class Worker(QtCore.QObject):
 
     def run(self):
         compiler.worker_object = self
-        ebl_file = ui.ebl_file_box.toPlainText()
-        entities_file = ui.base_entities_box.toPlainText()
-        output_folder = ui.output_file_box.toPlainText()
+        ebl_file = ui.ebl_file_box.toPlainText().strip()
+        entities_file = ui.base_entities_box.toPlainText().strip()
+        output_folder = ui.output_file_box.toPlainText().strip()
         show_checkpoints = ui.checkpoints_box.isChecked()
         compress = ui.compress_box.isChecked()
         show_targets = ui.show_targets_box.isChecked()
 
         do_compile = True
 
-        if not ebl_file or not Path(ebl_file).exists():
+        if not ebl_file:
+            self.worker_log("No EBL file provided, skipped")
+            ebl_file = None
+        elif not Path(ebl_file).exists():
             self.worker_log("EBL file does not exist!")
             do_compile = False
 
@@ -36,6 +39,11 @@ class Worker(QtCore.QObject):
         if not output_folder or not Path(output_folder).exists():
             self.worker_log("Output folder does not exist!")
             do_compile = False
+
+        for file in ["idAI2_base.txt", "idAI2_dlc1.txt", "idAI2_dlc2.txt"]:
+            if not os.path.exists(file):
+                self.worker_log(f"{file} not found in folder!")
+                do_compile = False
 
         if not do_compile:
             self.worker_log("Failed to compile!")
