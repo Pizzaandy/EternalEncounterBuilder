@@ -119,6 +119,8 @@ class NodeVisitor(NodeVisitor):
         decorator = decorator[0] if isinstance(decorator, list) else ""
         if decorator:
             print(f"decorator name is '{decorator}'")
+        if len(decorator.split()) == 1:
+            raise EblTypeError(f"tag '{decorator}' has no arguments")
         return {"event": str(event_name), "args": params, "decorator": decorator}
 
     def visit_WAITFOR(self, node, visited_children):

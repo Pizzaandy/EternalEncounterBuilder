@@ -1,4 +1,6 @@
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY |^INIT)"
+EBL_HEADERS_REGEX = (
+    r"(^REPLACE ENCOUNTER |^REPLACE |^ADD |^REMOVE |^TEMPLATE |^MODIFY |^INIT)"
+)
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
@@ -172,8 +174,83 @@ DLC2_ENTITYDEFS = [
 ACTORPOPULATION = [
     "actorpopulation/default/default_no_bosses",
     "actorpopulation/default/dlc1",
-    "actorpopulation/default/dlc2", # dlc2_demonic_soldier
+    "actorpopulation/default/dlc2",  # dlc2_demonic_soldier
 ]
 
 
+NAME_TO_IDAI2 = {
+    "ARACHNOTRON": "custom_ai_heavy_arachnotron",
+    "ARMORED_BARON": "custom_ai_superheavy_baron_armored",
+    "BARON": "custom_ai_superheavy_baron",
+    "BLOOD_ANGEL": "custom_ai_heavy_bloodangel",
+    "CACODEMON": "custom_ai_heavy_cacodemon",
+    "CHAINGUN_SOLDIER": "custom_ai_fodder_soldier_chaingun",
+    "CUEBALL": "custom_ai_ambient_zombie_cueball",
+    "CURSED_PROWLER": "custom_ai_fodder_prowler_cursed",
+    "CYBER_MANCUBUS": "custom_ai_heavy_mancubus_goo",
+    "DOOM_HUNTER": "custom_ai_superheavy_doom_hunter",
+    "DREAD_KNIGHT": "custom_ai_heavy_dreadknight",
+    "GARGOYLE": "custom_ai_fodder_gargoyle",
+    "HELL_KNIGHT": "custom_ai_heavy_hellknight",
+    "HELL_SOLDIER": "custom_ai_fodder_soldier_blaster",
+    "IMP": "custom_ai_fodder_imp",
+    "MANCUBUS": "custom_ai_heavy_mancubus_fire",
+    "MARAUDER": "custom_ai_superheavy_marauder",
+    "PAIN_ELEMENTAL": "custom_ai_heavy_painelemental",
+    "PINKY": "custom_ai_heavy_pinky",
+    "PROWLER": "custom_ai_fodder_prowler",
+    "REVENANT": "custom_ai_heavy_revenant",
+    "SHOTGUN_SOLDIER": "custom_ai_fodder_soldier_shield",
+    "STONE_IMP": "custom_ai_fodder_imp_stone",
+    "TENTACLE": "custom_ai_ambient_tentacle",
+    "TYRANT": "custom_ai_superheavy_tyrant",
+    "WHIPLASH": "custom_ai_heavy_whiplash",
+    "ZOMBIE_MAYKR": "custom_ai_fodder_zombie_maykr",
+    "ZOMBIE_T1_SCREECHER": "custom_ai_fodder_zombie_t1_screecher",
+    "ZOMBIE_TIER_1": "custom_ai_fodder_zombie_t1_scientist",
+    "ZOMBIE_TIER_3": "custom_ai_fodder_zombie_tier_3",
+    "LOST_SOUL": "custom_ai_fodder_lostsoul",
+    "SPECTRE": "custom_ai_heavy_pinky_spectre",
+    "CARCASS": "custom_ai_fodder_carcass",
+    "ARCHVILE": "custom_ai_superheavy_archvile",
+    "BUFF_POD": "custom_ai_ambient_buffpod",
+    "SPIRIT": "custom_ai_ambient_spirit",
+    "TURRET": "custom_ai_ambient_turret",
+    "SUPER_TENTACLE": "custom_ai_ambient_super_tentacle",
+}
 
+NAME_TO_ANIMWEB = {
+    "ARACHNOTRON": "arachnotron",
+    "ARMORED_BARON": "baron",
+    "BARON": "baron",
+    "BLOOD_ANGEL": "bloodangel",
+    "CACODEMON": "cacodemon",
+    "CHAINGUN_SOLDIER": "soldier_chaingun",
+    "CUEBALL": "zombie_cueball",
+    "CURSED_PROWLER": "prowler",
+    "CYBER_MANCUBUS": "mancubus_goo",
+    "DOOM_HUNTER": "doomhunter",
+    "DREAD_KNIGHT": "dreadknight",
+    "GARGOYLE": "gargoyle",
+    "HELL_KNIGHT": "hellknight",
+    "HELL_SOLDIER": "soldier_blaster",
+    "IMP": "imp",
+    "MANCUBUS": "mancubus_fire",
+    "MARAUDER": "marauder",
+    "PAIN_ELEMENTAL": "painelemental",
+    "PINKY": "pinky",
+    "PROWLER": "prowler",
+    "REVENANT": "revenant",
+    "SHOTGUN_SOLDIER": "soldier_shield",
+    "STONE_IMP": "imp_stone",
+    "TENTACLE": "tentacle",
+    "TYRANT": "tyrant",
+    "WHIPLASH": "whiplash",
+    "ZOMBIE_MAYKR": "zombie_maykr",
+    "ZOMBIE_T1_SCREECHER": "zombie_t1_screecher",
+    "ZOMBIE_TIER_1": "zombie_tier_1",
+    "ZOMBIE_TIER_3": "zombie_tier_3",
+    "SPECTRE": "pinky",
+    "CARCASS": "carcass",
+    "ARCHVILE": "archvile",
+}
