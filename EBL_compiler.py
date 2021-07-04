@@ -1,3 +1,4 @@
+import entity_templates
 import eternalevents
 from pathlib import Path
 from eternalevents import is_number_or_keyword
@@ -25,21 +26,24 @@ blacklist_entities = []
 
 variables = {}
 Settings = []
-templates = {}
+templates = entity_templates.BUILTIN_TEMPLATES
 decorator_changes = []
 decorator_entity_names = {}
 debug_vars = False
 
 worker_object = None
+do_verbose_logging = False
 
 
 def ui_log(s):
-    # qt_ui.ui.log_browser.appendPlainText(str(s))
     try:
         worker_object.worker_log(str(s))
-        # qt_ui.worker_log(str(s))
     except Exception as e:
         print(s)
+
+def ui_log_verbose(s):
+    if do_verbose_logging:
+        ui_log(s)
 
 
 def debug_print(string):
@@ -71,9 +75,9 @@ def parse_event(event: str) -> Tuple[str, list]:
 # these are not technically variables, but go off I guess
 def add_variable(varname, value):
     if varname in variables:
-        debug_print(f"Modified variable {varname} = {value}")
+        debug_print(f"Modified macro {varname} = {value}")
     else:
-        ui_log(f"Added variable {varname} = {value}")
+        ui_log(f"Added macro {varname} = {value}")
 
     ignore_quotes = "+" not in value
     new_value = format_args(value)
@@ -138,7 +142,7 @@ def split_ebl_at_headers(filename) -> list:
         cmd = cmd.strip()
         name = body.split("\n")[0].strip()
         if not name:
-            if cmd == "END":
+            if cmd == "INIT":
                 name = None
             else:
                 raise EblTypeError(f"No entity name specified in header {cmd}")
@@ -286,7 +290,7 @@ def add_decorator_command(
                 )
             elif cmd_name == "teleport":
                 old_spawntarget = concat_strings(
-                    original_event.spawnTarget, is_expression=True
+                    original_event.spawnTarget #, is_expression=True
                 )
                 new_target_name = f"eblmod_spawn_target_{mod_entity_idx}"
                 event_cls.spawnTarget = new_target_name
@@ -333,21 +337,20 @@ def apply_decorator_command(
     if new_entity_name in decorator_entity_names:
         delete_original = True
         entity = decorator_entity_names[new_entity_name]
-        print(f"existing decorator entity found: {new_entity_name}")
+        # print(f"existing decorator entity found: {new_entity_name}")
 
     parsed_entity = parser.parse_entity(entity)
     entitydef = ""
     for key in parsed_entity:
         if key.startswith("entityDef"):
             entitydef = key
-    ui_log(f"Applying '{cmd}' to '{entitydef.removeprefix('entityDef ')}'")
+    ui_log_verbose(f"Applying '{cmd}' to '{entitydef.removeprefix('entityDef ')}'")
 
     original_name = entitydef.removeprefix("entityDef ")
 
     if not entitydef:
         raise EntitiesSyntaxError("No entityDef component!")
 
-    # print(cmd)
     if " " not in cmd:
         cmd_name = cmd.strip()
         args = []
@@ -362,8 +365,9 @@ def apply_decorator_command(
     if cmd_name == "anim":
         anim_name, spawn_type = args
         demon_name = cc.NAME_TO_ANIMWEB[spawn_type]
+        traversal_s = "traversals" if demon_name in cc.TRAVERSALS_ENEMIES else "traversal"
         traversal_path = (
-            f"animweb/characters/monsters/{demon_name}/traversal/" + anim_name
+            f"animweb/characters/monsters/{demon_name}/{traversal_s}/" + anim_name
         )
         try:
             parsed_entity[entitydef]["edit"]["spawnEditable"][
@@ -390,8 +394,6 @@ def apply_decorator_command(
                 forward_cos = 1
                 forward_sin = 0
             demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
-            if "ledge" in anim_name:
-                demon_width *= 1.35
             dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
             dy = y_off
             dz = forward_sin * sign(x_off) * (abs(x_off) + demon_width)
@@ -500,7 +502,7 @@ def concat_strings(s, is_expression=False):
     if "+" not in s:
         for var, val in sorted_variables:
             if is_expression:  # only replace entire expression if matched
-                if len(var) == len(s.strip()):
+                if var == s.strip():
                     s = s.replace(f"{var}", str(val))
                     break
             else:  # replace all instances of matches in quotes
@@ -695,6 +697,12 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     entity = parser.parse_entity(spawn_target)
     entitydef = ""
     # name = ""
+    for idx, key in enumerate(entity):
+        if key == "layers":
+            entity.pop("layers")
+            break
+        if idx > 1:
+            break
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
@@ -768,8 +776,8 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
             )
             return entity
         ui_log(f"Created copy of {old_name} as {new_name}")
-        global added_entities
-        added_entities.append(edit_entity_fields(new_name, entity, text))
+        global entities
+        entities.append(edit_entity_fields(new_name, entity, text))
         return entity
     elif cmd == "MODIFY":
         ui_log(f"Modified fields in {name}")
@@ -778,6 +786,7 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
         raise EblTypeError(f"Unknown command {cmd}")
 
 
+entities = []
 added_entities = []
 
 # Apply all changes in ebl_file to base_file and output to modded_file
@@ -810,18 +819,22 @@ def apply_ebl(
     oodle.decompress_entities(base_file)
 
     # Add entitydefs with appropriate DLC level
-    # TODO: remove this?
     entitydefs = cc.BASE_ENTITYDEFS
     if dlc_level >= 2:
         entitydefs += cc.DLC2_ENTITYDEFS
     if dlc_level >= 1:
         entitydefs += cc.DLC1_ENTITYDEFS
 
-    # get file deltas
+    # 1) Get file deltas
     deltas = split_ebl_at_headers(ebl_file) if ebl_file else []
-    global added_entities
 
-    # find + store entity templates
+    # 2) Get vanilla entities from base file
+    global entities
+    global added_entities
+    entities = list(parser.generate_entity_segments(base_file, version_numbers=True))
+    entities = entities[0:2] + all_idai2s(dlc_level=dlc_level) + entities[3:]
+
+    # 3) find + store entity templates
     for key, val in deltas:
         if val[0] == "TEMPLATE":
             # TODO: make a PEG parser for this
@@ -830,6 +843,23 @@ def apply_ebl(
         elif val[0] == "INIT":
             compile_ebl(val[1], vars_only=True)
 
+    # 4) Create copies of entities
+    break_idx = len(entities)
+    for idx, entity in enumerate(entities):
+        if idx == break_idx:
+            break
+        for name, params in deltas:
+            cmd, body_text = params
+            if cmd != "MODIFY COPY":
+                continue
+            ident = name.split()[0]
+            if f"entityDef {ident} {{" in entity:
+                ui_log_verbose(f"Found entity {ident}")
+                entity = apply_entity_changes(name, entity, params, dlc_level)
+                modified_count += 1
+                break
+
+    # 5) initialize variables, add new entities, and compile encounters
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
             try:
@@ -847,20 +877,17 @@ def apply_ebl(
                     entity = templates[template].render(*args)
                     is_template = True
                     ui_log(f"Added instance of {key}")
+                    entities.append(entity)
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
-            added_entities.append(entity.strip())
-
-    # get vanilla entities from base file
-    entities = list(parser.generate_entity_segments(base_file, version_numbers=True))
-    entities = entities[0:2] + all_idai2s(dlc_level=dlc_level) + entities[3:]
+                entities.append(entity)
 
     entities_name = Path(base_file).name
     modded_file = str(output_folder) + "/" + entities_name
 
+    # 4) iterate vanilla entities, apply changes, then write to output file
     with open(modded_file, "w") as fp:
-        # iterate vanilla entities, apply changes, then write to output file
         for entity in entities:
             total_count += 1
             skip_entity = False
@@ -889,9 +916,12 @@ def apply_ebl(
                 continue
 
             for name, params in deltas:
+                cmd, _ = params
+                if cmd == "INIT" or cmd == "MODIFY COPY":
+                    continue
                 ident = name.split()[0]
                 if f"entityDef {ident} {{" in entity:
-                    ui_log(f"Found entity {ident}")
+                    ui_log_verbose(f"Found entity {ident}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
                     break
@@ -903,7 +933,8 @@ def apply_ebl(
                 modified_count += 1
             fp.write(entity)
         fp.write("\n")
-        # iterate added entities, apply changes, then write to output file
+
+        # 5) iterate added entities, apply changes, then write to output file
         for new_entity in added_entities:
             total_count += 1
             if (
@@ -945,7 +976,7 @@ def apply_ebl(
     ui_log(f"Added {added_count} new entities")
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
-    print(decorator_changes)
+    # print(decorator_changes)
     # import pprint
     # pprint.pprint(decorator_entity_names)
     return True

@@ -268,7 +268,7 @@ Z_LABEL_OFFSET = 0.45
 
 
 def mark_spawn_targets(filename):
-    def is_close(pos_1, pos_2, min_distance=3):
+    def is_close(pos_1, pos_2, min_distance=1):
         dx = abs(pos_1[0] - pos_2[0])
         dy = abs(pos_1[1] - pos_2[1])
         dz = abs(pos_1[2] - pos_2[2])

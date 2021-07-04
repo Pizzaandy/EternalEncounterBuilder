@@ -9,6 +9,7 @@ class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
     """
+
     def __init__(self, name, template, args):
         self.name = name
         self.template = template
@@ -57,8 +58,25 @@ class Vec3(EntityTemplate):
     """
 
 
+# noinspection PyMissingConstructor
+class pVec3(EntityTemplate):
+    def __init__(self):
+        self.name = "pVec3"
+        self.args = ["x", "y", "z"]
+        self.template = """{
+            x = {{x}};
+            y = {{y}};
+            z = {{z}};
+        }
+    """
+    def modify_args(self, args):
+        new_args = args[0], args[1], float(args[2]) - 1.67
+        return new_args
+
+
+
 def sin_cos(deg):
-    rad = math.degrees(float(deg))
+    rad = math.radians(float(deg))
     return math.sin(rad), math.cos(rad)
 
 
@@ -130,5 +148,77 @@ class Mat2(EntityTemplate):
             sy, cy = sin_cos(args[0])
             sp, cp = sin_cos(args[1])
             return [cy, sy, cp, sp]
+        elif len(args) == 1:
+            sy, cy = sin_cos(args[0])
+            sp, cp = 0, 1
+            return [cy, sy, cp, sp]
         else:
             return args
+
+
+BUILTIN_TEMPLATES = {
+    "SpawnTarget": EntityTemplate(
+        "SpawnTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/spawn";
+	class = "idTarget_Spawn";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnConditions = {
+			maxCount = 0;
+			reuseDelaySec = 0;
+			doBoundsTest = false;
+			boundsTestType = "BOUNDSTEST_NONE";
+			fovCheck = 0;
+			minDistance = 0;
+			maxDistance = 0;
+			neighborSpawnerDistance = -1;
+			LOS_Test = "LOS_NONE";
+			playerToTest = "PLAYER_SP";
+			conditionProxy = "";
+		}
+		spawnEditableShared = {
+			groupName = "";
+			deathTrigger = "";
+			coverRadius = 0;
+			maxEnemyCoverDistance = 0;
+		}
+		entityDefs = {
+			num = 0;
+		}
+		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
+		initialEntityDefs = {
+			num = 0;
+		}
+		spawnEditable = {
+			spawnAt = "";
+			copyTargets = false;
+			additionalTargets = {
+				num = 0;
+			}
+			overwriteTraversalFlags = true;
+			traversalClassFlags = "CLASS_A";
+			combatHintClass = "CLASS_ALL";
+			spawnAnim = "";
+			aiStateOverride = "AIOVERRIDE_DEFAULT";
+			initialTargetOverride = "";
+		}
+		portal = "";
+		targetSpawnParent = "";
+		disablePooling = false;
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}""",
+        ["name", "position", "orientation"],
+    )
+}

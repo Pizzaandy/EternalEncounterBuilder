@@ -1,5 +1,5 @@
 EBL_HEADERS_REGEX = (
-    r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT |^ADD)"
+    r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT|^ADD)"
 )
 
 # character reserved for spaces in string literals
@@ -258,6 +258,7 @@ NAME_TO_ANIMWEB = {
 ANIM_TO_OFFSET = {
     "jump_forward_1000_up_1000": (1000, 1000),
     "jump_forward_1000_down_1000": (1000, -1000),
+    "jump_forward_500_down_500": (500, -500),
     "jump_forward_300_down_300": (300, -300),
     "jump_forward_300_up_300": (300, 300),
     "jump_forward_100": (100, 0),
@@ -265,6 +266,7 @@ ANIM_TO_OFFSET = {
     "jump_forward_700": (700, 0),
     "jump_forward_1000": (1000, 0),
     "jump_ledge_up_300": (0, 300),
+    "ledge_forward_1000_up_1000": (1000, 1000),
     "ledge_down_100": (0, -100),
     "ledge_down_500": (0, -500),
     "ledge_down_1000": (0, -1000),
@@ -273,40 +275,44 @@ ANIM_TO_OFFSET = {
     "ledge_up_1000": (0, 1000),
 }
 
+TRAVERSALS_ENEMIES = [
+    "REVENANT",
+    "MARAUDER"
+]
 
 # larger value = larger offset
 NAME_TO_HORIZONTAL_OFFSET = {
-    "ARACHNOTRON": 600,
-    "ARMORED_BARON": 620,
-    "BARON": 620,
+    "ARACHNOTRON": 270,
+    "ARMORED_BARON": 640,
+    "BARON": 640,
     "BLOOD_ANGEL": 1/80,
     "CHAINGUN_SOLDIER": 1/80,
     "CUEBALL": 1/80,
     "CURSED_PROWLER": 1/80,
     "CYBER_MANCUBUS": 500,
     "DOOM_HUNTER": 650,
-    "DREAD_KNIGHT": 1/80,
+    "DREAD_KNIGHT": 400,
     "GARGOYLE": 1/80,
-    "HELL_KNIGHT": 350,
-    "HELL_SOLDIER": 150,
-    "IMP": 150,
-    "MANCUBUS": 460,
-    "MARAUDER": 1/80,
-    "PINKY": 1/80,
+    "HELL_KNIGHT": 380,
+    "HELL_SOLDIER": 240,
+    "IMP": 175,
+    "MANCUBUS": 500,
+    "MARAUDER": 200,
+    "PINKY": 200,
     "PROWLER": 1/80,
     "REVENANT": 250,
     "SHOTGUN_SOLDIER": 1/80,
     "STONE_IMP": 1/80,
     "TENTACLE": 1/80,
-    "TYRANT": 1/80,
-    "WHIPLASH": 1/80,
+    "TYRANT": 500,
+    "WHIPLASH": 40,
     "ZOMBIE_MAYKR": 1/80,
     "ZOMBIE_T1_SCREECHER": 1/80,
     "ZOMBIE_TIER_1": 1/80,
     "ZOMBIE_TIER_3": 1/80,
     "SPECTRE": 1/80,
-    "CARCASS": 1/80,
-    "ARCHVILE": 1/80,
+    "CARCASS": 250,
+    "ARCHVILE": 375,
 }
 
 ANIM_LIST = [
