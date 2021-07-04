@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import List, Union, Tuple
 import re
 import time
+import math
 
 from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
@@ -259,7 +260,7 @@ def add_decorator_command(
 
     cmd_list = [cmd.strip() for cmd in cmds.split(";")]
     for cmd in cmd_list:
-        cmd_name, _ = cmd.split(" ", 1)
+        cmd_name, _ = cmd.split(" ", 1) if " " in cmd else (cmd.strip(), "")
         # Decide what to do based on event type, then decorator type
         if type(event_cls) in eternalevents.SPAWN_TARGET_EVENTS:
             if type(event_cls) == eternalevents.SpawnSingleAI:
@@ -279,7 +280,7 @@ def add_decorator_command(
                 decorator_changes.append(
                     (
                         old_spawntarget,
-                        cmd + " " + cc.NAME_TO_ANIMWEB[spawn_type],
+                        cmd + " " + spawn_type,
                         new_entity_name,
                     )
                 )
@@ -299,8 +300,8 @@ def add_decorator_command(
                         new_target_name,
                     )
                 )
-                decorator_changes.append((old_idai2, "idai2_" + cmd, new_idai2_name))
-            print(f"{spawn_type=}")
+                # decorator_changes.append((old_idai2, "idai2_" + cmd, new_idai2_name))
+            # print(f"{spawn_type=}")
         else:
             ui_log(f"WARNING: event {type(event_cls)} has no associated tags")
             return modified_args
@@ -319,10 +320,13 @@ def apply_decorator_command(
     Returns a copy of the given entity with decorator commands applied
     :param entity:
     :param cmd:
-    :new_entity_name:
+    :param new_entity_name:
     :return:
     """
-    ui_log(f"Applying '{cmd}' to '{entity}'")
+
+    def sign(num):
+        return 1 if num > 0 else -1
+
     do_not_modify = False
     delete_original = False
 
@@ -336,40 +340,97 @@ def apply_decorator_command(
     for key in parsed_entity:
         if key.startswith("entityDef"):
             entitydef = key
+    ui_log(f"Applying '{cmd}' to '{entitydef.removeprefix('entityDef ')}'")
 
     original_name = entitydef.removeprefix("entityDef ")
 
     if not entitydef:
         raise EntitiesSyntaxError("No entityDef component!")
 
-    print(cmd)
-    cmd_name, args = cmd.split(" ", 1)
-    args = [arg.strip() for arg in args.split() if arg.strip()]
+    # print(cmd)
+    if " " not in cmd:
+        cmd_name = cmd.strip()
+        args = []
+    else:
+        cmd_name, args = cmd.split(" ", 1)
+        args = [
+            concat_strings(arg.strip(), is_expression=True)
+            for arg in args.split()
+            if arg.strip()
+        ]
 
     if cmd_name == "anim":
-        animweb = f"animweb/characters/monsters/{args[1]}/traversal/" + args[0]
+        anim_name, spawn_type = args
+        demon_name = cc.NAME_TO_ANIMWEB[spawn_type]
+        traversal_path = (
+            f"animweb/characters/monsters/{demon_name}/traversal/" + anim_name
+        )
         try:
-            parsed_entity[entitydef]["edit"]["spawnEditable"]["spawnAnim"] = animweb
+            parsed_entity[entitydef]["edit"]["spawnEditable"][
+                "spawnAnim"
+            ] = traversal_path
             parsed_entity[entitydef]["edit"]["spawnEditable"][
                 "aiStateOverride"
             ] = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION"
+            x_off, y_off = cc.ANIM_TO_OFFSET[anim_name]
+            x_off, y_off = -x_off, -y_off
+            x, y, z = (
+                parsed_entity[entitydef]["edit"]["spawnPosition"]["x"],
+                parsed_entity[entitydef]["edit"]["spawnPosition"]["y"],
+                parsed_entity[entitydef]["edit"]["spawnPosition"]["z"],
+            )
+            try:
+                forward_cos = parsed_entity[entitydef]["edit"]["spawnOrientation"][
+                    "mat"
+                ]["mat[0]"]["x"]
+                forward_sin = parsed_entity[entitydef]["edit"]["spawnOrientation"][
+                    "mat"
+                ]["mat[0]"]["y"]
+            except KeyError:
+                forward_cos = 1
+                forward_sin = 0
+            demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+            if "ledge" in anim_name:
+                demon_width *= 1.35
+            dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
+            dy = y_off
+            dz = forward_sin * sign(x_off) * (abs(x_off) + demon_width)
+            offset_scalar_x = 1 / 100
+            offset_scalar_y = 1 / 100
+            # for some reason, Z is up in the animation coordinate system?
+            parsed_entity[entitydef]["edit"]["spawnPosition"]["x"] = x + (
+                dx * offset_scalar_x
+            )
+            parsed_entity[entitydef]["edit"]["spawnPosition"]["y"] = y + (
+                dz * offset_scalar_x
+            )
+            parsed_entity[entitydef]["edit"]["spawnPosition"]["z"] = z + (
+                dy * offset_scalar_y
+            )
+            # change name
             parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
-        except KeyError:
-            ui_log("ERROR: couldn't access fields")
-        print(entity_tools.generate_entity(parsed_entity))
+        except KeyError as e:
+            ui_log(f"ERROR: Couldn't find key {e}")
     elif cmd_name == "spawntarget_teleport":
         do_not_modify = True
         try:
+            spawn_anim_exists = parsed_entity[entitydef]["edit"]["spawnEditable"][
+                "spawnAnim"
+            ]
+            if spawn_anim_exists:
+                override = "AIOVERRIDE_FORCE_TELEPORT_TO_TRAVERSAL"
+            else:
+                override = "AIOVERRIDE_TELEPORT"
             parsed_entity[entitydef]["edit"]["spawnEditable"][
                 "aiStateOverride"
-            ] = "AIOVERRIDE_FORCE_TELEPORT_TO_TRAVERSAL"
+            ] = override
             parsed_entity[entitydef]["edit"]["entityDefs"] = {
                 "num": 1,
-                "item[0]": {"name": args[1]},
+                "item[0]": {"name": args[0]},
             }
             parsed_entity[entitydef]["edit"]["targets"] = {
                 "num": 1,
-                "item[0]": args[1],
+                "item[0]": args[0],
             }
             parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
         except KeyError:
@@ -379,7 +440,7 @@ def apply_decorator_command(
         try:
             parsed_entity[entitydef]["edit"]["aiEditable"]["spawnSettings"][
                 "teleportDelayMS"
-            ] = args[0]
+            ] = (float(args[0]) * 1000)
             parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
         except KeyError:
             ui_log(f"ERROR: couldn't access fields of {original_name}")
@@ -394,7 +455,7 @@ def apply_decorator_command(
     return entity_tools.generate_entity(parsed_entity), do_not_modify, delete_original
 
 
-def all_idai2s(dlc_level=2) -> List[str]:
+def all_idai2s(*, dlc_level=2) -> List[str]:
     res = ""
 
     with open("idAI2_base.txt", "r") as fp_base:
@@ -489,6 +550,7 @@ def compile_ebl(s, vars_only=False) -> str:
     """
     result = ""
     item_index = 0
+    s = strip_comments(s)
     events = create_events(ebl.parse(s))
     if events is None:
         return result
@@ -549,7 +611,9 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
     entitydef = ""
     for key in entity:
         if key.startswith("entityDef"):
-            entitydef = key
+            entitydef = f"entityDef {name}"
+            entity[entitydef] = entity.pop(key)
+            break
     if not entitydef:
         # This should never happen when modifying a base entities file
         raise EntitiesSyntaxError("No entityDef component!")
@@ -654,11 +718,14 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
         pass
     else:
         no_spawnanim = not spawn_editable["spawnAnim"]
-        no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
-        if no_spawnanim and no_add_targets:
+        # no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
+        if no_spawnanim:
             entity[entitydef]["edit"]["spawnEditable"][
                 "aiStateOverride"
             ] = "AIOVERRIDE_TELEPORT"
+        else:
+            pass
+            # print("SKIPPING SPAWNANIM")
 
     listed_targets = list_targets(entitydefs)
     targets = "{\n" + indent(listed_targets, "\t") + "}\n"
@@ -676,7 +743,7 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
     Applies changes to entity with given parameters
     :param name:
     :param entity:
-    :param params:
+    :param params: (command, body_text)
     :param dlc_level:
     :return modified_entity:
     """
@@ -690,12 +757,28 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
     elif cmd == "REMOVE":
         ui_log(f"Removed {name}")
         return ""
+    elif cmd == "MODIFY COPY":
+        try:
+            old_name, as_keyword, new_name = name.strip().split()
+            if as_keyword != "AS":
+                raise ValueError("no as keyword")
+        except ValueError:
+            ui_log(
+                "ERROR: MODIFY COPY requires two names, e.g. MODIFY COPY old_name AS new_name"
+            )
+            return entity
+        ui_log(f"Created copy of {old_name} as {new_name}")
+        global added_entities
+        added_entities.append(edit_entity_fields(new_name, entity, text))
+        return entity
     elif cmd == "MODIFY":
         ui_log(f"Modified fields in {name}")
         return edit_entity_fields(name, entity, text)
     else:
         raise EblTypeError(f"Unknown command {cmd}")
 
+
+added_entities = []
 
 # Apply all changes in ebl_file to base_file and output to modded_file
 def apply_ebl(
@@ -706,6 +789,7 @@ def apply_ebl(
     compress_file=True,
     show_spawn_targets=False,
     generate_traversals=True,
+    dlc_level=2,
 ):
     """
     Applies all changes in an EBL file to a copy of a vanilla entities file
@@ -716,6 +800,7 @@ def apply_ebl(
     :param compress_file: Whether the output file should be compressed
     :param show_spawn_targets: Whether visual spawn target markers should be added to the file
     :param generate_traversals: Whether traversal info should be added to the file
+    :param dlc_level:
     :return success:
     """
     tic = time.time()
@@ -723,7 +808,6 @@ def apply_ebl(
     modified_count = 0
 
     oodle.decompress_entities(base_file)
-    dlc_level = 2
 
     # Add entitydefs with appropriate DLC level
     # TODO: remove this?
@@ -735,7 +819,7 @@ def apply_ebl(
 
     # get file deltas
     deltas = split_ebl_at_headers(ebl_file) if ebl_file else []
-    added_entities = []
+    global added_entities
 
     # find + store entity templates
     for key, val in deltas:
@@ -743,6 +827,8 @@ def apply_ebl(
             # TODO: make a PEG parser for this
             t_name, t_args = parse_event(key)
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
+        elif val[0] == "INIT":
+            compile_ebl(val[1], vars_only=True)
 
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
@@ -751,12 +837,6 @@ def apply_ebl(
             except Exception as e:
                 ui_log(e)
                 return
-
-            print("success!")
-
-        elif val[0] == "INIT":
-            compile_ebl(val[1], vars_only=True)
-
         elif val[0] == "ADD":
             entity = ""
             is_template = False
@@ -770,11 +850,11 @@ def apply_ebl(
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
-            added_entities += [entity.strip()]
+            added_entities.append(entity.strip())
 
     # get vanilla entities from base file
     entities = list(parser.generate_entity_segments(base_file, version_numbers=True))
-    entities = [entities[0]] + all_idai2s() + entities[1:]
+    entities = entities[0:2] + all_idai2s(dlc_level=dlc_level) + entities[3:]
 
     entities_name = Path(base_file).name
     modded_file = str(output_folder) + "/" + entities_name
@@ -809,8 +889,9 @@ def apply_ebl(
                 continue
 
             for name, params in deltas:
-                if f"entityDef {name} {{" in entity:
-                    ui_log(f"Found entity {name}")
+                ident = name.split()[0]
+                if f"entityDef {ident} {{" in entity:
+                    ui_log(f"Found entity {ident}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
                     break
@@ -843,13 +924,14 @@ def apply_ebl(
         # TODO: rewrite generate_traversals
         # give sauce proteh >:(
 
-    entity_tools.verify_file(modded_file)
     if show_checkpoints:
         checkpoints = entity_tools.list_checkpoints(modded_file)
         ui_log("\nCHECKPOINTS:")
         for cp in checkpoints:
             ui_log(cp)
         ui_log("\n")
+
+    ui_log(entity_tools.verify_file(modded_file))
 
     if "minify" in Settings:
         ui_log("Minifying modded file...")
@@ -864,7 +946,6 @@ def apply_ebl(
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
     print(decorator_changes)
-    import pprint
-
-    pprint.pprint(decorator_entity_names)
+    # import pprint
+    # pprint.pprint(decorator_entity_names)
     return True

@@ -14,7 +14,7 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
     """
     s = ""
     if depth == 0:
-        s += "entity {\n\t"
+        s += "entity {\n"
     item_index = 0
     do_item_numbering = False
 
@@ -38,10 +38,16 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
                 do_item_numbering = False
 
         if isinstance(val, dict):
+            if depth == 0:
+                s += "\t"
             s += key
             if not key.startswith(NO_EQUALS):
                 s += " ="
-            s += " {\n" + generate_entity(val, depth + 1) + "}\n"
+            if key == "layers":
+                block = indent(generate_entity(val, depth + 1), "\t") + "\t"
+            else:
+                block = generate_entity(val, depth + 1)
+            s += " {\n" + block + "}\n"
         else:
             multiline = False
             # special case for layernames xd
@@ -62,7 +68,7 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
                 if not multiline:
                     s += ";\n"
 
-    return indent(s, "\t") if depth > 0 else s + "}\n"
+    return indent(s, "\t") if depth > 0 else s + "\n}\n"
 
 
 def minify(filename):
@@ -118,7 +124,7 @@ def verify_file(filename) -> str:
             if line.strip() == "entity {":
                 if depth != 1:
                     print(f"Unmatched braces in entity starting at line {i + 1}")
-                    return True
+                    return f"Unmatched braces in entity starting at line {i + 1}"
                 last_entity_line = i
             if layers_block:
                 continue
@@ -129,13 +135,12 @@ def verify_file(filename) -> str:
             if not line.rstrip().endswith(("{", "}", ";")):
                 print(f"Missing punctuation on line {i + 1}")
                 print(f"line {i + 1}: {line}")
-                error_found = True
+                return f"Missing punctuation on line {i + 1}"
     if depth != 0:
         print(f"Unmatched braces detected! Depth = {depth}")
-        return True
+        return f"Unmatched braces detected! Depth = {depth}"
     if not error_found:
-        print("No problems found!")
-    return error_found
+        return "No problems found!"
 
 
 def list_checkpoints(filename) -> list:
@@ -150,7 +155,7 @@ def list_checkpoints(filename) -> list:
     return cps
 
 
-marker_template = """
+point_marker = """
 entity {
 	entityDef mod_marker_{{name}} {
 	class = "idProp2";
@@ -189,6 +194,9 @@ entity {
 	}
 }
 }
+"""
+
+text_label = """
 entity { 
     entityDef mod_label_{{name}} {
     class = "idGuiEntity_Text";
@@ -254,15 +262,17 @@ entity {
 }
 """
 
+marker_template = point_marker + text_label
+
 Z_LABEL_OFFSET = 0.45
 
 
 def mark_spawn_targets(filename):
-    def is_close(pos1, pos2, min_distance=2):
-        dx = abs(pos1[0] - pos2[0])
-        dy = abs(pos1[1] - pos2[1])
-        dz = abs(pos1[2] - pos2[2])
-        return dx < min_distance and dy < min_distance and dz < min_distance
+    def is_close(pos_1, pos_2, min_distance=3):
+        dx = abs(pos_1[0] - pos_2[0])
+        dy = abs(pos_1[1] - pos_2[1])
+        dz = abs(pos_1[2] - pos_2[2])
+        return (dx < min_distance) and (dy < min_distance) and (dz < min_distance)
 
     generated_string = (
         """\n// AUTO-GENERATED ENTITIES: Anything past this point will be deleted!\n"""
@@ -283,47 +293,46 @@ def mark_spawn_targets(filename):
 
     nearby_groups = []
 
-    for i, pos in enumerate(positions):
+    for i, pos1 in enumerate(positions):
         for j, pos2 in enumerate(positions):
             if i == j:
                 continue
-            if is_close(pos, pos2):
+            if is_close(pos1, pos2):
                 no_group = True
                 for idx, sublist in enumerate(nearby_groups):
-                    if pos in sublist and pos2 not in sublist:
+                    if pos1 in sublist and pos2 not in sublist:
                         nearby_groups[idx].append(pos2)
                         no_group = False
                         break
-                    if pos2 in sublist and pos not in sublist:
-                        nearby_groups[idx].append(pos)
+                    if pos2 in sublist and pos1 not in sublist:
+                        nearby_groups[idx].append(pos1)
                         no_group = False
                         break
-                    if pos in sublist and pos2 in sublist:
+                    if pos1 in sublist and pos2 in sublist:
                         break
                 if no_group:
-                    nearby_groups.append([pos, pos2])
+                    nearby_groups.append([pos1, pos2])
 
+    # print(f"{nearby_groups=}")
     for pos in positions:
         y_off_scalar = 0
         for idx, group in enumerate(nearby_groups):
             if pos in group:
-                y_off_scalar = len(group) - 1
-                print(f"{y_off_scalar=}")
                 nearby_groups[idx].remove(pos)
+                y_off_scalar = len(group)
+                # print(f"{y_off_scalar=}")
                 break
         new_daisy = chevron.render(
             template=marker_template,
             data={
                 "xpos": pos[0],
                 "ypos": pos[1],
-                "offset_zpos": pos[2] + Z_LABEL_OFFSET * y_off_scalar,
+                "offset_zpos": pos[2] + (Z_LABEL_OFFSET * y_off_scalar),
                 "zpos": pos[2],
                 "name": pos[3],
             },
         )
         generated_string += "\n" + new_daisy
-
-    # print(f"NEARBY GROUPS: \n {nearby_groups}")
 
     with open(filename, "a") as fp:
         fp.write(generated_string)
