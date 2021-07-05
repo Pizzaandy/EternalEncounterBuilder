@@ -287,6 +287,7 @@ def mark_spawn_targets(filename):
         entityDef = [v for k, v in target.items() if k.startswith("entityDef")][0]
         name = [k for k, v in target.items() if k.startswith("entityDef")][0]
         name = name.replace("entityDef ", "")
+        print(f"{name=}")
         pos = entityDef["edit"]["spawnPosition"]
         if all(key in pos for key in ("x", "y", "z")):
             positions.append((pos["x"], pos["y"], pos["z"], name))

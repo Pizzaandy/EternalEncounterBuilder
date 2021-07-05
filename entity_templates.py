@@ -69,10 +69,10 @@ class pVec3(EntityTemplate):
             z = {{z}};
         }
     """
+
     def modify_args(self, args):
         new_args = args[0], args[1], float(args[2]) - 1.67
         return new_args
-
 
 
 def sin_cos(deg):
@@ -218,7 +218,83 @@ BUILTIN_TEMPLATES = {
 		spawnOrientation = {{orientation}}
 	}
 }
-}""",
+}
+""",
         ["name", "position", "orientation"],
-    )
+    ),
+    "MeathookNode": EntityTemplate(
+        "MeathookNode",
+        """entity { 
+	entityDef {{name}}_target_ai_proxy_meathook {
+	class = "idTarget_SmartAIProxy";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		targetingDecl = "target_aiproxy_meathook";
+		distanceOverride = 33;
+		spawnPosition = {{position}}
+		renderModelInfo = {
+			scale = {
+				x = 1.000000;
+				y = 1.000000;
+				z = 1.000000;
+			}
+		}
+	}
+}
+}
+entity {
+	entityDef {{name}}_target_ai_proxy_handler {
+	inherit = "target/proxy_handler";
+	class = "idTargetableProxyHandler";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		cooldownDuration = {{cooldown}};
+		connectSound = "play_meat_hook_lock_in";
+		ambientLoopSound = "play_meathook_sphere_amb_loop";
+		oneSidedActiveModel = "art/kit/gameplay/meathook_traversal_a.lwo";
+		oneSidedInactiveModel = "art/kit/gameplay/meathook_traversal_b.lwo";
+		allSidedActiveModel = "art/kit/gameplay/meathook_traversal_c.lwo";
+		allSidedInactiveModel = "art/kit/gameplay/meathook_traversal_d.lwo";
+		oneSidedActiveFXModel = "art/kit/gameplay/meathook_traversal_a_rings.lwo";
+		oneSidedInactiveFXModel = "art/kit/gameplay/meathook_traversal_b_rings.lwo";
+		allSidedActiveFXModel = "art/kit/gameplay/meathook_traversal_c_rings.lwo";
+		allSidedInactiveFXModel = "art/kit/gameplay/meathook_traversal_d_rings.lwo";
+		renderModelInfo = {
+			model = "art/kit/gameplay/meatHook_traversal_placeholder.lwo";
+			scale = {
+				x = 1.000000;
+				y = 1.000000;
+				z = 1.000000;
+			}
+		}
+		clipModelInfo = {
+			clipModelName = "maps/prefabs/gameplay/meathook_target/target_proxy_handler_2";
+		}
+		proxyList = {
+			num = 1;
+			item[0] = {
+				proxyEntity = "{{name}}_target_ai_proxy_meathook";
+				proxyTagName = "{{name}}_target_ai_proxy_meathook";
+			}
+		}
+		isOmnidirectional = true;
+		spawnOrientation = {{orientation}}
+		spawnPosition = {{position}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation", "cooldown"],
+    ),
 }

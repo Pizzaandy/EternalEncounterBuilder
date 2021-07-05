@@ -365,7 +365,7 @@ def apply_decorator_command(
     if cmd_name == "anim":
         anim_name, spawn_type = args
         demon_name = cc.NAME_TO_ANIMWEB[spawn_type]
-        traversal_s = "traversals" if demon_name in cc.TRAVERSALS_ENEMIES else "traversal"
+        traversal_s = "traversals" if spawn_type in cc.TRAVERSALS_ENEMIES else "traversal"
         traversal_path = (
             f"animweb/characters/monsters/{demon_name}/{traversal_s}/" + anim_name
         )
