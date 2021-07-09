@@ -207,7 +207,7 @@ class Ui_MainWindow(object):
         self.checkpoints_box.setText(_translate("MainWindow", "List Checkpoints"))
         self.compress_box.setText(_translate("MainWindow", "Compress"))
         self.show_targets_box.setText(
-            _translate("MainWindow", "Visualize Spawn Targets")
+            _translate("MainWindow", "Visualize Targets (slow)")
         )
         self.ebl_fileselect.setText(_translate("MainWindow", "..."))
         self.base_entities_fileselect.setText(_translate("MainWindow", "..."))

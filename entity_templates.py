@@ -50,28 +50,20 @@ class Vec3(EntityTemplate):
     def __init__(self):
         self.name = "Vec3"
         self.args = ["x", "y", "z"]
-        self.template = """{
-            x = {{x}};
-            y = {{y}};
-            z = {{z}};
-        }
-    """
+        self.template = "{\n\tx = {{x}}; y = {{y}}; z = {{z}};\n}\n"
 
+
+DOOMGUY_HEIGHT = 1.67
 
 # noinspection PyMissingConstructor
 class pVec3(EntityTemplate):
     def __init__(self):
         self.name = "pVec3"
         self.args = ["x", "y", "z"]
-        self.template = """{
-            x = {{x}};
-            y = {{y}};
-            z = {{z}};
-        }
-    """
+        self.template = "{\n\tx = {{x}}; y = {{y}}; z = {{z}};\n}\n"
 
     def modify_args(self, args):
-        new_args = args[0], args[1], float(args[2]) - 1.67
+        new_args = args[0], args[1], float(args[2]) - DOOMGUY_HEIGHT
         return new_args
 
 
@@ -110,6 +102,11 @@ class Mat3(EntityTemplate):
             sy, cy = sin_cos(args[0])
             sp, cp = sin_cos(args[1])
             sr, cr = sin_cos(args[2])
+            return_modified = True
+        else:
+            return args
+
+        if return_modified:
             return [
                 cp * cy,
                 cp * sy,
@@ -121,8 +118,6 @@ class Mat3(EntityTemplate):
                 cr * sp * sy + -sr * cy,
                 cr * cp,
             ]
-        else:
-            return args
 
 
 # noinspection PyMissingConstructor
@@ -154,6 +149,13 @@ class Mat2(EntityTemplate):
             return [cy, sy, cp, sp]
         else:
             return args
+
+
+class Color(EntityTemplate):
+    def __init__(self):
+        self.name = "Color"
+        self.args = ["r", "g", "b"]
+        self.template = """color = {r = {{r}}; g = {{g}}; b = {{b}};}"""
 
 
 BUILTIN_TEMPLATES = {
@@ -296,5 +298,216 @@ entity {
 }
 """,
         ["name", "position", "orientation", "cooldown"],
+    ),
+    "Portal": EntityTemplate(
+        "Portal",
+        """entity {
+    entityDef {{open_portal_name}} {
+    inherit = "func/emitter";
+    class = "idParticleEmitter";
+    expandInheritance = false;
+    poolCount = 0;
+    poolGranularity = 2;
+    networkReplicated = false;
+    disableAIPooling = false;
+    edit = {
+        flags = {
+            canBecomeDormant = true;
+        }
+        dormancy = {
+            delay = 5;
+            distance = 78.029007;
+        }
+        fadeIn = 0;
+        fadeOut = 0;
+        spawnPosition = {{position}}
+        spawnOrientation = {{orientation}}
+        renderModelInfo = { 
+            {{color}} 
+            scale = {
+				x = {{scale}};
+				y = {{scale}};
+				z = {{scale}};
+			}
+        }
+        startOff = true;
+        particleSystem = "map_e2m2_base/portal_opening_white";
+    }
+}
+}
+entity {
+    entityDef {{close_portal_name}} {
+    inherit = "func/emitter";
+    class = "idParticleEmitter";
+    expandInheritance = false;
+    poolCount = 0;
+    poolGranularity = 2;
+    networkReplicated = false;
+    disableAIPooling = false;
+    edit = {
+        flags = {
+            canBecomeDormant = true;
+        }
+        dormancy = {
+            delay = 5;
+            distance = 78.029007;
+        }
+        fadeIn = 0;
+        fadeOut = 0;
+        spawnPosition = {{position}}
+        spawnOrientation = {{orientation}}
+        renderModelInfo = {
+            {{color}} 
+            scale = {
+				x = {{scale}};
+				y = {{scale}};
+				z = {{scale}};
+			}
+		}
+        startOff = true;
+        cycleTrigger = true;
+        particleSystem = "map_e2m2_base/portal_closing_white";
+    }
+}
+}
+""",
+        [
+            "open_portal_name",
+            "close_portal_name",
+            "position",
+            "orientation",
+            "color",
+            "scale",
+        ],
+    ),
+    "SpawnGroup": EntityTemplate(
+        "SpawnGroup",
+        """entity {
+	entityDef {{name}} {
+	inherit = "encounter/spawn_group/zone";
+	class = "idTargetSpawnGroup";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+			clipModelName = "CLIPMODEL_NONE";
+		}
+		spawners = {
+			num = 0;
+		}
+		targetSpawnParent = "";
+	}
+}
+}""",
+        ["name"],
+    ),
+    "PointLabel": EntityTemplate(
+        "PointLabel",
+        """entity {
+	entityDef mod_visualize_marker_{{name}} {
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/health/vial.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 100;
+			scale = {
+				x = 0.7;
+				y = 0.7;
+				z = 0.7;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = false;
+		isStatic = true;
+		canBePossessed = false;
+		spawnPosition = {{position}}
+	}
+}
+}
+entity { 
+    entityDef mod_visualize_label_{{name}} {
+    class = "idGuiEntity_Text";
+    expandInheritance = false;
+    poolCount = 0;
+    poolGranularity = 2;
+    networkReplicated = false;
+    disableAIPooling = false;
+    edit = {
+        billboard = true;
+        flags = {
+            noknockback = false;
+        }
+        renderModelInfo = {
+            model = "editors/models/gui_text.lwo";
+            scale = {
+                x = 4;
+                y = 4;
+                z = 4;
+            }
+        }
+        clipModelInfo = {
+            type = "CLIPMODEL_NONE";
+        }
+        swf = "swf/guientity/generic_text.swf";
+        spawnOrientation = {
+            mat = {
+                mat[0] = {
+                    x = 0.099308;
+                    y = -0.994933;
+                    z = 0.015707;
+                }
+                mat[1] = {
+                    x = 0.995056;
+                    y = 0.099320;
+                    z = 0.000000;
+                }
+                mat[2] = {
+                    x = -0.001560;
+                    y = 0.015629;
+                    z = 0.999877;
+                }
+            }
+        }
+        spawnPosition = {{position}}
+        swfScale = 0.02;
+        headerText = {
+            text = "{{name}}";
+            color = {
+                r = 1;
+                g = 1;
+                b = 1;
+            }
+            relativeWidth = 6;
+            alignment = "SWF_ET_ALIGN_CENTER";
+        }
+    }
+}
+}
+""",
+        ["name", "position"],
     ),
 }

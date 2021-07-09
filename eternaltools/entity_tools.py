@@ -52,7 +52,9 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
             multiline = False
             # special case for layernames xd
             is_layername = key.startswith("__layername")
-            if isinstance(val, bool):
+            if val is None:
+                val = "NULL"
+            elif isinstance(val, bool):
                 val = "true" if val else "false"
             elif isinstance(val, str):
                 # if string is multiline, 'unpack' the string
@@ -68,7 +70,7 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
                 if not multiline:
                     s += ";\n"
 
-    return indent(s, "\t") if depth > 0 else s + "\n}\n"
+    return indent(s, "\t") if depth > 0 else s + "}\n"
 
 
 def minify(filename):
@@ -157,7 +159,7 @@ def list_checkpoints(filename) -> list:
 
 point_marker = """
 entity {
-	entityDef mod_marker_{{name}} {
+	entityDef mod_visualize_marker_{{name}} {
 	class = "idProp2";
 	expandInheritance = false;
 	poolCount = 0;
@@ -198,7 +200,7 @@ entity {
 
 text_label = """
 entity { 
-    entityDef mod_label_{{name}} {
+    entityDef mod_visualize_label_{{name}} {
     class = "idGuiEntity_Text";
     expandInheritance = false;
     poolCount = 0;
@@ -287,7 +289,6 @@ def mark_spawn_targets(filename):
         entityDef = [v for k, v in target.items() if k.startswith("entityDef")][0]
         name = [k for k, v in target.items() if k.startswith("entityDef")][0]
         name = name.replace("entityDef ", "")
-        print(f"{name=}")
         pos = entityDef["edit"]["spawnPosition"]
         if all(key in pos for key in ("x", "y", "z")):
             positions.append((pos["x"], pos["y"], pos["z"], name))

@@ -1,6 +1,4 @@
-EBL_HEADERS_REGEX = (
-    r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT|^ADD)"
-)
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT|^ADD)"
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
@@ -258,6 +256,7 @@ NAME_TO_ANIMWEB = {
 ANIM_TO_OFFSET = {
     "jump_forward_1000_up_1000": (1000, 1000),
     "jump_forward_1000_down_1000": (1000, -1000),
+    "jump_forward_500_up_500": (500, 500),
     "jump_forward_500_down_500": (500, -500),
     "jump_forward_300_down_300": (300, -300),
     "jump_forward_300_up_300": (300, 300),
@@ -273,46 +272,46 @@ ANIM_TO_OFFSET = {
     "ledge_up_100": (0, 100),
     "ledge_up_500": (0, 500),
     "ledge_up_1000": (0, 1000),
+    "rail_up_400": (0, 400),
 }
 
-TRAVERSALS_ENEMIES = [
-    "REVENANT",
-    "MARAUDER"
-]
+TRAVERSALS_ENEMIES = ["REVENANT", "MARAUDER"]
 
 # larger value = larger offset
+# (width_offset, ledge_offset)
 NAME_TO_HORIZONTAL_OFFSET = {
-    "ARACHNOTRON": 270,
+    "ARACHNOTRON": (150, 470),
     "ARMORED_BARON": 640,
-    "BARON": 640,
-    "BLOOD_ANGEL": 1/80,
-    "CHAINGUN_SOLDIER": 1/80,
-    "CUEBALL": 1/80,
-    "CURSED_PROWLER": 1/80,
+    "BARON": 610,
+    "BLOOD_ANGEL": 150,
+    "CHAINGUN_SOLDIER": 1 / 80,
+    "CUEBALL": 1 / 80,
+    "CURSED_PROWLER": 1 / 80,
     "CYBER_MANCUBUS": 500,
-    "DOOM_HUNTER": 650,
-    "DREAD_KNIGHT": 400,
-    "GARGOYLE": 1/80,
+    "DOOM_HUNTER": (450, 200),
+    "DREAD_KNIGHT": (390, 20),
+    "GARGOYLE": 1 / 80,
     "HELL_KNIGHT": 380,
-    "HELL_SOLDIER": 240,
-    "IMP": 175,
-    "MANCUBUS": 500,
-    "MARAUDER": 200,
-    "PINKY": 200,
-    "PROWLER": 1/80,
-    "REVENANT": 250,
-    "SHOTGUN_SOLDIER": 1/80,
-    "STONE_IMP": 1/80,
-    "TENTACLE": 1/80,
+    "HELL_SOLDIER": 200,
+    "IMP": 150,
+    "MANCUBUS": 470,
+    "MARAUDER": (580, 200),
+    "PINKY": 145,
+    "PROWLER": 1 / 80,
+    "REVENANT": (285, 100),
+    "SHOTGUN_SOLDIER": 1 / 80,
+    "STONE_IMP": 1 / 80,
+    "TENTACLE": 1 / 80,
     "TYRANT": 500,
-    "WHIPLASH": 40,
-    "ZOMBIE_MAYKR": 1/80,
-    "ZOMBIE_T1_SCREECHER": 1/80,
-    "ZOMBIE_TIER_1": 1/80,
-    "ZOMBIE_TIER_3": 1/80,
-    "SPECTRE": 1/80,
-    "CARCASS": 250,
+    "WHIPLASH": (50, 330),
+    "ZOMBIE_MAYKR": 1 / 80,
+    "ZOMBIE_T1_SCREECHER": 1 / 80,
+    "ZOMBIE_TIER_1": 1 / 80,
+    "ZOMBIE_TIER_3": 1 / 80,
+    "SPECTRE": 1 / 80,
+    "CARCASS": (300, 170),
     "ARCHVILE": 375,
+    "PAIN_ELEMENTAL": 0,
 }
 
 ANIM_LIST = [
@@ -444,3 +443,55 @@ ANIM_LIST = [
     "rail_up_700_into",
     "rail_up_700_out",
 ]
+
+MAIN_SPAWN_PARENT = """entity {
+	entityDef eblmod_main_spawn_parent {
+	inherit = "encounter/spawn_group/parent";
+	class = "idTarget_Spawn_Parent";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnConditions = {
+			maxCount = 0;
+			reuseDelaySec = 0;
+			doBoundsTest = false;
+			boundsTestType = "BOUNDSTEST_NONE";
+			fovCheck = 0;
+			minDistance = 0;
+			maxDistance = 0;
+			neighborSpawnerDistance = -1;
+			LOS_Test = "LOS_NONE";
+			playerToTest = "PLAYER_SP";
+			conditionProxy = "";
+		}
+		spawnEditableShared = {
+			groupName = "";
+			deathTrigger = "";
+			coverRadius = 0;
+			maxEnemyCoverDistance = 0;
+		}
+		entityDefs = {
+			num = 0;
+		}
+		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
+		initialEntityDefs = {
+			num = 0;
+		}
+		spawnPosition = {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+		targets = {
+			num = 0;
+		}
+	}
+}
+}
+"""

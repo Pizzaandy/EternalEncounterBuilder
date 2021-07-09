@@ -46,7 +46,7 @@ grammar = Grammar(
 
     SPACE = ~r"[\s;]+"
     SPACE_NO_NEWLINE = ~r"[\t ]+"
-    STRING = ~r'[\w/#+.\-;]+'
+    STRING = ~r'[\w/#+.\-;\[\]]+'
     PATHSTRING = ~r'[\w/#+\[\]]+'
     STRINGLITERAL = ~r'"[\s\w/#+.\-():]*"'
     NUMBER = ~r"[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?"

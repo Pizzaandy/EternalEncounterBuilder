@@ -41,6 +41,7 @@ def ui_log(s):
     except Exception as e:
         print(s)
 
+
 def ui_log_verbose(s):
     if do_verbose_logging:
         ui_log(s)
@@ -200,7 +201,6 @@ def create_events(data) -> list:
             return [Assignment(data["variable"], data["value"])]
 
         if "function" in data:
-            # ui_log(f"function value is {data['value']}")
             return [EntityEdit(data["object"], data["function"], data["value"])]
 
         if data["event"] == "waitForBlock":
@@ -265,6 +265,7 @@ def add_decorator_command(
     cmd_list = [cmd.strip() for cmd in cmds.split(";")]
     for cmd in cmd_list:
         cmd_name, _ = cmd.split(" ", 1) if " " in cmd else (cmd.strip(), "")
+        is_possessed = False
         # Decide what to do based on event type, then decorator type
         if type(event_cls) in eternalevents.SPAWN_TARGET_EVENTS:
             if type(event_cls) == eternalevents.SpawnSingleAI:
@@ -272,7 +273,8 @@ def add_decorator_command(
             elif type(event_cls) == eternalevents.SpawnArchvile:
                 spawn_type = "ENCOUNTER_SPAWN_ARCHVILE"
             elif type(event_cls) == eternalevents.SpawnPossessedAI:
-                spawn_type = "ENCOUNTER_SPAWN_SPIRIT"
+                spawn_type = format_args(event_cls.ai_spawnType)
+                is_possessed = True
             spawn_type = spawn_type.removeprefix("ENCOUNTER_SPAWN_")
 
             if cmd_name == "anim":
@@ -281,6 +283,8 @@ def add_decorator_command(
                 )
                 new_entity_name = f"eblmod_spawn_target_{mod_entity_idx}"
                 event_cls.spawnTarget = new_entity_name
+                if is_possessed:
+                    event_cls.ai_spawnTarget = new_entity_name
                 decorator_changes.append(
                     (
                         old_spawntarget,
@@ -288,24 +292,8 @@ def add_decorator_command(
                         new_entity_name,
                     )
                 )
-            elif cmd_name == "teleport":
-                old_spawntarget = concat_strings(
-                    original_event.spawnTarget #, is_expression=True
-                )
-                new_target_name = f"eblmod_spawn_target_{mod_entity_idx}"
-                event_cls.spawnTarget = new_target_name
-                old_idai2 = cc.NAME_TO_IDAI2[spawn_type]
-                new_idai2_name = f"eblmod_{old_idai2}_{mod_entity_idx}"
-                print(f"{old_spawntarget=}")
-                decorator_changes.append(
-                    (
-                        old_spawntarget,
-                        "spawntarget_" + cmd + " " + new_idai2_name,
-                        new_target_name,
-                    )
-                )
-                # decorator_changes.append((old_idai2, "idai2_" + cmd, new_idai2_name))
-            # print(f"{spawn_type=}")
+            elif cmd_name == "portal":
+                pass
         else:
             ui_log(f"WARNING: event {type(event_cls)} has no associated tags")
             return modified_args
@@ -365,7 +353,9 @@ def apply_decorator_command(
     if cmd_name == "anim":
         anim_name, spawn_type = args
         demon_name = cc.NAME_TO_ANIMWEB[spawn_type]
-        traversal_s = "traversals" if spawn_type in cc.TRAVERSALS_ENEMIES else "traversal"
+        traversal_s = (
+            "traversals" if spawn_type in cc.TRAVERSALS_ENEMIES else "traversal"
+        )
         traversal_path = (
             f"animweb/characters/monsters/{demon_name}/{traversal_s}/" + anim_name
         )
@@ -393,13 +383,19 @@ def apply_decorator_command(
             except KeyError:
                 forward_cos = 1
                 forward_sin = 0
-            demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+            try:
+                demon_width, ledge_offset = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+            except TypeError:
+                demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+                ledge_offset = 0
+            if "ledge" in anim_name:
+                demon_width += ledge_offset
             dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
             dy = y_off
             dz = forward_sin * sign(x_off) * (abs(x_off) + demon_width)
             offset_scalar_x = 1 / 100
             offset_scalar_y = 1 / 100
-            # for some reason, Z is up in the animation coordinate system?
+            # Z is up
             parsed_entity[entitydef]["edit"]["spawnPosition"]["x"] = x + (
                 dx * offset_scalar_x
             )
@@ -413,39 +409,6 @@ def apply_decorator_command(
             parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
         except KeyError as e:
             ui_log(f"ERROR: Couldn't find key {e}")
-    elif cmd_name == "spawntarget_teleport":
-        do_not_modify = True
-        try:
-            spawn_anim_exists = parsed_entity[entitydef]["edit"]["spawnEditable"][
-                "spawnAnim"
-            ]
-            if spawn_anim_exists:
-                override = "AIOVERRIDE_FORCE_TELEPORT_TO_TRAVERSAL"
-            else:
-                override = "AIOVERRIDE_TELEPORT"
-            parsed_entity[entitydef]["edit"]["spawnEditable"][
-                "aiStateOverride"
-            ] = override
-            parsed_entity[entitydef]["edit"]["entityDefs"] = {
-                "num": 1,
-                "item[0]": {"name": args[0]},
-            }
-            parsed_entity[entitydef]["edit"]["targets"] = {
-                "num": 1,
-                "item[0]": args[0],
-            }
-            parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
-        except KeyError:
-            ui_log(f"ERROR: couldn't access fields of {original_name}")
-    elif cmd_name == "idai2_teleport":
-        do_not_modify = True
-        try:
-            parsed_entity[entitydef]["edit"]["aiEditable"]["spawnSettings"][
-                "teleportDelayMS"
-            ] = (float(args[0]) * 1000)
-            parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
-        except KeyError:
-            ui_log(f"ERROR: couldn't access fields of {original_name}")
     else:
         ui_log(f"WARNING: Tag {cmd_name} is not recognized")
 
@@ -661,6 +624,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 for key in keys[:-1]:
                     dic = dic.setdefault(key, {})
                 if isinstance(value[0], str):
+                    value = EntityTemplate.modify_args(None, value)
                     value[0] = concat_strings(value[0], is_expression=True)
                 try:
                     dic[concat_strings(keys[-1])] = value[0]
@@ -694,7 +658,12 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     :param entitydefs:
     :return modified_spawn_target:
     """
-    entity = parser.parse_entity(spawn_target)
+    try:
+        entity = parser.parse_entity(spawn_target)
+    except Exception as e:
+        ui_log("ERROR: couldn't parse spawn target")
+        ui_log(spawn_target)
+        return spawn_target
     entitydef = ""
     # name = ""
     for idx, key in enumerate(entity):
@@ -858,6 +827,7 @@ def apply_ebl(
                 entity = apply_entity_changes(name, entity, params, dlc_level)
                 modified_count += 1
                 break
+    entities.append(cc.MAIN_SPAWN_PARENT)
 
     # 5) initialize variables, add new entities, and compile encounters
     for idx, (key, val) in enumerate(deltas):
