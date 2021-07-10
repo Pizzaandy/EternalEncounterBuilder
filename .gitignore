@@ -16,3 +16,4 @@ test_compression.py
 build/
 dist/
 GeneratedEBL/
+ebl_cache.txt

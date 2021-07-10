@@ -1,5 +1,6 @@
 import chevron
 import entities_parser as parser
+import re
 from textwrap import indent
 
 NO_EQUALS = ("entityDef ", "layers")
@@ -111,6 +112,9 @@ def format_entities(filename):
 # quick-n-dirty punctuation check
 # TODO: make less bad
 def verify_file(filename) -> str:
+    def strip_comments(s):
+        pattern = r"//(.*)(?=[\r\n]+)"
+        return re.sub(pattern, "", s)
     print("Checking file...")
     error_found = False
     depth = 0
@@ -118,6 +122,7 @@ def verify_file(filename) -> str:
     last_entity_line = 0
     with open(filename) as fp:
         for i, line in enumerate(fp.readlines()):
+            line = strip_comments(line)
             if "{" in line:
                 depth += line.count("{")
             if "}" in line:
@@ -125,8 +130,8 @@ def verify_file(filename) -> str:
                 layers_block = False
             if line.strip() == "entity {":
                 if depth != 1:
-                    print(f"Unmatched braces in entity starting at line {i + 1}")
-                    return f"Unmatched braces in entity starting at line {i + 1}"
+                    print(f"Unmatched braces in entity starting at line {last_entity_line + 1}")
+                    return f"Unmatched braces in entity starting at line {last_entity_line + 1}"
                 last_entity_line = i
             if layers_block:
                 continue

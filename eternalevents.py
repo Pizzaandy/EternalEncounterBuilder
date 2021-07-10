@@ -308,7 +308,7 @@ class WaitForStatCount(EternalEvent, alias="statCount"):
 class WaitForEventFlag(EternalEvent, alias="flag"):
     eventFlag = "eEncounterEventFlags_t"
     userFlag = "string*"
-    testIfAlreadyRaised = "bool"
+    testIfAlreadyRaised = "bool=true"
     disableAIHighlight = "bool=false"
 
 

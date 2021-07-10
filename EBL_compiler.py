@@ -1,6 +1,8 @@
 import entity_templates
 import eternalevents
 from pathlib import Path
+import json
+import hashlib
 from eternalevents import is_number_or_keyword
 from eternaltools import oodle, entity_tools
 from entity_templates import EntityTemplate
@@ -14,10 +16,34 @@ from dataclasses import dataclass
 from typing import List, Union, Tuple
 import re
 import time
-import math
 
 from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
+
+
+ebl_cache = {}
+new_ebl_cache = {}
+
+
+def cache_result():
+    global ebl_cache
+    global new_ebl_cache
+
+    def decorator(func):
+        def new_func(*args):
+            keystr = str(args) + func.__name__ + str(variables)
+            key = hashlib.md5(keystr.encode()).hexdigest()
+            if key in ebl_cache:
+                new_ebl_cache[key] = ebl_cache[key]
+                return ebl_cache[key]
+            result = func(*args)
+            new_ebl_cache[key] = result
+            return result
+
+        return new_func
+
+    return decorator
+
 
 # EBL = Eternal Builder Language, describes changes to .entities files
 ebl = ebl_grammar.NodeVisitor()
@@ -30,6 +56,7 @@ templates = entity_templates.BUILTIN_TEMPLATES
 decorator_changes = []
 decorator_entity_names = {}
 debug_vars = False
+CACHE_FILE = "ebl_cache.txt"
 
 worker_object = None
 do_verbose_logging = False
@@ -38,7 +65,7 @@ do_verbose_logging = False
 def ui_log(s):
     try:
         worker_object.worker_log(str(s))
-    except Exception as e:
+    except Exception:
         print(s)
 
 
@@ -67,6 +94,7 @@ class EntityEdit:
 
 
 def parse_event(event: str) -> Tuple[str, list]:
+    event = event.replace("\n", "")
     name, args = event.split("(", 1)
     args = re.findall(r"([^(,)]+)(?!.*\()", args)
     args = [arg.strip() for arg in args]
@@ -80,6 +108,7 @@ def add_variable(varname, value):
     else:
         ui_log(f"Added macro {varname} = {value}")
 
+    value = str(value)
     ignore_quotes = "+" not in value
     new_value = format_args(value)
     variables[varname] = concat_strings(new_value, ignore_quotes)
@@ -334,7 +363,7 @@ def apply_decorator_command(
             entitydef = key
     ui_log_verbose(f"Applying '{cmd}' to '{entitydef.removeprefix('entityDef ')}'")
 
-    original_name = entitydef.removeprefix("entityDef ")
+    # original_name = entitydef.removeprefix("entityDef ")
 
     if not entitydef:
         raise EntitiesSyntaxError("No entityDef component!")
@@ -506,6 +535,11 @@ def concat_strings(s, is_expression=False):
     return result.replace(cc.SPACE_CHAR, " ").replace(cc.LITERAL_CHAR, "")
 
 
+@cache_result()
+def parse_ebl(s):
+    return ebl.parse(s)
+
+
 def compile_ebl(s, vars_only=False) -> str:
     """
     Compiles EBL to encounterComponent events
@@ -516,7 +550,7 @@ def compile_ebl(s, vars_only=False) -> str:
     result = ""
     item_index = 0
     s = strip_comments(s)
-    events = create_events(ebl.parse(s))
+    events = create_events(parse_ebl(s))
     if events is None:
         return result
 
@@ -530,10 +564,10 @@ def compile_ebl(s, vars_only=False) -> str:
         event_string = concat_strings(str(event))
         result += f"item[{item_index}]" + " = {\n" + indent(event_string, "\t") + "}\n"
         item_index += 1
-
     return result
 
 
+@cache_result()
 def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     """
     Modifies encounter entity with list of EternalEvents
@@ -561,9 +595,11 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     except KeyError:
         ui_log("ERROR: Unable to replace encounter")
         ui_log(entity[entitydef]["edit"])
-    return entity_tools.generate_entity(entity)
+    result = entity_tools.generate_entity(entity)
+    return result
 
 
+@cache_result()
 def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
     """
     Edits specific fields in the given entity
@@ -647,10 +683,10 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                         debug_print("Matched!")
                         dic.pop(key)
                         break
-
     return entity_tools.generate_entity(entity)
 
 
+@cache_result()
 def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     """
     Adds custom idAI2s and applies changes to the given spawn target
@@ -758,6 +794,7 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
 entities = []
 added_entities = []
 
+
 # Apply all changes in ebl_file to base_file and output to modded_file
 def apply_ebl(
     ebl_file,
@@ -768,6 +805,8 @@ def apply_ebl(
     show_spawn_targets=False,
     generate_traversals=True,
     dlc_level=2,
+    output_name_override="",
+    do_punctuation_check=False,
 ):
     """
     Applies all changes in an EBL file to a copy of a vanilla entities file
@@ -784,6 +823,15 @@ def apply_ebl(
     tic = time.time()
     total_count = 0
     modified_count = 0
+    added_count = 0
+
+    global ebl_cache
+    global new_ebl_cache
+    try:
+        with open("ebl_cache.txt") as fp:
+            ebl_cache = json.load(fp)
+    except (json.JSONDecodeError, FileNotFoundError):
+        ui_log("ERROR: Failed to read ebl_cache.txt")
 
     oodle.decompress_entities(base_file)
 
@@ -809,6 +857,7 @@ def apply_ebl(
             # TODO: make a PEG parser for this
             t_name, t_args = parse_event(key)
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
+            ui_log(f"Template {t_name} found")
         elif val[0] == "INIT":
             compile_ebl(val[1], vars_only=True)
 
@@ -824,7 +873,7 @@ def apply_ebl(
             ident = name.split()[0]
             if f"entityDef {ident} {{" in entity:
                 ui_log_verbose(f"Found entity {ident}")
-                entity = apply_entity_changes(name, entity, params, dlc_level)
+                apply_entity_changes(name, entity, params, dlc_level)
                 modified_count += 1
                 break
     entities.append(cc.MAIN_SPAWN_PARENT)
@@ -838,12 +887,17 @@ def apply_ebl(
                 ui_log(e)
                 return
         elif val[0] == "ADD":
-            entity = ""
             is_template = False
             for template in templates.keys():
-                if key.replace(" ", "").startswith(template + "("):
+                full_text = key + val[1]
+                # print(f"{full_text=}")
+                if (
+                    full_text.replace(" ", "")
+                    .replace("\n", "")
+                    .startswith(template + "(")
+                ):
                     # TODO: make a PEG parser for this
-                    _, args = parse_event(key)
+                    _, args = parse_event(full_text)
                     entity = templates[template].render(*args)
                     is_template = True
                     ui_log(f"Added instance of {key}")
@@ -852,8 +906,11 @@ def apply_ebl(
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
                 entities.append(entity)
+            added_count += 1
 
-    entities_name = Path(base_file).name
+    entities_name = (
+        Path(base_file).name if not output_name_override else output_name_override
+    )
     modded_file = str(output_folder) + "/" + entities_name
 
     # 4) iterate vanilla entities, apply changes, then write to output file
@@ -878,6 +935,7 @@ def apply_ebl(
                         new_decorator_entities.append((new_entity, False))
 
             for decorator_entity, do_not_modify in new_decorator_entities:
+                added_count += 1
                 if do_not_modify:
                     fp.write(decorator_entity)
                 else:
@@ -932,7 +990,8 @@ def apply_ebl(
             ui_log(cp)
         ui_log("\n")
 
-    ui_log(entity_tools.verify_file(modded_file))
+    if do_punctuation_check:
+        ui_log(entity_tools.verify_file(modded_file))
 
     if "minify" in Settings:
         ui_log("Minifying modded file...")
@@ -941,7 +1000,9 @@ def apply_ebl(
     if compress_file:
         oodle.compress_entities(modded_file)
 
-    added_count = len(added_entities)
+    with open("ebl_cache.txt", "w") as fp:
+        fp.write(json.dumps(new_ebl_cache))
+
     total_count -= 1
     ui_log(f"Added {added_count} new entities")
     ui_log(f"{modified_count} entities out of {total_count} modified!")

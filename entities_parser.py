@@ -2,7 +2,7 @@ import re
 from parsimonious.grammar import Grammar
 from parsimonious.grammar import NodeVisitor
 from textwrap import indent
-
+import multiprocessing as mp
 
 class EntitiesSyntaxError(Exception):
     pass
@@ -156,9 +156,9 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
 
 
 def parse_entities(filename, class_filter=""):
-    # with Pool(processes=mp.cpu_count()) as pool:
-    #   data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
-    data = map(ev.parse, generate_entity_segments(filename, class_filter))
+    with mp.Pool(processes=mp.cpu_count()-2) as pool:
+       data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+    # data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
 

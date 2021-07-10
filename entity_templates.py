@@ -9,12 +9,10 @@ class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
     """
-
     def __init__(self, name, template, args):
         self.name = name
         self.template = template
         self.args = args
-        print(f"Template {name} found")
 
     def modify_args(self, args):
         args = list(args)
@@ -50,7 +48,13 @@ class Vec3(EntityTemplate):
     def __init__(self):
         self.name = "Vec3"
         self.args = ["x", "y", "z"]
-        self.template = "{\n\tx = {{x}}; y = {{y}}; z = {{z}};\n}\n"
+        self.template = "{x = {{x}}; y = {{y}}; z = {{z}};}"
+
+    def modify_args(self, args):
+        if len(args) == 1:
+            return args[0], args[0], args[0]
+        else:
+            return args
 
 
 DOOMGUY_HEIGHT = 1.67
@@ -60,7 +64,7 @@ class pVec3(EntityTemplate):
     def __init__(self):
         self.name = "pVec3"
         self.args = ["x", "y", "z"]
-        self.template = "{\n\tx = {{x}}; y = {{y}}; z = {{z}};\n}\n"
+        self.template = "{x = {{x}}; y = {{y}}; z = {{z}};}"
 
     def modify_args(self, args):
         new_args = args[0], args[1], float(args[2]) - DOOMGUY_HEIGHT
@@ -509,5 +513,78 @@ entity {
 }
 """,
         ["name", "position"],
+    ),
+"Encounter": EntityTemplate(
+        "Encounter",
+        """entity {
+	entityDef {{name}} {
+	inherit = "encounter/manager";
+	class = "idEncounterManager";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		enableAIHighlightOnFinish = true;
+		disabledAITypeForHighlight = "AI_MONSTER_SPECTRE AI_MONSTER_BUFF_POD AI_MONSTER_TENTACLE";
+		playerMetricDef = "encounter/player_metrics";
+		chargeCombatGrouping = "encounter/combat_role/charge_command";
+		aiTypeDefAssignments = "actorpopulation/default/dlc2";
+		spawnPosition = {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+		combatRatingScale = "COMBAT_RATING_SCALE_SMALL";
+		encounterComponent = {
+			entityEvents = {
+				num = 1;
+				item[0] = {
+					entity = "{{name}}";
+					events = {
+						num = 0;
+					}
+				}
+			}
+		}
+		commitTriggers = {
+			num = 1;
+			item[0] = "{{flag}}";
+		}
+		allowSlayerUnknownUI = true;
+	}
+}
+}
+""",
+        ["name", "flag"],
+    ),
+"EncounterTrigger": EntityTemplate(
+        "EncounterTrigger",
+        """entity {
+	entityDef {{name}} {
+	inherit = "encounter/trigger/commit";
+	class = "idEncounterTrigger_Commit";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		triggerOnce = false;
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+		    size = {{scale}}
+			clipModelName = "{{clipmodel}}";
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation", "scale", "clipmodel"],
     ),
 }
