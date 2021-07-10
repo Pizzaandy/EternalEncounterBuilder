@@ -141,8 +141,10 @@ def get_event_args(event: eternalevents.EternalEvent):
 
 
 def strip_comments(s):
-    pattern = r"//(.*)(?=[\r\n]+)"
-    return re.sub(pattern, "", s)
+    line_pattern = r"//(.*)(?=[\r\n]+)"
+    multiline_pattern = r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/"
+    s = re.sub(multiline_pattern, "", s)
+    return re.sub(line_pattern, "", s)
 
 
 def split_ebl_at_headers(filename) -> list:
@@ -619,7 +621,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
         # This should never happen when modifying a base entities file
         raise EntitiesSyntaxError("No entityDef component!")
 
-    entity_edits = ebl.parse(edits)
+    entity_edits = parse_ebl(edits)
     for entity_edit in create_events(entity_edits):
         # assignment or function
         if type(entity_edit) is EntityEdit:
@@ -974,7 +976,10 @@ def apply_ebl(
 
     if show_spawn_targets:
         ui_log("Adding spawn target markers...")
-        ui_log(entity_tools.mark_spawn_targets(modded_file))
+        target_count = entity_tools.mark_spawn_targets(modded_file)
+        ui_log(f"Added visual markers for {target_count} spawn targets")
+        added_count += target_count * 2
+        total_count += target_count * 2
 
     if generate_traversals:
         pass

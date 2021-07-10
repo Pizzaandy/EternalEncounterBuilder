@@ -2,6 +2,7 @@ import chevron
 import entities_parser as parser
 import re
 from textwrap import indent
+from typing import Tuple
 
 NO_EQUALS = ("entityDef ", "layers")
 
@@ -274,7 +275,7 @@ marker_template = point_marker + text_label
 Z_LABEL_OFFSET = 0.45
 
 
-def mark_spawn_targets(filename):
+def mark_spawn_targets(filename) -> Tuple[int, str]:
     def is_close(pos_1, pos_2, min_distance=1):
         dx = abs(pos_1[0] - pos_2[0])
         dy = abs(pos_1[1] - pos_2[1])
@@ -344,4 +345,4 @@ def mark_spawn_targets(filename):
     with open(filename, "a") as fp:
         fp.write(generated_string)
 
-    return f"Added visual markers for {count} spawn targets"
+    return count

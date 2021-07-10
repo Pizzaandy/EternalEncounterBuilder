@@ -28,7 +28,7 @@ class EntityTemplate:
                 clsargs = [arg.strip() for arg in clsargs]
                 cls = getattr(sys.modules[__name__], clsname)
                 args[i] = cls().render(*clsargs)
-                print(f"Rendered class {clsname} with args {clsargs}")
+                # print(f"Rendered class {clsname} with args {clsargs}")
         return args
 
     def render(self, *argv) -> str:

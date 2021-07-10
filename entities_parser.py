@@ -136,7 +136,7 @@ def strip_comments(string):
     return re.sub(pattern, "", string)
 
 
-def generate_entity_segments(filename, clsname="", version_numbers=False):
+def generate_entity_segments(filename, class_filter="", version_numbers=False):
     with open(filename) as fp:
         segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
     # skip first segment with version numbers in it, remove comments
@@ -148,16 +148,16 @@ def generate_entity_segments(filename, clsname="", version_numbers=False):
         if i == 0 and version_numbers:
             yield segment
             continue
-        if not clsname or f"""class = "{clsname}";""" in segment:
+        if not class_filter or f"""class = "{class_filter}";""" in segment:
             segment_count += 1
             yield "entity {" + re.sub(r"//.*$", "", segment)
-    if clsname:
-        print(f"{segment_count} instances of {clsname} found")
+    if class_filter:
+        print(f"{segment_count} instances of {class_filter} found")
 
 
 def parse_entities(filename, class_filter=""):
     with mp.Pool(processes=mp.cpu_count()-2) as pool:
-       data = pool.map(ev.parse, generate_entity_segments(filename, class_filter))
+       data = pool.map(ev.parse, generate_entity_segments(filename, class_filter=class_filter))
     # data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
