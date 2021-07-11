@@ -11,7 +11,7 @@ class EntityTemplate:
     """
     def __init__(self, name, template, args):
         self.name = name
-        self.template = template
+        self.template = template + "\n"
         self.args = args
 
     def modify_args(self, args):
@@ -106,6 +106,11 @@ class Mat3(EntityTemplate):
             sy, cy = sin_cos(args[0])
             sp, cp = sin_cos(args[1])
             sr, cr = sin_cos(args[2])
+            return_modified = True
+        elif len(args) == 1:
+            sy, cy = sin_cos(args[0])
+            sp, cp = sin_cos(0)
+            sr, cr = sin_cos(0)
             return_modified = True
         else:
             return args
@@ -514,7 +519,7 @@ entity {
 """,
         ["name", "position"],
     ),
-"Encounter": EntityTemplate(
+    "Encounter": EntityTemplate(
         "Encounter",
         """entity {
 	entityDef {{name}} {
@@ -559,7 +564,7 @@ entity {
 """,
         ["name", "flag"],
     ),
-"EncounterTrigger": EntityTemplate(
+    "EncounterTrigger": EntityTemplate(
         "EncounterTrigger",
         """entity {
 	entityDef {{name}} {
@@ -587,4 +592,409 @@ entity {
 """,
         ["name", "position", "orientation", "scale", "clipmodel"],
     ),
+    "ArmorSmall": EntityTemplate(
+        "ArmorSmall",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/armor/small";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/armor/pickup_shard_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			scale = {
+				x = 1.5;
+				y = 1.5;
+				z = 1.5;
+			}
+			emissiveScale = 0.5;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ARMOR_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "armor/sp_armor_5";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
 }
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "ArmorMedium": EntityTemplate(
+        "ArmorMedium",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/armor/medium";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/armor/pickup_helm_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			scale = {
+				x = 1.5;
+				y = -1.5;
+				z = 1.5;
+			}
+			emissiveScale = 0.5;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ARMOR_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "armor/sp_armor_25";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "ArmorLarge": EntityTemplate(
+        "ArmorLarge",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/armor/large";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/armor/pickup_armor_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			scale = {
+				x = 2;
+				y = -2;
+				z = 2;
+			}
+			emissiveScale = 0.5;
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/armor_large";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ARMOR_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "armor/sp_armor_50";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "HealthSmall": EntityTemplate(
+        "HealthSmall",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/health/small";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/health/vial.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 2;
+			scale = {
+				x = 1.79999995;
+				y = 1.79999995;
+				z = 1.79999995;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_HEALTH_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "health/sp_health_small";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "HealthMedium": EntityTemplate(
+        "HealthMedium",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/health/medium";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/health/health_pack_mid_a.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.5;
+			scale = {
+				x = 1.75;
+				y = 1.75;
+				z = 1.75;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_HEALTH_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "health/sp_health_medium";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "HealthLarge": EntityTemplate(
+        "HealthLarge",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/health/large";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/health/health_pack_big_a.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.5;
+			scale = {
+				x = 1.75;
+				y = 1.75;
+				z = 1.75;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = true;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		difficultyScaleType = "DST_PICKUP";
+		pickup_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_HEALTH_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "health/sp_health_large";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		dormancy = {
+			playerDistance = 10;
+			playerRearwardDistance = 10;
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "Bullets": EntityTemplate(
+        "Bullets",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/ammo/bullets";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/ammo/ammo_bullet_02.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.2;
+			scale = {
+				x = 1.25;
+				y = 1.25;
+				z = 1.25;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = false;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		flags = {
+			canBecomeDormant = true;
+		}
+		fxDecl = "pickups/ammo_bullets";
+		difficultyScaleType = "DST_PICKUP";
+		updateFX = true;
+		pickup_statIncreases = {
+			num = 2;
+			item[0] = {
+				stat = "STAT_AMMO_PICKUP";
+				increase = 1;
+			}
+			item[1] = {
+				stat = "STAT_PLACED_AMMO_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "propitem/ammo/heavy_cannon";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+}
+

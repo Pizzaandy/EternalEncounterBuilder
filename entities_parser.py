@@ -157,13 +157,16 @@ def generate_entity_segments(filename, class_filter="", version_numbers=False):
 
 def parse_entities(filename, class_filter=""):
     with mp.Pool(processes=mp.cpu_count()-2) as pool:
-       data = pool.map(ev.parse, generate_entity_segments(filename, class_filter=class_filter))
+       data = pool.map(parse_entity, generate_entity_segments(filename, class_filter=class_filter))
     #data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
 
 def parse_entity(entity: str):
-    return ev.parse(entity)
+    try:
+        return ev.parse(entity)
+    except Exception as e:
+        print(f"ERROR: unable to parse entity:\n{entity}")
 
 
 

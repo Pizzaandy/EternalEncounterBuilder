@@ -158,10 +158,11 @@ def get_event_args(event: eternalevents.EternalEvent):
 
 
 def strip_comments(s):
+    s += "\n"
     line_pattern = r"//(.*)(?=[\r\n]+)"
     multiline_pattern = r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/"
     s = re.sub(multiline_pattern, "", s)
-    return re.sub(line_pattern, "", s)
+    return re.sub(line_pattern, "", s).strip()
 
 
 def split_ebl_at_headers(filename) -> list:
@@ -849,10 +850,10 @@ def apply_ebl(
     new_ebl_cache["__PREVIOUS_FILES__"] = (base_file, ebl_file, output_folder)
 
     try:
-        with open("ebl_cache.txt", "r") as fp:
+        with open(CACHE_FILE, "r") as fp:
             ebl_cache = json.load(fp)
     except (json.JSONDecodeError, FileNotFoundError):
-        ui_log("Failed to read ebl_cache.txt, creating new")
+        ui_log(f"Failed to read {CACHE_FILE}, creating new")
 
     oodle.decompress_entities(base_file)
 
@@ -1030,7 +1031,7 @@ def apply_ebl(
         oodle.compress_entities(modded_file)
 
     print(f"final size is {len(new_ebl_cache)}")
-    with open("ebl_cache.txt", "w") as fp:
+    with open(CACHE_FILE, "w") as fp:
         fp.write(json.dumps(new_ebl_cache))
 
     total_count -= 1
@@ -1038,6 +1039,6 @@ def apply_ebl(
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
     # print(decorator_changes)
-    print(new_ebl_cache.keys())
-    print(entitydefs)
+    # print(new_ebl_cache.keys())
+    # print(entitydefs)
     return True
