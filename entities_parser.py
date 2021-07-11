@@ -4,6 +4,7 @@ from parsimonious.grammar import NodeVisitor
 from textwrap import indent
 import multiprocessing as mp
 
+
 class EntitiesSyntaxError(Exception):
     pass
 
@@ -131,14 +132,20 @@ ev = EntityVisitor()
 ev.grammar = entity_grammar
 
 
-def strip_comments(string):
-    pattern = r"//(.*)[\r\n]+"
-    return re.sub(pattern, "", string)
+LINE_PATTERN = re.compile(r"//(.*)(?=[\r\n]+)")
+
+
+def strip_comments(s):
+    s += "\n"
+    return re.sub(LINE_PATTERN, "", s)
+
+
+ENTITY_SPLIT_PATTERN = re.compile(r"^entity {", flags=re.MULTILINE)
 
 
 def generate_entity_segments(filename, class_filter="", version_numbers=False):
     with open(filename) as fp:
-        segments = re.split(r"^entity {", fp.read(), flags=re.MULTILINE)
+        segments = re.split(ENTITY_SPLIT_PATTERN, fp.read())
     # skip first segment with version numbers in it, remove comments
     segment_count = 0
     start_index = 0 if version_numbers else 1
@@ -156,9 +163,11 @@ def generate_entity_segments(filename, class_filter="", version_numbers=False):
 
 
 def parse_entities(filename, class_filter=""):
-    with mp.Pool(processes=mp.cpu_count()-2) as pool:
-       data = pool.map(parse_entity, generate_entity_segments(filename, class_filter=class_filter))
-    #data = map(ev.parse, generate_entity_segments(filename, class_filter))
+    with mp.Pool(processes=mp.cpu_count() - 2) as pool:
+        data = pool.map(
+            parse_entity, generate_entity_segments(filename, class_filter=class_filter)
+        )
+    # data = map(ev.parse, generate_entity_segments(filename, class_filter))
     return data
 
 
@@ -167,6 +176,4 @@ def parse_entity(entity: str):
         return ev.parse(entity)
     except Exception as e:
         print(f"ERROR: unable to parse entity:\n{entity}")
-
-
-
+        return {}

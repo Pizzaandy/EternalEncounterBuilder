@@ -2,7 +2,10 @@ import chevron
 import entities_parser as parser
 import re
 from textwrap import indent
-from typing import Tuple
+from typing import Tuple, Dict, Any
+import hashlib
+import json
+import ebl_compiler as compiler
 
 NO_EQUALS = ("entityDef ", "layers")
 
@@ -116,6 +119,7 @@ def verify_file(filename) -> str:
     def strip_comments(s):
         pattern = r"//(.*)(?=[\r\n]+)"
         return re.sub(pattern, "", s)
+
     print("Checking file...")
     error_found = False
     depth = 0
@@ -131,7 +135,9 @@ def verify_file(filename) -> str:
                 layers_block = False
             if line.strip() == "entity {":
                 if depth != 1:
-                    print(f"Unmatched braces in entity starting at line {last_entity_line + 1}")
+                    print(
+                        f"Unmatched braces in entity starting at line {last_entity_line + 1}"
+                    )
                     return f"Unmatched braces in entity starting at line {last_entity_line + 1}"
                 last_entity_line = i
             if layers_block:
@@ -163,7 +169,7 @@ def list_checkpoints(filename) -> list:
     return cps
 
 
-point_marker = """
+POINT_MARKER = """
 entity {
 	entityDef mod_visualize_marker_{{name}} {
 	class = "idProp2";
@@ -204,7 +210,7 @@ entity {
 }
 """
 
-text_label = """
+TEXT_LABEL = """
 entity { 
     entityDef mod_visualize_label_{{name}} {
     class = "idGuiEntity_Text";
@@ -270,12 +276,12 @@ entity {
 }
 """
 
-marker_template = point_marker + text_label
+marker_template = POINT_MARKER + TEXT_LABEL
 
 Z_LABEL_OFFSET = 0.45
 
-
-def mark_spawn_targets(filename) -> Tuple[int, str]:
+# this function is now coupled with the ebl_compiler module. Oops!
+def mark_spawn_targets(filename, spawn_target_hashes=None) -> Tuple[int, str]:
     def is_close(pos_1, pos_2, min_distance=1):
         dx = abs(pos_1[0] - pos_2[0])
         dy = abs(pos_1[1] - pos_2[1])
@@ -285,12 +291,21 @@ def mark_spawn_targets(filename) -> Tuple[int, str]:
     generated_string = (
         """\n// AUTO-GENERATED ENTITIES: Anything past this point will be deleted!\n"""
     )
+    if spawn_target_hashes:
+        targets_hash = hashlib.md5(str(spawn_target_hashes).encode()).hexdigest()
+        # print(targets_hash)
+        if targets_hash in compiler.ebl_cache:
+            cached_markers, count = compiler.ebl_cache[targets_hash]
+            with open(filename, "a") as fp:
+                fp.write(cached_markers)
+            compiler.new_ebl_cache[targets_hash] = cached_markers
+            # print("added cached spawn target markers")
+            return count
 
-    idTargets = parser.parse_entities(filename, "idTarget_Spawn")
+    id_targets = parser.parse_entities(filename, "idTarget_Spawn")
     positions = []
     count = 0
-
-    for target in idTargets:
+    for target in id_targets:
         count += 1
         entityDef = [v for k, v in target.items() if k.startswith("entityDef")][0]
         name = [k for k, v in target.items() if k.startswith("entityDef")][0]
@@ -341,7 +356,8 @@ def mark_spawn_targets(filename) -> Tuple[int, str]:
             },
         )
         generated_string += "\n" + new_daisy
-
+    if spawn_target_hashes:
+        compiler.new_ebl_cache[targets_hash] = (generated_string, count)
     with open(filename, "a") as fp:
         fp.write(generated_string)
 

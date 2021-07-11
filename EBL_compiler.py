@@ -21,8 +21,6 @@ from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
 
 
-ebl_cache = {}
-new_ebl_cache = {}
 
 run_count = 0
 
@@ -35,12 +33,16 @@ def reset_all():
     global decorator_changes
     global decorator_entity_names
     global mod_entity_idx
+    global Settings
+    global spawn_target_hashes
     mod_entity_idx = 0
     variables = {}
     ebl_cache = {}
     new_ebl_cache = {}
     decorator_changes = []
     decorator_entity_names = {}
+    spawn_target_hashes = []
+    Settings = []
 
 
 def cache_result():
@@ -69,6 +71,7 @@ blacklist_entities = []
 
 variables = {}
 Settings = []
+spawn_target_hashes = []
 templates = entity_templates.BUILTIN_TEMPLATES
 decorator_changes = []
 decorator_entity_names = {}
@@ -123,7 +126,7 @@ def add_variable(varname, value):
     if varname in variables:
         debug_print(f"Modified macro {varname} = {value}")
     else:
-        ui_log(f"Added macro {varname} = {value}")
+        ui_log_verbose(f"Added macro {varname} = {value}")
 
     value = str(value)
     ignore_quotes = "+" not in value
@@ -157,12 +160,12 @@ def get_event_args(event: eternalevents.EternalEvent):
     return [arg for arg in event.__dict__.values()]
 
 
+LINE_PATTERN = re.compile(r"//(.*)(?=[\r\n]+)")
+MULTILINE_PATTERN = re.compile(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")
 def strip_comments(s):
     s += "\n"
-    line_pattern = r"//(.*)(?=[\r\n]+)"
-    multiline_pattern = r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/"
-    s = re.sub(multiline_pattern, "", s)
-    return re.sub(line_pattern, "", s).strip()
+    s = re.sub(MULTILINE_PATTERN, "", s)
+    return re.sub(LINE_PATTERN, "", s).strip()
 
 
 def split_ebl_at_headers(filename) -> list:
@@ -179,7 +182,9 @@ def split_ebl_at_headers(filename) -> list:
     if segments[0].startswith("SETTINGS"):
         ui_log("SETTINGS found!")
         global Settings
-        for line in segments[0].splitlines():
+        for line in strip_comments(segments[0]).splitlines():
+            if line == "SETTINGS":
+                continue
             line = line.strip()
             Settings.append(line)
             ui_log(line)
@@ -767,7 +772,8 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
 
-    return entity_tools.generate_entity(entity)
+    result = entity_tools.generate_entity(entity)
+    return result
 
 
 def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) -> str:
@@ -925,7 +931,7 @@ def apply_ebl(
                     _, args = parse_event(full_text)
                     entity = templates[template].render(*args)
                     is_template = True
-                    ui_log(f"Added instance of {key}")
+                    ui_log(f"Added instance of {template}")
                     entities.append(entity)
             if not is_template:
                 entity = val[1].strip()
@@ -983,6 +989,8 @@ def apply_ebl(
                 or 'class = "idTarget_Spawn_Parent";' in entity
             ):
                 entity = format_spawn_target(entity, entitydefs)
+                global spawn_target_hashes
+                spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1
             fp.write(entity)
         fp.write("\n")
@@ -1000,7 +1008,7 @@ def apply_ebl(
 
     if show_spawn_targets:
         ui_log("Adding spawn target markers...")
-        target_count = entity_tools.mark_spawn_targets(modded_file)
+        target_count = entity_tools.mark_spawn_targets(modded_file, spawn_target_hashes)
         ui_log(f"Added visual markers for {target_count} spawn targets")
         added_count += target_count * 2
         total_count += target_count * 2
@@ -1023,14 +1031,13 @@ def apply_ebl(
         ui_log(entity_tools.verify_file(modded_file))
 
     if "minify" in Settings:
-        ui_log("Minifying modded file...")
+        ui_log("Minifying file...")
         entity_tools.minify(modded_file)
 
     if compress_file:
         ui_log("Compressing file...")
         oodle.compress_entities(modded_file)
 
-    print(f"final size is {len(new_ebl_cache)}")
     with open(CACHE_FILE, "w") as fp:
         fp.write(json.dumps(new_ebl_cache))
 

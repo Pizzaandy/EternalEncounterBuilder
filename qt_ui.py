@@ -17,6 +17,7 @@ class Worker(QtCore.QObject):
         self.log_data.emit(s)
 
     def run(self):
+        # bruh
         compiler.worker_object = self
         ebl_file = ui.ebl_file_box.toPlainText().strip()
         entities_file = ui.base_entities_box.toPlainText().strip()
@@ -24,6 +25,7 @@ class Worker(QtCore.QObject):
         show_checkpoints = ui.checkpoints_box.isChecked()
         compress = ui.compress_box.isChecked()
         show_targets = ui.show_targets_box.isChecked()
+        do_check = ui.punctuation_box.isChecked()
 
         do_compile = True
 
@@ -60,6 +62,7 @@ class Worker(QtCore.QObject):
                 show_checkpoints=show_checkpoints,
                 compress_file=compress,
                 show_spawn_targets=show_targets,
+                do_punctuation_check=do_check,
             )
         except Exception as e:
             print(e)
