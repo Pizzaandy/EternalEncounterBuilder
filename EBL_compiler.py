@@ -24,16 +24,34 @@ from entities_parser import EntitiesSyntaxError
 ebl_cache = {}
 new_ebl_cache = {}
 
+run_count = 0
+
+def reset_all():
+    global run_count
+    run_count += 1
+    global ebl_cache
+    global new_ebl_cache
+    global variables
+    global decorator_changes
+    global decorator_entity_names
+    global mod_entity_idx
+    mod_entity_idx = 0
+    variables = {}
+    ebl_cache = {}
+    new_ebl_cache = {}
+    decorator_changes = []
+    decorator_entity_names = {}
+
 
 def cache_result():
     global ebl_cache
     global new_ebl_cache
-
     def decorator(func):
         def new_func(*args):
             keystr = str(args) + func.__name__ + str(variables)
             key = hashlib.md5(keystr.encode()).hexdigest()
             if key in ebl_cache:
+                # print("found cached result!")
                 new_ebl_cache[key] = ebl_cache[key]
                 return ebl_cache[key]
             result = func(*args)
@@ -43,7 +61,6 @@ def cache_result():
         return new_func
 
     return decorator
-
 
 # EBL = Eternal Builder Language, describes changes to .entities files
 ebl = ebl_grammar.NodeVisitor()
@@ -687,7 +704,6 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                         break
     return entity_tools.generate_entity(entity)
 
-
 @cache_result()
 def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     """
@@ -721,12 +737,12 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
     existing_entitydefs.pop("num")
 
-    # add existing entitydefs to end of list
+    # DONT add existing entitydefs to end of list
     if len(existing_entitydefs) > 0:
         names = []
         for assignment in list(existing_entitydefs.values()):
             names += list(assignment.values())
-        entitydefs = entitydefs + names
+        entitydefs = entitydefs # + names
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
     except KeyError:
@@ -829,20 +845,24 @@ def apply_ebl(
 
     global ebl_cache
     global new_ebl_cache
+    reset_all()
+    new_ebl_cache["__PREVIOUS_FILES__"] = (base_file, ebl_file, output_folder)
+
     try:
-        with open("ebl_cache.txt") as fp:
+        with open("ebl_cache.txt", "r") as fp:
             ebl_cache = json.load(fp)
     except (json.JSONDecodeError, FileNotFoundError):
-        ui_log("ERROR: Failed to read ebl_cache.txt")
+        ui_log("Failed to read ebl_cache.txt, creating new")
 
     oodle.decompress_entities(base_file)
 
     # Add entitydefs with appropriate DLC level
-    entitydefs = cc.BASE_ENTITYDEFS
-    if dlc_level >= 2:
-        entitydefs += cc.DLC2_ENTITYDEFS
-    if dlc_level >= 1:
-        entitydefs += cc.DLC1_ENTITYDEFS
+    dlc_level = 2
+    entitydefs = cc.BASE_ENTITYDEFS + cc.DLC1_ENTITYDEFS + cc.DLC2_ENTITYDEFS
+    # if dlc_level >= 2:
+    #     entitydefs += cc.DLC2_ENTITYDEFS
+    # if dlc_level >= 1:
+    #     entitydefs += cc.DLC1_ENTITYDEFS
 
     # 1) Get file deltas
     deltas = split_ebl_at_headers(ebl_file) if ebl_file else []
@@ -850,6 +870,8 @@ def apply_ebl(
     # 2) Get vanilla entities from base file
     global entities
     global added_entities
+    entities = []
+    added_entities = []
     entities = list(parser.generate_entity_segments(base_file, version_numbers=True))
     entities = entities[0:2] + all_idai2s(dlc_level=dlc_level) + entities[3:]
 
@@ -941,7 +963,7 @@ def apply_ebl(
                 if do_not_modify:
                     fp.write(decorator_entity)
                 else:
-                    added_entities.append(decorator_entity)
+                    entities.append(decorator_entity)
             if skip_entity:
                 continue
 
@@ -971,7 +993,8 @@ def apply_ebl(
                 'class = "idTarget_Spawn";' in new_entity
                 or 'class = "idTarget_Spawn_Parent";' in new_entity
             ):
-                new_entity = format_spawn_target(new_entity, entitydefs)
+                pass
+                #new_entity = format_spawn_target(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
     if show_spawn_targets:
@@ -1003,8 +1026,10 @@ def apply_ebl(
         entity_tools.minify(modded_file)
 
     if compress_file:
+        ui_log("Compressing file...")
         oodle.compress_entities(modded_file)
 
+    print(f"final size is {len(new_ebl_cache)}")
     with open("ebl_cache.txt", "w") as fp:
         fp.write(json.dumps(new_ebl_cache))
 
@@ -1013,6 +1038,6 @@ def apply_ebl(
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
     # print(decorator_changes)
-    # import pprint
-    # pprint.pprint(decorator_entity_names)
+    print(new_ebl_cache.keys())
+    print(entitydefs)
     return True

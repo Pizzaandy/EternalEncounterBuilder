@@ -1,10 +1,12 @@
 import resources
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ebl_compiler as compiler
+from ebl_compiler import CACHE_FILE
 from pathlib import Path
 
 import sys
 import os
+import json
 
 
 class Worker(QtCore.QObject):
@@ -46,18 +48,23 @@ class Worker(QtCore.QObject):
                 do_compile = False
 
         if not do_compile:
-            self.worker_log("Failed to compile!")
+            self.worker_log("Failed to build!")
             self.finished.emit()
             return
 
         try:
             compiler.apply_ebl(
-                ebl_file, entities_file, output_folder, show_checkpoints, compress, show_targets
+                ebl_file=ebl_file,
+                base_file=entities_file,
+                output_folder=output_folder,
+                show_checkpoints=show_checkpoints,
+                compress_file=compress,
+                show_spawn_targets=show_targets,
             )
         except Exception as e:
             print(e)
             self.worker_log(e)
-            self.worker_log("Failed to compile!")
+            self.worker_log("Failed to build!")
 
         self.finished.emit()
 
@@ -70,7 +77,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(628, 563)
         MainWindow.setMaximumSize(QtCore.QSize(628, 563))
-        MainWindow.setWindowIcon(QtGui.QIcon(':/icons/hammer_logo.ico'))
+        MainWindow.setWindowIcon(QtGui.QIcon(":/icons/hammer_logo.ico"))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
@@ -108,6 +115,14 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.ebl_file_box.setFont(font)
         self.ebl_file_box.setObjectName("ebl_file_box")
+
+        self.punctuation_box = QtWidgets.QCheckBox(self.centralwidget)
+        self.punctuation_box.setGeometry(QtCore.QRect(20, 320, 121, 17))
+        self.punctuation_box.setMaximumSize(QtCore.QSize(628, 522))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.punctuation_box.setFont(font)
+        self.punctuation_box.setObjectName("punctuation_box")
 
         self.checkpoints_box = QtWidgets.QCheckBox(self.centralwidget)
         self.checkpoints_box.setGeometry(QtCore.QRect(20, 350, 200, 17))
@@ -204,6 +219,7 @@ class Ui_MainWindow(object):
         self.base_entities_label.setText(
             _translate("MainWindow", "Vanilla .entities file")
         )
+        self.punctuation_box.setText(_translate("MainWindow", "Verify File"))
         self.checkpoints_box.setText(_translate("MainWindow", "List Checkpoints"))
         self.compress_box.setText(_translate("MainWindow", "Compress"))
         self.show_targets_box.setText(
@@ -279,6 +295,18 @@ def clear_log():
 
 if __name__ == "__main__":
     Win.show()
+    print("eeee")
+    try:
+        with open("ebl_cache.txt", "r") as fp:
+            existing_cache = json.load(fp)
+        if "__PREVIOUS_FILES__" in existing_cache:
+            print("Found previous filenames")
+            vanilla_entities, ebl_file, output_path = existing_cache["__PREVIOUS_FILES__"]
+            ui.base_entities_box.setPlainText(vanilla_entities)
+            ui.ebl_file_box.setPlainText(ebl_file)
+            ui.output_file_box.setPlainText(output_path)
+    except (json.JSONDecodeError, FileNotFoundError):
+        compiler.ui_log("ebl_cache.txt was deleted!")
     ui.base_entities_fileselect.clicked.connect(set_base_entities_fp)
     ui.ebl_fileselect.clicked.connect(set_ebl_fp)
     ui.output_fileselect.clicked.connect(set_output_fp)
