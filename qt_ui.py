@@ -8,6 +8,7 @@ import sys
 import os
 import json
 
+import multiprocessing
 
 class Worker(QtCore.QObject):
     finished = QtCore.pyqtSignal()
@@ -44,7 +45,12 @@ class Worker(QtCore.QObject):
             self.worker_log("Output folder does not exist!")
             do_compile = False
 
-        for file in ["idAI2_base.txt", "idAI2_dlc1.txt", "idAI2_dlc2.txt"]:
+        if compress and not Path("oo2core_8_win64.dll").exists():
+            self.worker_log("oo2core_8_win64.dll is not in the folder!")
+            self.worker_log("Cannot compress file!")
+            do_compile = False
+
+        for file in ["idAI2_base.txt", "idAI2_dlc1.txt", "idAI2_dlc2.txt", "anim_offsets.txt"]:
             if not os.path.exists(file):
                 self.worker_log(f"{file} not found in folder!")
                 do_compile = False
@@ -297,10 +303,11 @@ def clear_log():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     Win.show()
     print("eeee")
     try:
-        with open("ebl_cache.txt", "r") as fp:
+        with open(CACHE_FILE, "r") as fp:
             existing_cache = json.load(fp)
         if "__PREVIOUS_FILES__" in existing_cache:
             print("Found previous filenames")
@@ -309,7 +316,7 @@ if __name__ == "__main__":
             ui.ebl_file_box.setPlainText(ebl_file)
             ui.output_file_box.setPlainText(output_path)
     except (json.JSONDecodeError, FileNotFoundError):
-        compiler.ui_log("ebl_cache.txt was deleted!")
+        compiler.ui_log(f"{CACHE_FILE} was deleted!")
     ui.base_entities_fileselect.clicked.connect(set_base_entities_fp)
     ui.ebl_fileselect.clicked.connect(set_ebl_fp)
     ui.output_fileselect.clicked.connect(set_output_fp)

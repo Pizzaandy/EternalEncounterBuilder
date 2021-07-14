@@ -80,8 +80,9 @@ def generate_entity(parsed_entity: dict, depth=0) -> str:
 
 def minify(filename):
     with open(filename, "r") as fp:
-        s = fp.read()
-    result = s.replace("\t", "").replace("\n", "")
+        version_lines = "".join([next(fp) for x in range(2)])
+        s = fp.read().removeprefix(version_lines)
+    result = version_lines + "\n" + s.replace("\t", "").replace("\n", "")
     with open(filename, "w") as fp:
         s = fp.write(result)
 
@@ -169,8 +170,7 @@ def list_checkpoints(filename) -> list:
     return cps
 
 
-POINT_MARKER = """
-entity {
+POINT_MARKER = """entity {
 	entityDef mod_visualize_marker_{{name}} {
 	class = "idProp2";
 	expandInheritance = false;
@@ -210,8 +210,7 @@ entity {
 }
 """
 
-TEXT_LABEL = """
-entity { 
+TEXT_LABEL = """entity { 
     entityDef mod_visualize_label_{{name}} {
     class = "idGuiEntity_Text";
     expandInheritance = false;
@@ -276,7 +275,7 @@ entity {
 }
 """
 
-marker_template = POINT_MARKER + TEXT_LABEL
+marker_template = POINT_MARKER + "\n" + TEXT_LABEL
 
 Z_LABEL_OFFSET = 0.45
 
@@ -293,14 +292,16 @@ def mark_spawn_targets(filename, spawn_target_hashes=None) -> Tuple[int, str]:
     )
     if spawn_target_hashes:
         targets_hash = hashlib.md5(str(spawn_target_hashes).encode()).hexdigest()
-        # print(targets_hash)
         if targets_hash in compiler.ebl_cache:
-            cached_markers, count = compiler.ebl_cache[targets_hash]
-            with open(filename, "a") as fp:
-                fp.write(cached_markers)
-            compiler.new_ebl_cache[targets_hash] = cached_markers
-            # print("added cached spawn target markers")
-            return count
+            try:
+                cached_markers, count = compiler.ebl_cache[targets_hash]
+            except ValueError:
+                pass
+            else:
+                with open(filename, "a") as fp:
+                    fp.write(cached_markers)
+                compiler.new_ebl_cache[targets_hash] = cached_markers, count
+                return count
 
     id_targets = parser.parse_entities(filename, "idTarget_Spawn")
     positions = []

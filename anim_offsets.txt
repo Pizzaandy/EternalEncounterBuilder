@@ -1,0 +1,130 @@
+{
+    "ARACHNOTRON": [
+        150,
+        470
+    ],
+    "ARMORED_BARON": [
+        640,
+        0
+    ],
+    "BARON": [
+        610,
+        0
+    ],
+    "BLOOD_ANGEL": [
+        150,
+        0
+    ],
+    "CHAINGUN_SOLDIER": [
+        200,
+        0
+    ],
+    "CUEBALL": [
+        200,
+        0
+    ],
+    "CURSED_PROWLER": [
+        100,
+        0
+    ],
+    "CYBER_MANCUBUS": [
+        500,
+        0
+    ],
+    "DOOM_HUNTER": [
+        450,
+        200
+    ],
+    "DREAD_KNIGHT": [
+        390,
+        20
+    ],
+    "GARGOYLE": [
+        150,
+        0
+    ],
+    "HELL_KNIGHT": [
+        380,
+        0
+    ],
+    "HELL_SOLDIER": [
+        200,
+        0
+    ],
+    "IMP": [
+        150,
+        0
+    ],
+    "MANCUBUS": [
+        470,
+        0
+    ],
+    "MARAUDER": [
+        580,
+        200
+    ],
+    "PINKY": [
+        145,
+        0
+    ],
+    "PROWLER": [
+        100,
+        0
+    ],
+    "REVENANT": [
+        285,
+        100
+    ],
+    "SHOTGUN_SOLDIER": [
+        200,
+        0
+    ],
+    "STONE_IMP": [
+        150,
+        0
+    ],
+    "TENTACLE": [
+        0,
+        0
+    ],
+    "TYRANT": [
+        500,
+        0
+    ],
+    "WHIPLASH": [
+        50,
+        330
+    ],
+    "ZOMBIE_MAYKR": [
+        175,
+        0
+    ],
+    "ZOMBIE_T1_SCREECHER": [
+        150,
+        0
+    ],
+    "ZOMBIE_TIER_1": [
+        150,
+        0
+    ],
+    "ZOMBIE_TIER_3": [
+        150,
+        0
+    ],
+    "SPECTRE": [
+        145,
+        0
+    ],
+    "CARCASS": [
+        300,
+        170
+    ],
+    "ARCHVILE": [
+        375,
+        0
+    ],
+    "PAIN_ELEMENTAL": [
+        0,
+        0
+    ]
+}

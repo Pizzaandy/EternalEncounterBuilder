@@ -1,3 +1,6 @@
+CACHE_FILE = "cache.txt"
+ANIM_OFFSETS_FILE = "anim_offsets.txt"
+
 EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT|^ADD)"
 
 # character reserved for spaces in string literals
@@ -284,31 +287,31 @@ NAME_TO_HORIZONTAL_OFFSET = {
     "ARMORED_BARON": 640,
     "BARON": 610,
     "BLOOD_ANGEL": 150,
-    "CHAINGUN_SOLDIER": 1 / 80,
-    "CUEBALL": 1 / 80,
-    "CURSED_PROWLER": 1 / 80,
+    "CHAINGUN_SOLDIER": 200,
+    "CUEBALL": 200,
+    "CURSED_PROWLER": 100,
     "CYBER_MANCUBUS": 500,
     "DOOM_HUNTER": (450, 200),
     "DREAD_KNIGHT": (390, 20),
-    "GARGOYLE": 1 / 80,
+    "GARGOYLE": 150,
     "HELL_KNIGHT": 380,
     "HELL_SOLDIER": 200,
     "IMP": 150,
     "MANCUBUS": 470,
     "MARAUDER": (580, 200),
     "PINKY": 145,
-    "PROWLER": 1 / 80,
+    "PROWLER": 100,
     "REVENANT": (285, 100),
-    "SHOTGUN_SOLDIER": 1 / 80,
-    "STONE_IMP": 1 / 80,
-    "TENTACLE": 1 / 80,
+    "SHOTGUN_SOLDIER": 200,
+    "STONE_IMP": 150,
+    "TENTACLE": 0,
     "TYRANT": 500,
     "WHIPLASH": (50, 330),
-    "ZOMBIE_MAYKR": 1 / 80,
-    "ZOMBIE_T1_SCREECHER": 1 / 80,
-    "ZOMBIE_TIER_1": 1 / 80,
-    "ZOMBIE_TIER_3": 1 / 80,
-    "SPECTRE": 1 / 80,
+    "ZOMBIE_MAYKR": 175,
+    "ZOMBIE_T1_SCREECHER": 150,
+    "ZOMBIE_TIER_1": 150,
+    "ZOMBIE_TIER_3": 150,
+    "SPECTRE": 145,
     "CARCASS": (300, 170),
     "ARCHVILE": 375,
     "PAIN_ELEMENTAL": 0,
@@ -495,3 +498,13 @@ MAIN_SPAWN_PARENT = """entity {
 }
 }
 """
+
+if __name__ == "__main__":
+    # import json
+    # for key, val in NAME_TO_HORIZONTAL_OFFSET.items():
+    #     if not isinstance(val, tuple):
+    #         NAME_TO_HORIZONTAL_OFFSET[key] = (val, 0)
+    # with open(ANIM_OFFSETS_FILE, "w") as fp:
+    #     fp.write(json.dumps(NAME_TO_HORIZONTAL_OFFSET, indent=4))
+    for key, val in ANIM_TO_OFFSET.items():
+        print(key)

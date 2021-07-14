@@ -2,6 +2,8 @@ import math
 import sys
 import chevron
 from ebl_grammar import EblTypeError
+import re
+import ast
 
 
 # TODO: move entity templates to another module
@@ -9,13 +11,16 @@ class EntityTemplate:
     """
     Handles text templates to be rendered into .entities
     """
-    def __init__(self, name, template, args):
+
+    def __init__(self, name, template, args, arg_expressions={}):
         self.name = name
-        self.template = template + "\n"
+        self.template = template
         self.args = args
+        self.arg_expressions = arg_expressions
 
     def modify_args(self, args):
         args = list(args)
+        added_args = {}
         for i, arg in enumerate(args):
             if "[" in arg:
                 clsname, clsargs = arg.split("[")
@@ -27,20 +32,74 @@ class EntityTemplate:
                 clsargs = clsargs.replace("]", "").split()
                 clsargs = [arg.strip() for arg in clsargs]
                 cls = getattr(sys.modules[__name__], clsname)
+                if self is not None:
+                    added_args.update({
+                        f"{self.args[i]}.{arg_name}": arg_value
+                        for arg_name, arg_value in zip(cls().args, clsargs)
+                    })
                 args[i] = cls().render(*clsargs)
-                # print(f"Rendered class {clsname} with args {clsargs}")
-        return args
+        return args, added_args
 
     def render(self, *argv) -> str:
-        argv = self.modify_args(argv)
+        def evaluate_arithmetic(expression):
+            try:
+                tree = ast.parse(expression, mode="eval")
+            except SyntaxError:
+                return None  # not a Python expression
+            if not all(
+                isinstance(
+                    node,
+                    (
+                        ast.Expression,
+                        ast.UnaryOp,
+                        ast.unaryop,
+                        ast.BinOp,
+                        ast.operator,
+                        ast.Num,
+                    ),
+                )
+                for node in ast.walk(tree)
+            ):
+                return None  # not a mathematical expression (numbers and operators)
+            return eval(compile(tree, filename="", mode="eval"))
+        try:
+            argv, added_args = self.modify_args(argv)
+        except ValueError:
+            argv = self.modify_args(argv)
+            added_args = {}
+        print(f"{added_args=}")
         if len(argv) != len(self.args):
             raise EblTypeError(
                 f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given"
             )
-        t_data = {}
-        for arg_name, arg in zip(self.args, argv):
-            t_data[arg_name] = arg
-        return chevron.render(template=self.template, data=t_data)
+
+        params = {name: val for name, val in zip(self.args, argv)}
+
+        sorted_params = params
+        sorted_params.update(added_args)
+
+        sorted_params = sorted(
+            sorted_params.items(), key=lambda x: len(x[0]), reverse=True
+        )
+        expressions = re.findall(r"{{(.*?)}}", self.template)
+        modified_template = self.template + "\n"
+        for idx, expr in enumerate(expressions):
+            if not any(c in expr for c in "+-/*."):
+                continue
+            original_expr = expr
+            print(f"expr {expr} contains math")
+            for arg_name, arg_value in sorted_params:
+                if arg_name in expr:
+                    print(f"{arg_name=}")
+                    expr = expr.replace(arg_name, arg_value)
+            new_key = f"__unique_{idx}__"
+            modified_template = modified_template.replace(
+                "{{" + original_expr + "}}", "{{" + new_key + "}}"
+            )
+            if (new_value := evaluate_arithmetic(expr)) is not None:
+                params[new_key] = new_value
+
+        return chevron.render(template=modified_template, data=params)
 
 
 # noinspection PyMissingConstructor
@@ -366,6 +425,7 @@ entity {
         spawnPosition = {{position}}
         spawnOrientation = {{orientation}}
         renderModelInfo = {
+            sortBias = 1;
             {{color}} 
             scale = {
 				x = {{scale}};
@@ -374,7 +434,6 @@ entity {
 			}
 		}
         startOff = true;
-        cycleTrigger = true;
         particleSystem = "map_e2m2_base/portal_closing_white";
     }
 }
@@ -934,8 +993,8 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
-    "Bullets": EntityTemplate(
-        "Bullets",
+    "AmmoBullets": EntityTemplate(
+        "AmmoBullets",
         """entity {
 	entityDef {{name}} {
 	inherit = "pickup/ammo/bullets";
@@ -996,5 +1055,246 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
+"AmmoShells": EntityTemplate(
+        "AmmoShells",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/ammo/shells";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/ammo/ammo_shotgun_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.2;
+			scale = {
+				x = 1.39999998;
+				y = 1.39999998;
+				z = 1.39999998;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = false;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = false;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		flags = {
+			canBecomeDormant = true;
+		}
+		fxDecl = "pickups/ammo_shotgun";
+		difficultyScaleType = "DST_PICKUP";
+		updateFX = true;
+		pickup_statIncreases = {
+			num = 2;
+			item[0] = {
+				stat = "STAT_AMMO_PICKUP";
+				increase = 1;
+			}
+			item[1] = {
+				stat = "STAT_PLACED_AMMO_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "propitem/ammo/shotgun_10";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+"AmmoCells": EntityTemplate(
+        "AmmoCells",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/ammo/cells";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/ammo/ammo_energy_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.5;
+			scale = {
+				x = 1.25;
+				y = 1.25;
+				z = 1.25;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = false;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		flags = {
+			canBecomeDormant = true;
+		}
+		fxDecl = "pickups/ammo_cell";
+		difficultyScaleType = "DST_PICKUP";
+		updateFX = true;
+		pickup_statIncreases = {
+			num = 2;
+			item[0] = {
+				stat = "STAT_AMMO_PICKUP";
+				increase = 1;
+			}
+			item[1] = {
+				stat = "STAT_PLACED_AMMO_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "propitem/ammo/plasma_rifle";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+"AmmoRocket": EntityTemplate(
+        "AmmoRocket",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/ammo/rockets_single";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/ammo/ammo_rocket_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.2;
+			scale = {
+				x = 1.5;
+				y = 1.5;
+				z = 1.5;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = false;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		flags = {
+			canBecomeDormant = true;
+		}
+		fxDecl = "pickups/ammo_rocket_single";
+		difficultyScaleType = "DST_INVALID";
+		updateFX = true;
+		pickup_statIncreases = {
+			num = 2;
+			item[0] = {
+				stat = "STAT_AMMO_PICKUP";
+				increase = 1;
+			}
+			item[1] = {
+				stat = "STAT_PLACED_AMMO_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "propitem/ammo/rocket_launcher_1";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+"DashRefill": EntityTemplate(
+        "DashRefill",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/dash_refill";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+		soundOffset = {
+			z = 1;
+		}
+		renderModelInfo = {
+			model = "art/pickups/dash_recharge_a.lwo";
+			noAmbient = true;
+			contributesToLightProbeGen = false;
+			scale = {
+				x = 0.25;
+				y = 0.25;
+				z = 0.25;
+			}
+			emissiveScale = 1;
+		}
+		fxDecl = "gameplay/dash_activate";
+		useableComponentDecl = "propitem/player/fill_dash_meter";
+		thinkComponentDecl = "bob_seek";
+		hideOnUse = true;
+		timeUntilRespawnMS = {{respawn_time}};
+		triggerDef = "trigger/props/megahealth";
+		sound_spawn = "play_pickup_loop_03";
+		sound_stop = "stop_pickup_loop_03";
+		updateFX = true;
+		spawnPosition = {{position}}
+	}
+}
+}
+""",
+        ["name", "position", "respawn_time"],
+    ),
 }
 
+if __name__ == "__main__":
+    """Generate list of built-in templates"""
+    for key, template in BUILTIN_TEMPLATES.items():
+        s = (
+            f"{key}({template.args})".replace("'", "")
+            .replace("[", "")
+            .replace("]", "")
+            .replace("position", "position(Vec3)")
+            .replace("orientation", "orientation(Mat3)")
+        )
+        print(s)
+    for key, template in BUILTIN_TEMPLATES.items():
+        print(key)

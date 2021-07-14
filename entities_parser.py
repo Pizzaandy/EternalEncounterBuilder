@@ -140,7 +140,7 @@ def strip_comments(s):
     return re.sub(LINE_PATTERN, "", s)
 
 
-ENTITY_SPLIT_PATTERN = re.compile(r"^entity {", flags=re.MULTILINE)
+ENTITY_SPLIT_PATTERN = re.compile(r"entity {", flags=re.MULTILINE)
 
 
 def generate_entity_segments(filename, class_filter="", version_numbers=False):

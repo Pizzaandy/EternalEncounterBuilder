@@ -9,6 +9,7 @@ from entity_templates import EntityTemplate
 import entities_parser as parser
 import ebl_grammar
 import compiler_constants as cc
+from compiler_constants import CACHE_FILE, ANIM_OFFSETS_FILE
 from copy import deepcopy
 
 from textwrap import indent
@@ -42,7 +43,7 @@ def reset_all():
     decorator_changes = []
     decorator_entity_names = {}
     spawn_target_hashes = []
-    Settings = []
+    Settings = {}
 
 
 def cache_result():
@@ -70,13 +71,12 @@ ebl.grammar = ebl_grammar.grammar
 blacklist_entities = []
 
 variables = {}
-Settings = []
+Settings = {}
 spawn_target_hashes = []
 templates = entity_templates.BUILTIN_TEMPLATES
 decorator_changes = []
 decorator_entity_names = {}
 debug_vars = False
-CACHE_FILE = "ebl_cache.txt"
 
 worker_object = None
 do_verbose_logging = False
@@ -161,7 +161,7 @@ def get_event_args(event: eternalevents.EternalEvent):
 
 
 LINE_PATTERN = re.compile(r"//(.*)(?=[\r\n]+)")
-MULTILINE_PATTERN = re.compile(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")
+MULTILINE_PATTERN = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
 def strip_comments(s):
     s += "\n"
     s = re.sub(MULTILINE_PATTERN, "", s)
@@ -177,17 +177,21 @@ def split_ebl_at_headers(filename) -> list:
     :return:
     """
     with open(filename) as fp:
-        segments = re.split(cc.EBL_HEADERS_REGEX, fp.read(), flags=re.MULTILINE)
+        segments = re.split(cc.EBL_HEADERS_REGEX, strip_comments(fp.read()), flags=re.MULTILINE)
 
     if segments[0].startswith("SETTINGS"):
         ui_log("SETTINGS found!")
         global Settings
-        for line in strip_comments(segments[0]).splitlines():
+        for line in segments[0].splitlines():
             if line == "SETTINGS":
                 continue
             line = line.strip()
-            Settings.append(line)
-            ui_log(line)
+            if line:
+                if "=" not in line:
+                    continue
+                setting, value = line.split("=", 1)
+                Settings[setting.strip()] = value.strip()
+                ui_log(line)
     else:
         ui_log("No SETTINGS found")
 
@@ -202,7 +206,7 @@ def split_ebl_at_headers(filename) -> list:
             else:
                 raise EblTypeError(f"No entity name specified in header {cmd}")
         body = "\n".join(body.split("\n")[1:])
-        res += [(name, (cmd, strip_comments(body)))]
+        res += [(name, (cmd, body))]
 
     return res
 
@@ -479,16 +483,16 @@ def all_idai2s(*, dlc_level=2) -> List[str]:
 
     with open("idAI2_base.txt", "r") as fp_base:
         ui_log("Added base game idAI2s")
-        res += fp_base.read()
+        res += fp_base.read() + "\n\n"
 
     if dlc_level >= 2:
         with open("idAI2_dlc2.txt") as fp_dlc2:
-            res += fp_dlc2.read()
+            res += fp_dlc2.read() + "\n\n"
         ui_log("Added DLC2 idAI2s")
 
     if dlc_level >= 1:
         with open("idAI2_dlc1.txt") as fp_dlc1:
-            res += fp_dlc1.read()
+            res += fp_dlc1.read() + "\n\n"
         ui_log("Added DLC1 idAI2s")
 
     segments = re.split(r"^entity {", res, flags=re.MULTILINE)
@@ -574,7 +578,6 @@ def compile_ebl(s, vars_only=False) -> str:
     """
     result = ""
     item_index = 0
-    s = strip_comments(s)
     events = create_events(parse_ebl(s))
     if events is None:
         return result
@@ -685,8 +688,17 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 for key in keys[:-1]:
                     dic = dic.setdefault(key, {})
                 if isinstance(value[0], str):
-                    value = EntityTemplate.modify_args(None, value)
+                    # print(f"{value[0]=}")
+                    modded_val, _ = EntityTemplate.modify_args(None, [value[0]])
+                    value[0] = modded_val[0]
+                    # print(f"{value[0]=}")
                     value[0] = concat_strings(value[0], is_expression=True)
+                    try:
+                        value[0] = float(value[0])
+                    except ValueError:
+                        pass
+                    if value[0] in ["true", "false"]:
+                        value[0] = True if value[0] == "true" else False
                 try:
                     dic[concat_strings(keys[-1])] = value[0]
                 except TypeError:
@@ -708,7 +720,9 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                         debug_print("Matched!")
                         dic.pop(key)
                         break
-    return entity_tools.generate_entity(entity)
+    result = entity_tools.generate_entity(entity)
+    result += "\n"
+    return result
 
 @cache_result()
 def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
@@ -743,12 +757,12 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
     existing_entitydefs.pop("num")
 
-    # DONT add existing entitydefs to end of list
+    # Add existing entitydefs to end of list (to preserve functionality for non-demon spawns)
     if len(existing_entitydefs) > 0:
         names = []
         for assignment in list(existing_entitydefs.values()):
             names += list(assignment.values())
-        entitydefs = entitydefs # + names
+        entitydefs = entitydefs + names
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
     except KeyError:
@@ -866,6 +880,11 @@ def apply_ebl(
     # Add entitydefs with appropriate DLC level
     dlc_level = 2
     entitydefs = cc.BASE_ENTITYDEFS + cc.DLC1_ENTITYDEFS + cc.DLC2_ENTITYDEFS
+    try:
+        with open(ANIM_OFFSETS_FILE, "r") as fp:
+            cc.NAME_TO_HORIZONTAL_OFFSET = json.load(fp)
+    except json.JSONDecodeError:
+        ui_log(f"WARNING: Failed to decode {ANIM_OFFSETS_FILE}")
     # if dlc_level >= 2:
     #     entitydefs += cc.DLC2_ENTITYDEFS
     # if dlc_level >= 1:
@@ -932,19 +951,24 @@ def apply_ebl(
                     entity = templates[template].render(*args)
                     is_template = True
                     ui_log(f"Added instance of {template}")
-                    entities.append(entity)
+                    entities.append(entity + "\n")
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
-                entities.append(entity)
+                entities.append(entity + "\n")
             added_count += 1
+
+    try:
+        output_name_override = Settings["output_filename"]
+    except KeyError:
+        pass
 
     entities_name = (
         Path(base_file).name if not output_name_override else output_name_override
     )
     modded_file = str(output_folder) + "/" + entities_name
 
-    # 4) iterate vanilla entities, apply changes, then write to output file
+    # 6) iterate vanilla entities, apply changes, then write to output file
     with open(modded_file, "w") as fp:
         for entity in entities:
             total_count += 1
@@ -976,7 +1000,7 @@ def apply_ebl(
 
             for name, params in deltas:
                 cmd, _ = params
-                if cmd == "INIT" or cmd == "MODIFY COPY":
+                if cmd == "INIT" or cmd == "MODIFY COPY" or cmd == "ADD":
                     continue
                 ident = name.split()[0]
                 if f"entityDef {ident} {{" in entity:
@@ -995,7 +1019,8 @@ def apply_ebl(
             fp.write(entity)
         fp.write("\n")
 
-        # 5) iterate added entities, apply changes, then write to output file
+        # 7) TODO: remove this part
+        #  iterate added entities, apply changes, then write to output file
         for new_entity in added_entities:
             total_count += 1
             if (
@@ -1030,7 +1055,12 @@ def apply_ebl(
     if do_punctuation_check:
         ui_log(entity_tools.verify_file(modded_file))
 
-    if "minify" in Settings:
+    try:
+        do_minify = Settings["minify"] == "true"
+    except KeyError:
+        do_minify = False
+
+    if do_minify:
         ui_log("Minifying file...")
         entity_tools.minify(modded_file)
 
@@ -1045,7 +1075,5 @@ def apply_ebl(
     ui_log(f"Added {added_count} new entities")
     ui_log(f"{modified_count} entities out of {total_count} modified!")
     ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
-    # print(decorator_changes)
-    # print(new_ebl_cache.keys())
-    # print(entitydefs)
+    print(Settings)
     return True
