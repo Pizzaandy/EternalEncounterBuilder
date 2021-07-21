@@ -35,7 +35,7 @@ def format_arg(arg):
     return res.strip()
 
 
-SPECIAL_CHARS = "():-"
+SPECIAL_CHARS = "():-&"
 
 
 # TODO: rewrite this complete garbage

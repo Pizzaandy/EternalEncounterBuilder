@@ -10,6 +10,7 @@ import json
 
 import multiprocessing
 
+
 class Worker(QtCore.QObject):
     finished = QtCore.pyqtSignal()
     log_data = QtCore.pyqtSignal(str)
@@ -18,7 +19,6 @@ class Worker(QtCore.QObject):
         self.log_data.emit(s)
 
     def run(self):
-        # bruh
         compiler.worker_object = self
         ebl_file = ui.ebl_file_box.toPlainText().strip()
         entities_file = ui.base_entities_box.toPlainText().strip()
@@ -45,12 +45,21 @@ class Worker(QtCore.QObject):
             self.worker_log("Output folder does not exist!")
             do_compile = False
 
-        if compress and not Path("oo2core_8_win64.dll").exists():
-            self.worker_log("oo2core_8_win64.dll is not in the folder!")
-            self.worker_log("Cannot compress file!")
-            do_compile = False
+        if compress:
+            oodle_name = (
+                "liblinoodle.so" if "linux" in sys.platform else "oo2core_8_win64.dll"
+            )
+            if not Path(oodle_name).exists():
+                self.worker_log(f"{oodle_name} is not in the folder!")
+                self.worker_log("Cannot compress file!")
+                do_compile = False
 
-        for file in ["idAI2_base.txt", "idAI2_dlc1.txt", "idAI2_dlc2.txt", "anim_offsets.txt"]:
+        for file in [
+            "idAI2_base.txt",
+            "idAI2_dlc1.txt",
+            "idAI2_dlc2.txt",
+            "anim_offsets.txt",
+        ]:
             if not os.path.exists(file):
                 self.worker_log(f"{file} not found in folder!")
                 do_compile = False
@@ -311,7 +320,9 @@ if __name__ == "__main__":
             existing_cache = json.load(fp)
         if "__PREVIOUS_FILES__" in existing_cache:
             print("Found previous filenames")
-            vanilla_entities, ebl_file, output_path = existing_cache["__PREVIOUS_FILES__"]
+            vanilla_entities, ebl_file, output_path = existing_cache[
+                "__PREVIOUS_FILES__"
+            ]
             ui.base_entities_box.setPlainText(vanilla_entities)
             ui.ebl_file_box.setPlainText(ebl_file)
             ui.output_file_box.setPlainText(output_path)

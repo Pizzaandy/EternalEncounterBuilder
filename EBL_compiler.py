@@ -79,7 +79,7 @@ decorator_entity_names = {}
 debug_vars = False
 
 worker_object = None
-do_verbose_logging = False
+do_verbose_logging = True
 
 
 def ui_log(s):
@@ -427,9 +427,9 @@ def apply_decorator_command(
             x_off, y_off = cc.ANIM_TO_OFFSET[anim_name]
             x_off, y_off = -x_off, -y_off
             x, y, z = (
-                parsed_entity[entitydef]["edit"]["spawnPosition"]["x"],
-                parsed_entity[entitydef]["edit"]["spawnPosition"]["y"],
-                parsed_entity[entitydef]["edit"]["spawnPosition"]["z"],
+                parsed_entity[entitydef]["edit"]["spawnPosition"].get("x", 0),
+                parsed_entity[entitydef]["edit"]["spawnPosition"].get("y", 0),
+                parsed_entity[entitydef]["edit"]["spawnPosition"].get("z", 0),
             )
             try:
                 forward_cos = parsed_entity[entitydef]["edit"]["spawnOrientation"][
@@ -468,7 +468,7 @@ def apply_decorator_command(
         except KeyError as e:
             ui_log(f"ERROR: Couldn't find key {e}")
     else:
-        ui_log(f"WARNING: Tag {cmd_name} is not recognized")
+        ui_log(f"ERROR: Tag {cmd_name} is not recognized")
 
     if not delete_original:
         decorator_entity_names[new_entity_name] = entity_tools.generate_entity(
@@ -776,7 +776,6 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
             ] = "AIOVERRIDE_TELEPORT"
         else:
             pass
-            # print("SKIPPING SPAWNANIM")
 
     listed_targets = list_targets(entitydefs)
     targets = "{\n" + indent(listed_targets, "\t") + "}\n"
@@ -824,7 +823,7 @@ def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) 
         entities.append(edit_entity_fields(new_name, entity, text))
         return entity
     elif cmd == "MODIFY":
-        ui_log(f"Modified fields in {name}")
+        ui_log(f"Modified {name}")
         return edit_entity_fields(name, entity, text)
     else:
         raise EblTypeError(f"Unknown command {cmd}")
@@ -907,7 +906,7 @@ def apply_ebl(
             # TODO: make a PEG parser for this
             t_name, t_args = parse_event(key)
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
-            ui_log(f"Template {t_name} found")
+            ui_log_verbose(f"Template {t_name} found")
         elif val[0] == "INIT":
             compile_ebl(val[1], vars_only=True)
 
@@ -929,6 +928,8 @@ def apply_ebl(
     entities.append(cc.MAIN_SPAWN_PARENT)
 
     # 5) initialize variables, add new entities, and compile encounters
+    template_added_count = {template: 0 for template in templates.keys()}
+
     for idx, (key, val) in enumerate(deltas):
         if val[0] == "REPLACE ENCOUNTER":
             try:
@@ -939,6 +940,9 @@ def apply_ebl(
         elif val[0] == "ADD":
             is_template = False
             for template in templates.keys():
+                if not show_spawn_targets and template == "PointLabel":
+                    print("skipped Pointlabel")
+                    continue
                 full_text = key + val[1]
                 # print(f"{full_text=}")
                 if (
@@ -948,15 +952,22 @@ def apply_ebl(
                 ):
                     # TODO: make a PEG parser for this
                     _, args = parse_event(full_text)
+                    args = [concat_strings(arg, is_expression=True) for arg in args]
                     entity = templates[template].render(*args)
                     is_template = True
-                    ui_log(f"Added instance of {template}")
+                    template_added_count[template] += 1
                     entities.append(entity + "\n")
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
                 entities.append(entity + "\n")
             added_count += 1
+
+    for key, val in template_added_count.items():
+        if val == 0:
+            continue
+        add_s = "s" if val > 1 else ""
+        ui_log(f"Added {val} instance{add_s} of {key}")
 
     try:
         output_name_override = Settings["output_filename"]

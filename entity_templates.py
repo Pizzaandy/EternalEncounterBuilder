@@ -67,10 +67,10 @@ class EntityTemplate:
         except ValueError:
             argv = self.modify_args(argv)
             added_args = {}
-        print(f"{added_args=}")
+        # print(f"{added_args=}")
         if len(argv) != len(self.args):
             raise EblTypeError(
-                f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given"
+                f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given \n {argv=}"
             )
 
         params = {name: val for name, val in zip(self.args, argv)}
@@ -226,6 +226,7 @@ class Color(EntityTemplate):
         self.template = """color = {r = {{r}}; g = {{g}}; b = {{b}};}"""
 
 
+# TODO: put built-in templates into a text file
 BUILTIN_TEMPLATES = {
     "SpawnTarget": EntityTemplate(
         "SpawnTarget",
@@ -483,7 +484,7 @@ entity {
     "PointLabel": EntityTemplate(
         "PointLabel",
         """entity {
-	entityDef mod_visualize_marker_{{name}} {
+	entityDef {{name}} {
 	class = "idProp2";
 	expandInheritance = false;
 	poolCount = 0;
@@ -1282,6 +1283,115 @@ entity {
 }
 """,
         ["name", "position", "respawn_time"],
+    ),
+"Trigger": EntityTemplate(
+        "Trigger",
+        """entity {
+	entityDef {{name}} {
+	inherit = "trigger/trigger";
+	class = "idTrigger";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		spawnPosition = {{position}}
+		targets = {
+			num = 0;
+		}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+		    size = {{scale}}
+			clipModelName = "{{clipmodel}}";
+		}
+		triggerOnce = {{trigger_once}};
+	}
+}
+}
+""",
+        ["name", "position", "orientation", "scale", "clipmodel", "trigger_once"],
+    ),
+"ShowTarget": EntityTemplate(
+        "ShowTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/show";
+	class = "idTarget_Show";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		reuseable = true;
+		spawnPosition = {x = 0; y = 0; z = 0;}
+		targets = {
+			num = 1;
+			item[0] = "{{target}}";
+		}
+	}
+}
+}
+""",
+        ["name", "target"],
+    ),
+"HideTarget": EntityTemplate(
+        "HideTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/hide";
+	class = "idTarget_Hide";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		reuseable = true;
+		spawnPosition = {x = 0; y = 0; z = 0;}
+		targets = {
+			num = 1;
+			item[0] = "{{target}}";
+		}
+	}
+}
+}
+""",
+        ["name", "target"],
+    ),
+"SoundEntity": EntityTemplate(
+        "SoundEntity",
+        """entity {
+	entityDef {{name}} {
+	inherit = "sound/soundentity";
+	class = "idSoundEntity";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		temporarySoundEvent = true;
+		spawnPosition = {{position}}
+		startEvents = {
+			num = 1;
+			item[0] = "{{sound}}";
+		}
+	}
+}
+}
+""",
+        ["name", "position", "sound"],
     ),
 }
 
