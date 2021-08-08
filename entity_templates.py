@@ -23,7 +23,13 @@ class EntityTemplate:
         added_args = {}
         for i, arg in enumerate(args):
             if "[" in arg:
-                clsname, clsargs = arg.split("[")
+                try:
+                    clsname, clsargs = arg.split("[")
+                except ValueError:
+                    raise EblTypeError(
+                        f"More than one subtemplate in template {self.name} found -- check your commas:\n"
+                        + ", ".join(args)
+                    )
                 if clsname not in [
                     cls.__name__ for cls in EntityTemplate.__subclasses__()
                 ]:
@@ -33,10 +39,12 @@ class EntityTemplate:
                 clsargs = [arg.strip() for arg in clsargs]
                 cls = getattr(sys.modules[__name__], clsname)
                 if self is not None:
-                    added_args.update({
-                        f"{self.args[i]}.{arg_name}": arg_value
-                        for arg_name, arg_value in zip(cls().args, clsargs)
-                    })
+                    added_args.update(
+                        {
+                            f"{self.args[i]}.{arg_name}": arg_value
+                            for arg_name, arg_value in zip(cls().args, clsargs)
+                        }
+                    )
                 args[i] = cls().render(*clsargs)
         return args, added_args
 
@@ -62,6 +70,7 @@ class EntityTemplate:
             ):
                 return None  # not a mathematical expression (numbers and operators)
             return eval(compile(tree, filename="", mode="eval"))
+
         try:
             argv, added_args = self.modify_args(argv)
         except ValueError:
@@ -70,7 +79,8 @@ class EntityTemplate:
         # print(f"{added_args=}")
         if len(argv) != len(self.args):
             raise EblTypeError(
-                f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given \n {argv=}"
+                f"Expected {len(self.args)} args in template {self.name}, {len(argv)} given:\n"
+                + ", ".join(argv)
             )
 
         params = {name: val for name, val in zip(self.args, argv)}
@@ -388,7 +398,7 @@ entity {
             distance = 78.029007;
         }
         fadeIn = 0;
-        fadeOut = 0;
+        fadeOut = 1.7;
         spawnPosition = {{position}}
         spawnOrientation = {{orientation}}
         renderModelInfo = { 
@@ -1056,7 +1066,7 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
-"AmmoShells": EntityTemplate(
+    "AmmoShells": EntityTemplate(
         "AmmoShells",
         """entity {
 	entityDef {{name}} {
@@ -1118,7 +1128,7 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
-"AmmoCells": EntityTemplate(
+    "AmmoCells": EntityTemplate(
         "AmmoCells",
         """entity {
 	entityDef {{name}} {
@@ -1180,7 +1190,7 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
-"AmmoRocket": EntityTemplate(
+    "AmmoRocket": EntityTemplate(
         "AmmoRocket",
         """entity {
 	entityDef {{name}} {
@@ -1242,7 +1252,7 @@ entity {
 """,
         ["name", "position", "orientation"],
     ),
-"DashRefill": EntityTemplate(
+    "DashRefill": EntityTemplate(
         "DashRefill",
         """entity {
 	entityDef {{name}} {
@@ -1284,7 +1294,7 @@ entity {
 """,
         ["name", "position", "respawn_time"],
     ),
-"Trigger": EntityTemplate(
+    "Trigger": EntityTemplate(
         "Trigger",
         """entity {
 	entityDef {{name}} {
@@ -1296,7 +1306,6 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
-		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
 		spawnPosition = {{position}}
 		targets = {
 			num = 0;
@@ -1315,7 +1324,7 @@ entity {
 """,
         ["name", "position", "orientation", "scale", "clipmodel", "trigger_once"],
     ),
-"ShowTarget": EntityTemplate(
+    "ShowTarget": EntityTemplate(
         "ShowTarget",
         """entity {
 	entityDef {{name}} {
@@ -1336,13 +1345,13 @@ entity {
 			num = 1;
 			item[0] = "{{target}}";
 		}
-	}
+	}`
 }
 }
 """,
         ["name", "target"],
     ),
-"HideTarget": EntityTemplate(
+    "HideTarget": EntityTemplate(
         "HideTarget",
         """entity {
 	entityDef {{name}} {
@@ -1369,7 +1378,7 @@ entity {
 """,
         ["name", "target"],
     ),
-"SoundEntity": EntityTemplate(
+    "SoundEntity": EntityTemplate(
         "SoundEntity",
         """entity {
 	entityDef {{name}} {
@@ -1393,6 +1402,53 @@ entity {
 """,
         ["name", "position", "sound"],
     ),
+    "Checkpoint": EntityTemplate(
+        "Checkpoint",
+        """entity {
+	entityDef {{activate_name}} {
+	inherit = "target/change_layer";
+	class = "idTarget_LayerStateChange";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {{position}}
+		checkpointName = "{{spawnpoint_name}}_cp";
+		delayCheckPointSec = 0.5;
+		playerSpawnSpot = "{{spawnpoint_name}}";
+		mapTipGroup = "MAPTIP_CHECKPOINT_07";
+	}
+}
+}
+entity {
+	entityDef {{spawnpoint_name}} {
+	inherit = "player/start";
+	class = "idPlayerStart";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		targets = {
+			num = 0;
+		}
+	}
+}
+}
+""",
+        ["spawnpoint_name", "activate_name", "position", "orientation"],
+    ),
 }
 
 if __name__ == "__main__":
@@ -1404,6 +1460,7 @@ if __name__ == "__main__":
             .replace("]", "")
             .replace("position", "position(Vec3)")
             .replace("orientation", "orientation(Mat3)")
+            .replace("scale", "scale(Vec3)")
         )
         print(s)
     for key, template in BUILTIN_TEMPLATES.items():

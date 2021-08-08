@@ -18,3 +18,4 @@ dist/
 GeneratedEBL/
 ebl_cache.txt
 cache.txt
+testing_compilation_pvp.py

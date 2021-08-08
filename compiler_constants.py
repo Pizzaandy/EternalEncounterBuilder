@@ -305,7 +305,7 @@ NAME_TO_HORIZONTAL_OFFSET = {
     "SHOTGUN_SOLDIER": 200,
     "STONE_IMP": 150,
     "TENTACLE": 0,
-    "TYRANT": 500,
+    "TYRANT": (500, 450),
     "WHIPLASH": (50, 330),
     "ZOMBIE_MAYKR": 175,
     "ZOMBIE_T1_SCREECHER": (150, 250),
@@ -500,11 +500,15 @@ MAIN_SPAWN_PARENT = """entity {
 """
 
 if __name__ == "__main__":
-    # import json
-    # for key, val in NAME_TO_HORIZONTAL_OFFSET.items():
-    #     if not isinstance(val, tuple):
-    #         NAME_TO_HORIZONTAL_OFFSET[key] = (val, 0)
-    # with open(ANIM_OFFSETS_FILE, "w") as fp:
-    #     fp.write(json.dumps(NAME_TO_HORIZONTAL_OFFSET, indent=4))
-    for key, val in ANIM_TO_OFFSET.items():
-        print(key)
+    import json
+    for key, val in NAME_TO_HORIZONTAL_OFFSET.items():
+        if not isinstance(val, tuple):
+            NAME_TO_HORIZONTAL_OFFSET[key] = (val, 0)
+    with open(ANIM_OFFSETS_FILE, "w") as fp:
+        fp.write(json.dumps(NAME_TO_HORIZONTAL_OFFSET, indent=4))
+
+    # for key, val in ANIM_TO_OFFSET.items():
+    #     print(key)
+
+    # for name in ANIM_LIST:
+    #     print(name)

@@ -129,9 +129,9 @@ def verify_file(filename) -> str:
     with open(filename) as fp:
         for i, line in enumerate(fp.readlines()):
             line = strip_comments(line)
-            if "{" in line:
-                depth += line.count("{")
-            if "}" in line:
+            if "{" in line or "[" in line:
+                depth += line.count("{") + line.count("[")
+            if "}" in line or "]" in line:
                 depth -= 1
                 layers_block = False
             if line.strip() == "entity {":
@@ -151,6 +151,9 @@ def verify_file(filename) -> str:
                 print(f"Missing punctuation on line {i + 1}")
                 print(f"line {i + 1}: {line}")
                 return f"Missing punctuation on line {i + 1}"
+            if "= ;" in line:
+                print(f"Empty field on line {i+1}")
+                return f"Empty field on line {i+1}"
     if depth != 0:
         print(f"Unmatched braces detected! Depth = {depth}")
         return f"Unmatched braces detected! Depth = {depth}"

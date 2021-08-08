@@ -22,8 +22,8 @@ from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
 
 
-
 run_count = 0
+
 
 def reset_all():
     global run_count
@@ -49,6 +49,7 @@ def reset_all():
 def cache_result():
     global ebl_cache
     global new_ebl_cache
+
     def decorator(func):
         def new_func(*args):
             keystr = str(args) + func.__name__ + str(variables)
@@ -64,6 +65,7 @@ def cache_result():
         return new_func
 
     return decorator
+
 
 # EBL = Eternal Builder Language, describes changes to .entities files
 ebl = ebl_grammar.NodeVisitor()
@@ -161,7 +163,9 @@ def get_event_args(event: eternalevents.EternalEvent):
 
 
 LINE_PATTERN = re.compile(r"//(.*)(?=[\r\n]+)")
-MULTILINE_PATTERN = re.compile(r'/\*.*?\*/', flags=re.DOTALL)
+MULTILINE_PATTERN = re.compile(r"/\*.*?\*/", flags=re.DOTALL)
+
+
 def strip_comments(s):
     s += "\n"
     s = re.sub(MULTILINE_PATTERN, "", s)
@@ -177,7 +181,9 @@ def split_ebl_at_headers(filename) -> list:
     :return:
     """
     with open(filename) as fp:
-        segments = re.split(cc.EBL_HEADERS_REGEX, strip_comments(fp.read()), flags=re.MULTILINE)
+        segments = re.split(
+            cc.EBL_HEADERS_REGEX, strip_comments(fp.read()), flags=re.MULTILINE
+        )
 
     if segments[0].startswith("SETTINGS"):
         ui_log("SETTINGS found!")
@@ -262,7 +268,10 @@ def create_events(data) -> list:
             return [EntityEdit(data["object"], data["function"], data["value"])]
 
         if data["event"] == "waitForBlock":
-            event_count = len([ev for ev in data["args"] if "variable" not in ev[0]])
+            event_count = 0
+            for sublist in data["args"]:
+                for _ in sublist[0]["args"]:
+                    event_count += 1
             waitevent = {
                 "event": "waitMulitpleConditions",
                 "args": [event_count, cc.WAITFOR_KEYWORDS[data["keyword"]], "false"],
@@ -353,7 +362,7 @@ def add_decorator_command(
             elif cmd_name == "portal":
                 pass
         else:
-            ui_log(f"WARNING: event {type(event_cls)} has no associated tags")
+            ui_log(f"WARNING: event {type(event_cls).__name__} has no associated tags")
             return modified_args
 
     mod_entity_idx += 1
@@ -566,7 +575,8 @@ def concat_strings(s, is_expression=False):
 
 @cache_result()
 def parse_ebl(s):
-    return ebl.parse(s)
+    # print(s)
+    return ebl.parse(s + "\n")
 
 
 def compile_ebl(s, vars_only=False) -> str:
@@ -699,6 +709,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                         pass
                     if value[0] in ["true", "false"]:
                         value[0] = True if value[0] == "true" else False
+                    if value[0] == "NULL":
+                        value[0] = None
                 try:
                     dic[concat_strings(keys[-1])] = value[0]
                 except TypeError:
@@ -713,6 +725,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                     )
                 value = concat_strings(value[0], is_expression=True)
                 for key in keys:
+                    if key == "":
+                        continue
                     dic = dic[key]
                 for key, val in dic.items():
                     debug_print(f"Checking value '{value}' against '{val}'")
@@ -720,9 +734,27 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                         debug_print("Matched!")
                         dic.pop(key)
                         break
+
+            if function_name == "delete":
+                if len(value) != 1:
+                    raise EblTypeError(
+                        f'Edit function "{function_name}" takes one argument'
+                    )
+                value = concat_strings(value[0], is_expression=True)
+                for key in keys:
+                    if key == "":
+                        continue
+                    dic = dic[key]
+                for key, val in dic.items():
+                    debug_print(f"Checking key '{value}' against '{key}'")
+                    if key == value:
+                        debug_print("Matched!")
+                        dic.pop(key)
+                        break
     result = entity_tools.generate_entity(entity)
     result += "\n"
     return result
+
 
 @cache_result()
 def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
@@ -953,10 +985,19 @@ def apply_ebl(
                     # TODO: make a PEG parser for this
                     _, args = parse_event(full_text)
                     args = [concat_strings(arg, is_expression=True) for arg in args]
-                    entity = templates[template].render(*args)
+                    rendered_template = templates[template].render(*args)
+                    template_entities = re.split(
+                        parser.ENTITY_SPLIT_PATTERN, rendered_template
+                    )
+                    template_entities = [
+                        "entity {" + re.sub(r"//.*$", "", segment)
+                        for segment in template_entities
+                        if segment
+                    ]
                     is_template = True
                     template_added_count[template] += 1
-                    entities.append(entity + "\n")
+                    for template_entity in template_entities:
+                        entities.append(template_entity + "\n")
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
@@ -1039,7 +1080,7 @@ def apply_ebl(
                 or 'class = "idTarget_Spawn_Parent";' in new_entity
             ):
                 pass
-                #new_entity = format_spawn_target(new_entity, entitydefs)
+                # new_entity = format_spawn_target(new_entity, entitydefs)
             fp.write(new_entity + "\n")
 
     if show_spawn_targets:

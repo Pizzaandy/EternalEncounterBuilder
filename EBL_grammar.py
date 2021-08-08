@@ -129,6 +129,7 @@ class NodeVisitor(NodeVisitor):
 
     def visit_WAITFORBLOCK(self, node, visited_children):
         _, _, keyword, _, conditions, _ = visited_children
+        # print(f"{conditions=}")
         if not isinstance(conditions, list):
             print("This should never happen")
             conditions = []

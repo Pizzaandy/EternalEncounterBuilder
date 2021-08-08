@@ -24,8 +24,12 @@
         0
     ],
     "CURSED_PROWLER": [
-        100,
-        0
+        450,
+        100
+    ],
+    "PROWLER": [
+        250,
+        100
     ],
     "CYBER_MANCUBUS": [
         500,
@@ -67,10 +71,6 @@
         145,
         0
     ],
-    "PROWLER": [
-        100,
-        0
-    ],
     "REVENANT": [
         285,
         100
@@ -89,7 +89,7 @@
     ],
     "TYRANT": [
         500,
-        0
+        600
     ],
     "WHIPLASH": [
         50,
@@ -101,11 +101,11 @@
     ],
     "ZOMBIE_T1_SCREECHER": [
         150,
-        0
+        250
     ],
     "ZOMBIE_TIER_1": [
         150,
-        0
+        250
     ],
     "ZOMBIE_TIER_3": [
         150,
