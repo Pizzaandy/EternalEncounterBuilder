@@ -41,7 +41,7 @@ class EternalEvent:
     def stringify(self):
         def format_value(v):
             if is_number_or_keyword(v):
-                return f"{v};"
+                return f'{v};'
             else:
                 return f'"{v}";'
 
@@ -67,6 +67,10 @@ class EternalEvent:
                     template=self.decl_template,
                     data={"varname": varname, "value": item["value"]},
                 )
+
+            if name == "designerComment" and item["var"] == "string":
+                item["value"] = '"' + item["value"].strip(';"') + r'\n";'
+
         return chevron.render(
             template=self.ev_template,
             data={"name": name, "items": items, "count": len(items)},
@@ -236,8 +240,8 @@ class ForceChargeOnAllAI(EternalEvent):
 class ForceAIToFlee(EternalEvent):
     spawnType = "eEncounterSpawnType_t"
     group_label = "string"
-    radius = "float"
-    immediateDespawn = "bool=false"
+    radius = "float=0"
+    immediateDespawn = "bool=true"
 
 
 class WaitMulitpleConditions(EternalEvent):
@@ -252,10 +256,9 @@ class Wait(EternalEvent, alias="time"):
 
 
 class WaitAIHealthLevel(EternalEvent, alias=["healthLevel", "AIHealthLevel"]):
-    aiType = "eEncounterSpawnType_t"
-    desired_remaing_ai_count = "int"
+    spawnType = "eEncounterSpawnType_t"
+    target_group_health = "int"
     group_label = "string*"
-    disableAIHighlight = "bool=false"
 
 
 class WaitAIRemaining(EternalEvent, alias="AIRemaining"):
@@ -311,6 +314,9 @@ class WaitForEventFlag(EternalEvent, alias="flag"):
     testIfAlreadyRaised = "bool=true"
     disableAIHighlight = "bool=false"
 
+class RaiseFlagForLogicDesigner(EternalEvent):
+    eventFlag = "eEncounterEventFlags_t"
+    userFlag = "string"
 
 class DamageAI(EternalEvent, alias="damage"):
     damageType = "decl:damage"
@@ -323,10 +329,19 @@ class RemoveAI(EternalEvent, alias="remove"):
     group_label = "string*"
 
 
+class RemoveAllSpirits(EternalEvent, alias="removeSpirits"):
+    pass
+
+
+class SetHordeBlitzAIType(EternalEvent):
+    targetSpawnType = "eEncounterSpawnType_t"
+
+
 class MigrateAIFromExternalScript(EternalEvent):
     encounterScript = "entity"
-    eventFlag = "eEncounterEventFlags_t"
-    userFlag = "string"
+    aiType = "eEncounterSpawnType_t"
+    group_label = "string"
+    sharedBetweenScripts = "bool=false"
 
 
 class SetNextScriptIndex(EternalEvent):
@@ -348,12 +363,12 @@ class setAIMemoryKey(EternalEvent):
 
 
 class ProceedToNextScript(EternalEvent):
-    bypassNextWaitForCommit = "bool"
-    carryOverExistingUserFlags = "bool"
+    bypassNextWaitForCommit = "bool=true"
+    carryOverExistingUserFlags = "bool=true"
 
 
 class DesignerComment(EternalEvent, alias="print"):
-    designerComment = "string*"
+    designerComment = "string"
     printToConsole = "bool=true"
 
 

@@ -16,7 +16,8 @@ grammar = Grammar(
     ASSIGNMENT = STRING EQUALS (NUMBER / MULTISTRING / ANYSTRING) SPACE?
     ENTITYEDIT = PATHSTRING "." EVENT
 
-    WAVE = "Wave" SPACE (STRING / NUMBER) LBRACE STATEMENTS* RBRACE
+    WAVE_STATEMENTS = SPACE? (ASSIGNMENT / WAITFORBLOCK / WAITFOR / DECORATOR)
+    WAVE = "Script" SPACE NUMBER LBRACE STATEMENTS+ RBRACE
     PARAM_LIST = PARAM_TUPLE+
     PARAM_TUPLE = LPARENTHESES PARAM_LINE RPARENTHESES SPACE? ","? SPACE?
     PARAM_LINE = PARAM*
@@ -57,12 +58,22 @@ grammar = Grammar(
 class NodeVisitor(NodeVisitor):
     def visit_DOCUMENT(self, node, visited_children):
         output = []
-        event_list, _ = visited_children
-        for event in event_list:
-            output.append(event)
+        scripts, _ = visited_children
+        if any(isinstance(x, list) for x in scripts):
+            for idx, event_list in enumerate(scripts):
+                output.append([])
+                for event in event_list:
+                    output[idx].append(event)
+        else:
+            for event in scripts:
+                output.append(event)
         return output
 
     def visit_STATEMENTS(self, node, visited_children):
+        _, statement = visited_children
+        return statement[0]
+
+    def visit_WAVE_STATEMENTS(self, node, visited_children):
         _, statement = visited_children
         return statement[0]
 
@@ -76,6 +87,7 @@ class NodeVisitor(NodeVisitor):
 
     def visit_WAVE(self, node, visited_children):
         _, _, varname, _, statements, _ = visited_children
+        #print(f"{statements=}")
         if not isinstance(statements, list):
             return []
         return statements
@@ -154,9 +166,9 @@ class NodeVisitor(NodeVisitor):
     def visit_STRINGLITERAL(self, node, visited_children):
         expr = str(node.text).replace('"', "").replace(" ", "$^")
         if "$" not in expr:
-            expr = expr + "$"
+            expr = "$" + expr + "$"
         # print(f"expr is {expr}")
-        # print(f"string literal: '{expr}'")
+        #print(f"string literal: '{expr}'")
         return expr
 
     def visit_MULTISTRING(self, node, visited_children):

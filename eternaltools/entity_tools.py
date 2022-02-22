@@ -6,6 +6,7 @@ from typing import Tuple, Dict, Any
 import hashlib
 import json
 import ebl_compiler as compiler
+import compiler_constants as cc
 
 NO_EQUALS = ("entityDef ", "layers")
 
@@ -128,11 +129,12 @@ def verify_file(filename) -> str:
     last_entity_line = 0
     with open(filename) as fp:
         for i, line in enumerate(fp.readlines()):
-            line = strip_comments(line)
-            if "{" in line or "[" in line:
-                depth += line.count("{") + line.count("[")
+            depth += line.count("{") + line.count("[")
+            depth -= line.count("}") + line.count("]")
+            quote_count = line.count('"')
+            if quote_count % 2 != 0:
+                return f"Unbalanced quotes at line {last_entity_line + 1}"
             if "}" in line or "]" in line:
-                depth -= 1
                 layers_block = False
             if line.strip() == "entity {":
                 if depth != 1:
@@ -145,7 +147,7 @@ def verify_file(filename) -> str:
                 continue
             if i < 2 or not line.strip() or line.lstrip().startswith("//"):
                 continue
-            if line.strip().startswith("layers"):
+            if line.strip().startswith("layers") or line.strip().startswith("properties"):
                 layers_block = True
             if not line.rstrip().endswith(("{", "}", ";")):
                 print(f"Missing punctuation on line {i + 1}")
@@ -366,3 +368,39 @@ def mark_spawn_targets(filename, spawn_target_hashes=None) -> Tuple[int, str]:
         fp.write(generated_string)
 
     return count
+
+
+def generate_traversal_info(
+    point_a: tuple, point_b: tuple, allow_heavy: bool = True
+) -> str:
+    template = """entity {
+    entityDef traversal_info_{{name}}_{{index}} {
+    class = "idInfoTraversal";
+    expandInheritance = false;
+    poolCount = 0;
+    poolGranularity = 2;
+    networkReplicated = false;
+    disableAIPooling = false;
+    edit = {
+        traversalAnim = "{{anim}}";
+        monsterType = "{{name}}";
+        snapToGround = true;
+        spawnPosition = {
+            x = {{x1}};
+            y = {{y1}};
+            z = {{z1}};
+        }
+        traversalEndpoint = {
+            x = {{x2}};
+            y = {{y2}};
+            z = {{z2}};
+        }
+    }
+}
+}
+"""
+    x1, y1, z1 = point_a
+    x2, y2, z2 = point_b
+    for _, name in cc.NAME_TO_ANIMWEB.items():
+        pass
+

@@ -142,7 +142,6 @@ def strip_comments(s):
 
 ENTITY_SPLIT_PATTERN = re.compile(r"entity {", flags=re.MULTILINE)
 
-
 def generate_entity_segments(filename, class_filter="", version_numbers=False):
     with open(filename) as fp:
         segments = re.split(ENTITY_SPLIT_PATTERN, fp.read())
@@ -161,6 +160,7 @@ def generate_entity_segments(filename, class_filter="", version_numbers=False):
     if class_filter:
         print(f"{segment_count} instances of {class_filter} found")
 
+find_entities = generate_entity_segments
 
 def parse_entities(filename, class_filter=""):
     with mp.Pool(processes=mp.cpu_count() - 2) as pool:

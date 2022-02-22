@@ -5,7 +5,6 @@ from ebl_grammar import EblTypeError
 import re
 import ast
 
-
 # TODO: move entity templates to another module
 class EntityTemplate:
     """
@@ -97,10 +96,10 @@ class EntityTemplate:
             if not any(c in expr for c in "+-/*."):
                 continue
             original_expr = expr
-            print(f"expr {expr} contains math")
+            # print(f"expr {expr} contains math")
             for arg_name, arg_value in sorted_params:
                 if arg_name in expr:
-                    print(f"{arg_name=}")
+                    # print(f"{arg_name=}")
                     expr = expr.replace(arg_name, arg_value)
             new_key = f"__unique_{idx}__"
             modified_template = modified_template.replace(
@@ -193,6 +192,59 @@ class Mat3(EntityTemplate):
                 sr * sp * sy + cr * cy,
                 sr * cp,
                 cr * sp * cy + -sr * sy,
+                cr * sp * sy + -sr * cy,
+                cr * cp,
+            ]
+
+
+# noinspection PyMissingConstructor
+class Mat3New(EntityTemplate):
+    def __init__(self):
+        self.name = "Mat3New"
+        self.args = ["x1", "y1", "z1", "x2", "y2", "z2", "x3", "y3", "z3"]
+        self.template = """{
+            mat = {
+                mat[0] = {
+                    x = {{x1}};
+                    y = {{y1}};
+                    z = {{z1}};
+                }
+                mat[1] = {
+                    x = {{x2}};
+                    y = {{y2}};
+                    z = {{z2}};
+                }
+                mat[2] = {
+                    x = {{x3}};
+                    y = {{y3}};
+                    z = {{z3}};
+                }
+            }
+        }"""
+
+    def modify_args(self, args):
+        if len(args) == 3:
+            sy, cy = sin_cos(args[1])
+            sp, cp = sin_cos(args[0])
+            sr, cr = sin_cos(args[2])
+            return_modified = True
+        elif len(args) == 1:
+            sy, cy = sin_cos(args[0])
+            sp, cp = sin_cos(0)
+            sr, cr = sin_cos(0)
+            return_modified = True
+        else:
+            return args
+
+        if return_modified:
+            return [
+                cp * cy,
+                cp * sy,
+                -sp,
+                sr * sp * cy + cr * -sy,
+                sr * sp * sy + cr * cy,
+                sr * cp,
+                cr * sp * cy + sr * sy,
                 cr * sp * sy + -sr * cy,
                 cr * cp,
             ]
@@ -297,6 +349,280 @@ BUILTIN_TEMPLATES = {
 		disablePooling = false;
 		spawnPosition = {{position}}
 		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "AirTarget": EntityTemplate(
+        "AirTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/spawn";
+	class = "idTarget_Spawn";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+	    //#EBL_IS_AIR_TARGET
+		flags = {
+			noFlood = true;
+		}
+		spawnConditions = {
+			maxCount = 0;
+			reuseDelaySec = 0;
+			doBoundsTest = false;
+			boundsTestType = "BOUNDSTEST_NONE";
+			fovCheck = 0;
+			minDistance = 0;
+			maxDistance = 0;
+			neighborSpawnerDistance = -1;
+			LOS_Test = "LOS_NONE";
+			playerToTest = "PLAYER_SP";
+			conditionProxy = "";
+		}
+		spawnEditableShared = {
+			groupName = "";
+			deathTrigger = "";
+			coverRadius = 0;
+			maxEnemyCoverDistance = 0;
+		}
+		entityDefs = {
+			num = 2;
+			item[0] = {
+				name = "custom_ai_heavy_painelemental";
+			}
+			item[1] = {
+				name = "custom_ai_heavy_cacodemon";
+			}
+		}
+		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
+		initialEntityDefs = {
+			num = 0;
+		}
+		spawnEditable = {
+			spawnAt = "";
+			copyTargets = false;
+			additionalTargets = {
+				num = 0;
+			}
+			overwriteTraversalFlags = true;
+			traversalClassFlags = "CLASS_A";
+			combatHintClass = "CLASS_ALL";
+			spawnAnim = "";
+			aiStateOverride = "AIOVERRIDE_TELEPORT";
+			initialTargetOverride = "";
+		}
+		portal = "";
+		targetSpawnParent = "";
+		disablePooling = false;
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		targets = {
+		    num = 2;
+		    item[0] = "custom_ai_heavy_painelemental";
+			item[1] = "custom_ai_heavy_cacodemon";
+		}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+"HordeBountyTarget": EntityTemplate(
+        "HordeBountyTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/spawn";
+	class = "idTarget_Spawn";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+	    //#EBL_IS_BOUNTY_TARGET
+		flags = {
+			noFlood = true;
+		}
+		spawnConditions = {
+			maxCount = 0;
+			reuseDelaySec = 0;
+			doBoundsTest = false;
+			boundsTestType = "BOUNDSTEST_NONE";
+			fovCheck = 0;
+			minDistance = 0;
+			maxDistance = 0;
+			neighborSpawnerDistance = -1;
+			LOS_Test = "LOS_NONE";
+			playerToTest = "PLAYER_SP";
+			conditionProxy = "";
+		}
+		spawnEditableShared = {
+			groupName = "";
+			deathTrigger = "";
+			coverRadius = 0;
+			maxEnemyCoverDistance = 0;
+		}
+		entityDefs = {
+			num = 32;
+			item[0] = {
+				name = "ai_ai_bounty_ambient_zombie_cueball_1";
+			}
+			item[1] = {
+				name = "ai_ai_bounty_fodder_carcass_1";
+			}
+			item[2] = {
+				name = "ai_ai_bounty_fodder_zombie_tier_1_1";
+			}
+			item[3] = {
+				name = "ai_ai_bounty_fodder_zombie_tier_3_1";
+			}
+			item[4] = {
+				name = "ai_ai_bounty_fodder_imp_1";
+			}
+			item[5] = {
+				name = "ai_ai_bounty_fodder_imp_stone_1";
+			}
+			item[6] = {
+				name = "ai_ai_bounty_fodder_prowler_1";
+			}
+			item[7] = {
+				name = "ai_ai_bounty_fodder_gargoyle_1";
+			}
+			item[8] = {
+				name = "ai_ai_bounty_fodder_soldier_blaster_1";
+			}
+			item[9] = {
+				name = "ai_ai_bounty_fodder_soldier_shield_1";
+			}
+			item[10] = {
+				name = "ai_ai_bounty_fodder_soldier_chaingun_1";
+			}
+			item[11] = {
+				name = "ai_ai_bounty_heavy_hellknight_1";
+			}
+			item[12] = {
+				name = "ai_ai_bounty_heavy_dreadknight_1";
+			}
+			item[13] = {
+				name = "ai_ai_bounty_heavy_pinky_1";
+			}
+			item[14] = {
+				name = "ai_ai_bounty_heavy_pinky_spectre_1";
+			}
+			item[15] = {
+				name = "ai_ai_bounty_heavy_arachnotron_1";
+			}
+			item[16] = {
+				name = "ai_ai_bounty_heavy_cacodemon_1";
+			}
+			item[17] = {
+				name = "ai_ai_bounty_heavy_painelemental_1";
+			}
+			item[18] = {
+				name = "ai_ai_bounty_heavy_revenant_1";
+			}
+			item[19] = {
+				name = "ai_ai_bounty_heavy_bloodangel_1";
+			}
+			item[20] = {
+				name = "ai_ai_bounty_heavy_mancubus_fire_1";
+			}
+			item[21] = {
+				name = "ai_ai_bounty_heavy_mancubus_goo_1";
+			}
+			item[22] = {
+				name = "ai_ai_bounty_heavy_whiplash_1";
+			}
+			item[23] = {
+				name = "ai_ai_bounty_superheavy_baron_1";
+			}
+			item[24] = {
+				name = "ai_ai_bounty_superheavy_baron_armored_1";
+			}
+			item[25] = {
+				name = "ai_ai_bounty_superheavy_doom_hunter_1";
+			}
+			item[26] = {
+				name = "ai_ai_bounty_superheavy_marauder_1";
+			}
+			item[27] = {
+				name = "ai_ai_bounty_superheavy_archvile_1";
+			}
+			item[28] = {
+				name = "ai_ai_bounty_superheavy_tyrant_1";
+			}
+			item[29] = {
+				name = "ai_ai_bounty_fodder_prowler_cursed_1";
+			}
+			item[30] = {
+				name = "ai_ai_bounty_fodder_zombie_maykr_1";
+			}
+			item[31] = {
+				name = "ai_ai_bounty_ambient_turretl_1";
+			}
+		}
+		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
+		initialEntityDefs = {
+			num = 0;
+		}
+		spawnEditable = {
+			spawnAt = "";
+			copyTargets = false;
+			additionalTargets = {
+				num = 0;
+			}
+			overwriteTraversalFlags = true;
+			traversalClassFlags = "CLASS_A";
+			combatHintClass = "CLASS_ALL";
+			spawnAnim = "";
+			aiStateOverride = "AIOVERRIDE_TELEPORT";
+			initialTargetOverride = "";
+		}
+		portal = "";
+		targetSpawnParent = "";
+		disablePooling = false;
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		targets = {
+			num = 32;
+			item[0] = "ai_ai_bounty_ambient_zombie_cueball_1";
+			item[1] = "ai_ai_bounty_fodder_carcass_1";
+			item[2] = "ai_ai_bounty_fodder_zombie_tier_1_1";
+			item[3] = "ai_ai_bounty_fodder_zombie_tier_3_1";
+			item[4] = "ai_ai_bounty_fodder_imp_1";
+			item[5] = "ai_ai_bounty_fodder_imp_stone_1";
+			item[6] = "ai_ai_bounty_fodder_prowler_1";
+			item[7] = "ai_ai_bounty_fodder_gargoyle_1";
+			item[8] = "ai_ai_bounty_fodder_soldier_blaster_1";
+			item[9] = "ai_ai_bounty_fodder_soldier_shield_1";
+			item[10] = "ai_ai_bounty_fodder_soldier_chaingun_1";
+			item[11] = "ai_ai_bounty_heavy_hellknight_1";
+			item[12] = "ai_ai_bounty_heavy_dreadknight_1";
+			item[13] = "ai_ai_bounty_heavy_pinky_1";
+			item[14] = "ai_ai_bounty_heavy_pinky_spectre_1";
+			item[15] = "ai_ai_bounty_heavy_arachnotron_1";
+			item[16] = "ai_ai_bounty_heavy_cacodemon_1";
+			item[17] = "ai_ai_bounty_heavy_painelemental_1";
+			item[18] = "ai_ai_bounty_heavy_revenant_1";
+			item[19] = "ai_ai_bounty_heavy_bloodangel_1";
+			item[20] = "ai_ai_bounty_heavy_mancubus_fire_1";
+			item[21] = "ai_ai_bounty_heavy_mancubus_goo_1";
+			item[22] = "ai_ai_bounty_heavy_whiplash_1";
+			item[23] = "ai_ai_bounty_superheavy_baron_1";
+			item[24] = "ai_ai_bounty_superheavy_baron_armored_1";
+			item[25] = "ai_ai_bounty_superheavy_doom_hunter_1";
+			item[26] = "ai_ai_bounty_superheavy_marauder_1";
+			item[27] = "ai_ai_bounty_superheavy_archvile_1";
+			item[28] = "ai_ai_bounty_superheavy_tyrant_1";
+			item[29] = "ai_ai_bounty_fodder_prowler_cursed_1";
+			item[30] = "ai_ai_bounty_fodder_zombie_maykr_1";
+			item[31] = "ai_ai_bounty_ambient_turretl_1";
+		}
 	}
 }
 }
@@ -589,6 +915,104 @@ entity {
 """,
         ["name", "position"],
     ),
+    "PointLabelFinal": EntityTemplate(
+        "PointLabelFinal",
+        """entity {
+	entityDef {{name}} {
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		renderModelInfo = {
+			model = "art/pickups/health/vial.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 100;
+			scale = {
+				x = 0.7;
+				y = 0.7;
+				z = 0.7;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = false;
+		isStatic = true;
+		canBePossessed = false;
+		spawnPosition = {{position}}
+	}
+}
+}
+entity { 
+    entityDef mod_visualize_label_{{name}} {
+    class = "idGuiEntity_Text";
+    expandInheritance = false;
+    poolCount = 0;
+    poolGranularity = 2;
+    networkReplicated = false;
+    disableAIPooling = false;
+    edit = {
+        billboard = true;
+        flags = {
+            noknockback = false;
+        }
+        renderModelInfo = {
+            model = "editors/models/gui_text.lwo";
+            scale = {
+                x = 4;
+                y = 4;
+                z = 4;
+            }
+        }
+        clipModelInfo = {
+            type = "CLIPMODEL_NONE";
+        }
+        swf = "swf/guientity/generic_text.swf";
+        spawnOrientation = {
+            mat = {
+                mat[0] = {
+                    x = 0.099308;
+                    y = -0.994933;
+                    z = 0.015707;
+                }
+                mat[1] = {
+                    x = 0.995056;
+                    y = 0.099320;
+                    z = 0.000000;
+                }
+                mat[2] = {
+                    x = -0.001560;
+                    y = 0.015629;
+                    z = 0.999877;
+                }
+            }
+        }
+        spawnPosition = {{position}}
+        swfScale = 0.02;
+        headerText = {
+            text = "{{name}}";
+            color = {
+                r = 1;
+                g = 1;
+                b = 1;
+            }
+            relativeWidth = 6;
+            alignment = "SWF_ET_ALIGN_CENTER";
+        }
+    }
+}
+}
+""",
+        ["name", "position"],
+    ),
     "Encounter": EntityTemplate(
         "Encounter",
         """entity {
@@ -606,12 +1030,230 @@ entity {
 		playerMetricDef = "encounter/player_metrics";
 		chargeCombatGrouping = "encounter/combat_role/charge_command";
 		aiTypeDefAssignments = "actorpopulation/default/dlc2";
+		aiTypePrintStrings = {
+			num = 43;
+			item[0] = {
+				aiType = "ENCOUNTER_SPAWN_ZOMBIE_TIER_1";
+				singularStringId = "#str_swf_actor_display_name_zombie";
+				pluralStringId = "#str_swf_actor_display_name_zombies";
+			}
+			item[1] = {
+				aiType = "ENCOUNTER_SPAWN_ZOMBIE_T1_SCREECHER";
+				singularStringId = "#str_swf_actor_display_name_screecher_zombie";
+				pluralStringId = "#str_swf_actor_display_name_screecher_zombies";
+			}
+			item[2] = {
+				aiType = "ENCOUNTER_SPAWN_ZOMBIE_TIER_3";
+				singularStringId = "#str_swf_actor_display_name_zombie";
+				pluralStringId = "#str_swf_actor_display_name_zombies";
+			}
+			item[3] = {
+				aiType = "ENCOUNTER_SPAWN_ZOMBIE_MAYKR";
+				singularStringId = "#str_swf_actor_display_name_maykr_zombie";
+				pluralStringId = "#str_swf_actor_display_name_maykr_zombies";
+			}
+			item[4] = {
+				aiType = "ENCOUNTER_SPAWN_IMP";
+				singularStringId = "#str_swf_actor_display_name_imp";
+				pluralStringId = "#str_swf_actor_display_name_imps";
+			}
+			item[5] = {
+				aiType = "ENCOUNTER_SPAWN_STONE_IMP";
+				singularStringId = "#str_swf_actor_display_name_stone_imp";
+				pluralStringId = "#str_swf_actor_display_name_stone_imps";
+			}
+			item[6] = {
+				aiType = "ENCOUNTER_SPAWN_GARGOYLE";
+				singularStringId = "#str_swf_actor_display_name_gargoyle";
+				pluralStringId = "#str_swf_actor_display_name_gargoyles";
+			}
+			item[7] = {
+				aiType = "ENCOUNTER_SPAWN_PROWLER";
+				singularStringId = "#str_swf_actor_display_name_prowler";
+				pluralStringId = "#str_swf_actor_display_name_prowlers";
+			}
+			item[8] = {
+				aiType = "ENCOUNTER_SPAWN_CURSED_PROWLER";
+				singularStringId = "#str_swf_actor_display_name_prowler";
+				pluralStringId = "#str_swf_actor_display_name_prowlers";
+			}
+			item[9] = {
+				aiType = "ENCOUNTER_SPAWN_HELL_SOLDIER";
+				singularStringId = "#str_swf_actor_display_name_hell_soldier";
+				pluralStringId = "#str_swf_actor_display_name_hell_soldiers";
+			}
+			item[10] = {
+				aiType = "ENCOUNTER_SPAWN_SHOTGUN_SOLDIER";
+				singularStringId = "#str_swf_actor_display_name_shotgun_soldier";
+				pluralStringId = "#str_swf_actor_display_name_shotgun_soldiers";
+			}
+			item[11] = {
+				aiType = "ENCOUNTER_SPAWN_CHAINGUN_SOLDIER";
+				singularStringId = "#str_swf_actor_display_name_chaingun_soldier";
+				pluralStringId = "#str_swf_actor_display_name_chaingun_soldiers";
+			}
+			item[12] = {
+				aiType = "ENCOUNTER_SPAWN_CARCASS";
+				singularStringId = "#str_swf_actor_display_name_carcass";
+				pluralStringId = "#str_swf_actor_display_name_carcasses";
+			}
+			item[13] = {
+				aiType = "ENCOUNTER_DO_NOT_USE_MAX_COMMON";
+				singularStringId = "#str_swf_actor_display_name_lost_soul";
+				pluralStringId = "#str_swf_actor_display_name_lost_souls";
+			}
+			item[14] = {
+				aiType = "ENCOUNTER_SPAWN_HELL_KNIGHT";
+				singularStringId = "#str_swf_actor_display_name_hellknight";
+				pluralStringId = "#str_swf_actor_display_name_hellknights";
+			}
+			item[15] = {
+				aiType = "ENCOUNTER_SPAWN_DREAD_KNIGHT";
+				singularStringId = "#str_swf_actor_display_name_dread_knight";
+				pluralStringId = "#str_swf_actor_display_name_dread_knights";
+			}
+			item[16] = {
+				aiType = "ENCOUNTER_SPAWN_PINKY";
+				singularStringId = "#str_swf_actor_display_name_pinky";
+				pluralStringId = "#str_swf_actor_display_name_pinkies";
+			}
+			item[17] = {
+				aiType = "ENCOUNTER_SPAWN_SPECTRE";
+				singularStringId = "#str_swf_actor_display_name_spectre";
+				pluralStringId = "#str_swf_actor_display_name_spectres";
+			}
+			item[18] = {
+				aiType = "ENCOUNTER_SPAWN_CACODEMON";
+				singularStringId = "#str_swf_actor_display_name_cacodemon";
+				pluralStringId = "#str_swf_actor_display_name_cacodemons";
+			}
+			item[19] = {
+				aiType = "ENCOUNTER_SPAWN_PAIN_ELEMENTAL";
+				singularStringId = "#str_swf_actor_display_name_pain_elemental";
+				pluralStringId = "#str_swf_actor_display_name_pain_elementals";
+			}
+			item[20] = {
+				aiType = "ENCOUNTER_SPAWN_MANCUBUS";
+				singularStringId = "#str_swf_actor_display_name_mancubus";
+				pluralStringId = "#str_swf_actor_display_name_mancubi";
+			}
+			item[21] = {
+				aiType = "ENCOUNTER_SPAWN_CYBER_MANCUBUS";
+				singularStringId = "#str_swf_actor_display_name_cyber_mancubus";
+				pluralStringId = "#str_swf_actor_display_name_cyber_mancubi";
+			}
+			item[22] = {
+				aiType = "ENCOUNTER_SPAWN_ARACHNOTRON";
+				singularStringId = "#str_swf_actor_display_name_arachnotron";
+				pluralStringId = "#str_swf_actor_display_name_arachnotrons";
+			}
+			item[23] = {
+				aiType = "ENCOUNTER_SPAWN_REVENANT";
+				singularStringId = "#str_swf_actor_display_name_revenant";
+				pluralStringId = "#str_swf_actor_display_name_revenants";
+			}
+			item[24] = {
+				aiType = "ENCOUNTER_SPAWN_BLOOD_ANGEL";
+				singularStringId = "#str_swf_actor_display_name_blood_angel";
+				pluralStringId = "#str_swf_actor_display_name_blood_angels";
+			}
+			item[25] = {
+				aiType = "ENCOUNTER_DO_NOT_USE_MAX_HEAVY";
+				singularStringId = "#str_swf_actor_display_name_whiplash";
+				pluralStringId = "#str_swf_actor_display_name_whiplashes";
+			}
+			item[26] = {
+				aiType = "ENCOUNTER_SPAWN_DOOM_HUNTER";
+				singularStringId = "#str_swf_actor_display_name_doom_hunter";
+				pluralStringId = "#str_swf_actor_display_name_doom_hunters";
+			}
+			item[27] = {
+				aiType = "ENCOUNTER_SPAWN_MARAUDER";
+				singularStringId = "#str_swf_actor_display_name_marauder";
+				pluralStringId = "#str_swf_actor_display_name_marauders";
+			}
+			item[28] = {
+				aiType = "ENCOUNTER_SPAWN_BARON";
+				singularStringId = "#str_swf_actor_display_name_baron";
+				pluralStringId = "#str_swf_actor_display_name_barons";
+			}
+			item[29] = {
+				aiType = "ENCOUNTER_SPAWN_ARMORED_BARON";
+				singularStringId = "#str_swf_actor_display_name_armored_baron";
+				pluralStringId = "#str_swf_actor_display_name_armored_barons";
+			}
+			item[30] = {
+				aiType = "ENCOUNTER_SPAWN_ARCHVILE";
+				singularStringId = "#str_swf_actor_display_name_archvile";
+				pluralStringId = "#str_swf_actor_display_name_archviles";
+			}
+			item[31] = {
+				aiType = "ENCOUNTER_DO_NOT_USE_MAX_SUPER";
+				singularStringId = "#str_swf_actor_display_name_tyrant";
+				pluralStringId = "#str_swf_actor_display_name_tyrants";
+			}
+			item[32] = {
+				aiType = "ENCOUNTER_SPAWN_GLADIATOR";
+				singularStringId = "#str_swf_actor_display_name_gladiator";
+				pluralStringId = "#str_swf_actor_display_name_gladiators";
+			}
+			item[33] = {
+				aiType = "ENCOUNTER_SPAWN_ICON_OF_SIN";
+				singularStringId = "#str_swf_actor_display_name_icon_of_sin";
+				pluralStringId = "#str_swf_actor_display_name_icon_of_sin(s)";
+			}
+			item[34] = {
+				aiType = "ENCOUNTER_SPAWN_MAYKR_ANGEL";
+				singularStringId = "#str_swf_actor_display_name_maykr_angel";
+				pluralStringId = "#str_swf_actor_display_name_maykr_angels";
+			}
+			item[35] = {
+				aiType = "ENCOUNTER_DO_NOT_USE_AMBIENT";
+				singularStringId = "#str_swf_actor_display_name_maykr_samuel_boss";
+				pluralStringId = "#str_swf_actor_display_name_maykr_samuel_bosses";
+			}
+			item[36] = {
+				aiType = "ENCOUNTER_SPAWN_CUEBALL";
+				singularStringId = "#str_swf_actor_display_name_cueball";
+				pluralStringId = "#str_swf_actor_display_name_cueballs";
+			}
+			item[37] = {
+				aiType = "ENCOUNTER_SPAWN_BUFF_POD";
+				singularStringId = "#str_swf_actor_display_name_buffpod";
+				pluralStringId = "#str_swf_actor_display_name_buffpods";
+			}
+			item[38] = {
+				aiType = "ENCOUNTER_SPAWN_SUPER_TENTACLE";
+				singularStringId = "#str_swf_actor_display_name_super_tentacle";
+				pluralStringId = "#str_swf_actor_display_name_super_tentacles";
+			}
+			item[39] = {
+				aiType = "ENCOUNTER_SPAWN_TENTACLE";
+				singularStringId = "#str_swf_actor_display_name_tentacle";
+				pluralStringId = "#str_swf_actor_display_name_tentacles";
+			}
+			item[40] = {
+				aiType = "ENCOUNTER_SPAWN_SPIRIT";
+				singularStringId = "#str_swf_actor_display_name_spirit";
+				pluralStringId = "#str_swf_actor_display_name_spirits";
+			}
+			item[41] = {
+				aiType = "ENCOUNTER_SPAWN_TURRET";
+				singularStringId = "#str_swf_actor_display_name_turret";
+				pluralStringId = "#str_swf_actor_display_name_turrets";
+			}
+			item[42] = {
+				aiType = "ENCOUNTER_SPAWN_DEMONIC_TROOPER";
+				singularStringId = "#str_swf_actor_display_name_demonic_soldier";
+				pluralStringId = "#str_swf_actor_display_name_demonic_soldiers";
+			}
+		}
 		spawnPosition = {
 			x = 0;
 			y = 0;
 			z = 0;
 		}
-		combatRatingScale = "COMBAT_RATING_SCALE_SMALL";
+		combatRatingScale = "COMBAT_RATING_SCALE_IGNORE";
 		encounterComponent = {
 			entityEvents = {
 				num = 1;
@@ -646,7 +1288,6 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
-		triggerOnce = false;
 		spawnPosition = {{position}}
 		spawnOrientation = {{orientation}}
 		renderModelInfo = {
@@ -662,6 +1303,65 @@ entity {
 """,
         ["name", "position", "orientation", "scale", "clipmodel"],
     ),
+    "EncounterTriggerUser": EntityTemplate(
+        "EncounterTriggerUser",
+        """entity {
+	entityDef {{name}} {
+	inherit = "encounter/trigger/user_flag";
+	class = "idEncounterTrigger_RaiseUserFlag";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+		    size = {{scale}}
+			clipModelName = "{{clipmodel}}";
+		}
+		userFlag = "{{user_flag}}";
+	}
+}
+}
+""",
+        ["name", "position", "orientation", "scale", "clipmodel", "user_flag"],
+    ),
+    "EncounterTriggerExit": EntityTemplate(
+        "EncounterTriggerExit",
+        """entity {
+	entityDef {{name}} {
+	inherit = "encounter/trigger/exit";
+	class = "idEncounterTrigger_Exit";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+		renderModelInfo = {
+			model = NULL;
+		}
+		clipModelInfo = {
+		    size = {{scale}}
+			clipModelName = "{{clipmodel}}";
+		}
+		resetScriptOnExit = false;
+		triggerOnce = false;
+		forceAIToFlee = {{force_ai_to_flee}};
+		despawn = false;
+	}
+}
+}
+""",
+        ["name", "position", "orientation", "scale", "clipmodel", "force_ai_to_flee"],
+    ),
     "ArmorSmall": EntityTemplate(
         "ArmorSmall",
         """entity {
@@ -674,6 +1374,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/armor/pickup_shard_01.lwo";
 			contributesToLightProbeGen = false;
@@ -731,6 +1432,7 @@ entity {
 	networkReplicated = true;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/armor/pickup_helm_01.lwo";
 			contributesToLightProbeGen = false;
@@ -788,6 +1490,7 @@ entity {
 	networkReplicated = true;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/armor/pickup_armor_01.lwo";
 			contributesToLightProbeGen = false;
@@ -845,6 +1548,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/health/vial.lwo";
 			contributesToLightProbeGen = false;
@@ -902,6 +1606,7 @@ entity {
 	networkReplicated = true;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/health/health_pack_mid_a.lwo";
 			contributesToLightProbeGen = false;
@@ -959,6 +1664,7 @@ entity {
 	networkReplicated = true;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/health/health_pack_big_a.lwo";
 			contributesToLightProbeGen = false;
@@ -1016,6 +1722,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/ammo/ammo_bullet_02.lwo";
 			contributesToLightProbeGen = false;
@@ -1078,6 +1785,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/ammo/ammo_shotgun_01.lwo";
 			contributesToLightProbeGen = false;
@@ -1140,6 +1848,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/ammo/ammo_energy_01.lwo";
 			contributesToLightProbeGen = false;
@@ -1202,6 +1911,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
+	    //#EBL_IS_PICKUP
 		renderModelInfo = {
 			model = "art/pickups/ammo/ammo_rocket_01.lwo";
 			contributesToLightProbeGen = false;
@@ -1345,7 +2055,7 @@ entity {
 			num = 1;
 			item[0] = "{{target}}";
 		}
-	}`
+	}
 }
 }
 """,
@@ -1377,6 +2087,61 @@ entity {
 }
 """,
         ["name", "target"],
+    ),
+    "RemoveTarget": EntityTemplate(
+        "RemoveTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/remove";
+	class = "idTarget_Remove";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {x = 0; y = 0; z = 0;}
+		whenToSave = "SGT_CHECKPOINT";
+		targets = {
+			num = 1;
+			item[0] = "{{target}}";
+		}
+	}
+}
+}
+""",
+        ["name", "target"],
+    ),
+    "TargetCount": EntityTemplate(
+        "TargetCount",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/relay";
+	class = "idTarget_Count";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		spawnPosition = {x = 0; y = 0; z = 0;}
+		networkSerializeTransforms = false;
+		count = 1;
+		targets = {
+			num = 0;
+		}
+		repeat = true;
+	}
+}
+}
+""",
+        ["name"],
     ),
     "SoundEntity": EntityTemplate(
         "SoundEntity",
@@ -1421,7 +2186,7 @@ entity {
 		checkpointName = "{{spawnpoint_name}}_cp";
 		delayCheckPointSec = 0.5;
 		playerSpawnSpot = "{{spawnpoint_name}}";
-		mapTipGroup = "MAPTIP_CHECKPOINT_07";
+		mapTipGroup = "MAPTIP_CHECKPOINT_1";
 	}
 }
 }
@@ -1448,6 +2213,102 @@ entity {
 }
 """,
         ["spawnpoint_name", "activate_name", "position", "orientation"],
+    ),
+    "GasCan": EntityTemplate(
+        "GasCan",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/ammo/gas";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+	    //#EBL_IS_PICKUP
+		renderModelInfo = {
+			model = "art/pickups/ammo/ammo_chainsaw_01.lwo";
+			contributesToLightProbeGen = false;
+			ignoreDesaturate = true;
+			emissiveScale = 0.2;
+			scale = {
+				x = 2;
+				y = 2;
+				z = 2;
+			}
+		}
+		spawn_statIncreases = {
+			num = 1;
+			item[0] = {
+				stat = "STAT_ITEMS_SPAWNED";
+				increase = 1;
+			}
+		}
+		equipOnPickup = true;
+		lootStyle = "LOOT_TOUCH";
+		triggerDef = "trigger/props/pickup";
+		isStatic = false;
+		canBePossessed = true;
+		removeFlag = "RMV_CHECKPOINT_ALLOW_MS";
+		flags = {
+			canBecomeDormant = true;
+		}
+		fxDecl = "pickups/ammo_gas";
+		difficultyScaleType = "DST_PICKUP";
+		updateFX = true;
+		pickup_statIncreases = {
+			num = 2;
+			item[0] = {
+				stat = "STAT_AMMO_PICKUP";
+				increase = 1;
+			}
+			item[1] = {
+				stat = "STAT_PLACED_AMMO_PICKUP";
+				increase = 1;
+			}
+		}
+		useableComponentDecl = "propitem/ammo/chainsaw_fuel";
+		spawnPosition = {{position}}
+		spawnOrientation = {{orientation}}
+	}
+}
+}
+""",
+        ["name", "position", "orientation"],
+    ),
+    "BloodPunchRefill": EntityTemplate(
+        "BloodPunchRefill",
+        """entity {
+	entityDef {{name}} {
+	inherit = "pickup/blood_punch_refill";
+	class = "idProp2";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = true;
+	disableAIPooling = false;
+	edit = {
+	    //#EBL_IS_PICKUP
+		whenToSave = "SGT_CHECKPOINT";
+		renderModelInfo = {
+			model = "art/pickups/bloodPunch_recharge_a.lwo";
+			noAmbient = true;
+			contributesToLightProbeGen = false;
+		}
+		fxDecl = "gameplay/blood_punch_refill";
+		useableComponentDecl = "propitem/player/fill_blood_punch";
+		thinkComponentDecl = "bob_rotate_slow";
+		hideOnUse = true;
+		triggerDef = "trigger/props/dash_refill";
+		sound_spawn = "play_steam_explosion_small";
+		updateFX = true;
+		spawnPosition = {{position}}
+	}
+}
+}
+""",
+        ["name", "position"],
     ),
 }
 

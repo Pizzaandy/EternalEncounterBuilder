@@ -1,7 +1,7 @@
-CACHE_FILE = "cache.txt"
+# CACHE_FILE = "cache.txt"
 ANIM_OFFSETS_FILE = "anim_offsets.txt"
 
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^INIT|^ADD)"
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^IGNORE |^IMPORT |^INIT|^ADD )"
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
@@ -153,6 +153,54 @@ BASE_ENTITYDEFS = [
     "custom_ai_fodder_zombie_maykr",
 ]
 
+HORDE_COIN = [
+    "horde_mode_coin"
+]
+HORDE_ENTITYDEFS = [
+    "ai_ai_bounty_ambient_zombie_cueball_1",
+    "ai_ai_bounty_fodder_carcass_1",
+    "ai_ai_bounty_fodder_zombie_tier_1_1",
+    "ai_ai_bounty_fodder_zombie_tier_3_1",
+    "ai_ai_bounty_fodder_imp_1",
+    "ai_ai_bounty_fodder_imp_stone_1",
+    "ai_ai_bounty_fodder_prowler_1",
+    "ai_ai_bounty_fodder_gargoyle_1",
+    "ai_ai_bounty_fodder_soldier_blaster_1",
+    "ai_ai_bounty_fodder_soldier_shield_1",
+    "ai_ai_bounty_fodder_soldier_chaingun_1",
+    "ai_ai_bounty_heavy_hellknight_1",
+    "ai_ai_bounty_heavy_dreadknight_1",
+    "ai_ai_bounty_heavy_pinky_1",
+    "ai_ai_bounty_heavy_pinky_spectre_1",
+    "ai_ai_bounty_heavy_arachnotron_1",
+    "ai_ai_bounty_heavy_cacodemon_1",
+    "ai_ai_bounty_heavy_painelemental_1",
+    "ai_ai_bounty_heavy_revenant_1",
+    "ai_ai_bounty_heavy_bloodangel_1",
+    "ai_ai_bounty_heavy_mancubus_fire_1",
+    "ai_ai_bounty_heavy_mancubus_goo_1",
+    "ai_ai_bounty_heavy_whiplash_1",
+    "ai_ai_bounty_superheavy_baron_1",
+    "ai_ai_bounty_superheavy_baron_armored_1",
+    "ai_ai_bounty_superheavy_doom_hunter_1",
+    "ai_ai_bounty_superheavy_marauder_1",
+    "ai_ai_bounty_superheavy_archvile_1",
+    "ai_ai_bounty_superheavy_tyrant_1",
+    "ai_ai_bounty_fodder_prowler_cursed_1",
+    "ai_ai_bounty_fodder_zombie_maykr_1",
+    "ai_ai_bounty_ambient_turretl_1",
+]
+HORDE_ENTITYDEFS_NO_AIR = HORDE_ENTITYDEFS.copy()
+HORDE_ENTITYDEFS_NO_AIR.remove("ai_ai_bounty_heavy_cacodemon_1")
+HORDE_ENTITYDEFS_NO_AIR.remove("ai_ai_bounty_heavy_painelemental_1")
+HORDE_ENTITYDEFS_AIR = [
+    "ai_ai_bounty_heavy_cacodemon_1",
+    "ai_ai_bounty_heavy_painelemental_1",
+]
+
+BASE_ENTITYDEFS_NO_AIR_DEMONS = BASE_ENTITYDEFS.copy()
+BASE_ENTITYDEFS_NO_AIR_DEMONS.remove("custom_ai_heavy_cacodemon")
+BASE_ENTITYDEFS_NO_AIR_DEMONS.remove("custom_ai_heavy_painelemental")
 
 DLC1_ENTITYDEFS = [
     "custom_ai_ambient_turret",
@@ -279,6 +327,23 @@ ANIM_TO_OFFSET = {
 }
 
 TRAVERSALS_ENEMIES = ["REVENANT", "MARAUDER"]
+
+SMALL_DEMONS = [
+    "GARGOYLE",
+    "IMP",
+    "SOLDIER_BLASTER",
+    "ZOMBIE_MAYKR",
+    "ZOMBIE_TIER_1",
+    "ZOMBIE_TIER_3",
+    "PROWLER",
+    "CARCASS",
+    "WHIPLASH",
+    "HELL_KNIGHT",
+    "DREAD_KNIGHT",
+    "REVENANT",
+    "MARAUDER",
+    "MARAUDER_WOLF",
+]
 
 # larger value = larger offset
 # (width_offset, ledge_offset)
@@ -501,6 +566,7 @@ MAIN_SPAWN_PARENT = """entity {
 
 if __name__ == "__main__":
     import json
+
     for key, val in NAME_TO_HORIZONTAL_OFFSET.items():
         if not isinstance(val, tuple):
             NAME_TO_HORIZONTAL_OFFSET[key] = (val, 0)

@@ -228,7 +228,3 @@ def generate_for_all_entities(resources_dir, output_dir):
             print("generating ebl for {file}")
 
 
-if __name__ == "__main__":
-    _resources_dir = r"C:\AndyStuff\DoomModding\__RESOURCES__"
-    _output_dir = r"C:\AndyStuff\DoomModding\EncounterBuilder\GeneratedEBL"
-    generate_for_all_entities(_resources_dir, _output_dir)

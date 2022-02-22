@@ -9,14 +9,18 @@ from entity_templates import EntityTemplate
 import entities_parser as parser
 import ebl_grammar
 import compiler_constants as cc
-from compiler_constants import CACHE_FILE, ANIM_OFFSETS_FILE
+from compiler_constants import ANIM_OFFSETS_FILE
 from copy import deepcopy
+import datetime
+import os
+import pyperclip3
 
 from textwrap import indent
 from dataclasses import dataclass
 from typing import List, Union, Tuple
 import re
 import time
+import pprint
 
 from ebl_grammar import EblTypeError
 from entities_parser import EntitiesSyntaxError
@@ -37,6 +41,8 @@ def reset_all():
     global Settings
     global spawn_target_hashes
     mod_entity_idx = 0
+    horde_index = 0
+    coin_index = 0
     variables = {}
     ebl_cache = {}
     new_ebl_cache = {}
@@ -44,6 +50,7 @@ def reset_all():
     decorator_entity_names = {}
     spawn_target_hashes = []
     Settings = {}
+    ignored_entities = []
 
 
 def cache_result():
@@ -52,8 +59,18 @@ def cache_result():
 
     def decorator(func):
         def new_func(*args):
-            keystr = str(args) + func.__name__ + str(variables)
+            keystr = (
+                str(args)
+                + func.__name__
+                + str(variables)
+                + str(ignored_entity_names)
+                + str(Settings)
+            )
             key = hashlib.md5(keystr.encode()).hexdigest()
+            try:
+                test_keys = ebl_cache.keys()
+            except NameError:
+                return func(*args)
             if key in ebl_cache:
                 # print("found cached result!")
                 new_ebl_cache[key] = ebl_cache[key]
@@ -78,6 +95,8 @@ spawn_target_hashes = []
 templates = entity_templates.BUILTIN_TEMPLATES
 decorator_changes = []
 decorator_entity_names = {}
+ignored_entities = []
+ignored_entity_names = []
 debug_vars = False
 
 worker_object = None
@@ -116,7 +135,7 @@ class EntityEdit:
 
 
 def parse_event(event: str) -> Tuple[str, list]:
-    event = event.replace("\n", "")
+    event, _ = event.replace("\n", "").split(")", 1)
     name, args = event.split("(", 1)
     args = re.findall(r"([^(,)]+)(?!.*\()", args)
     args = [arg.strip() for arg in args]
@@ -131,9 +150,8 @@ def add_variable(varname, value):
         ui_log_verbose(f"Added macro {varname} = {value}")
 
     value = str(value)
-    ignore_quotes = "+" not in value
-    new_value = format_args(value)
-    variables[varname] = concat_strings(new_value, ignore_quotes)
+    ignore_quotes = "+" not in str(value)
+    variables[varname] = concat_strings(format_args(value), ignore_quotes)
     debug_print(
         f"""Concatenated strings in assignment {varname} = {variables[varname]}"""
     )
@@ -213,6 +231,19 @@ def split_ebl_at_headers(filename) -> list:
                 raise EblTypeError(f"No entity name specified in header {cmd}")
         body = "\n".join(body.split("\n")[1:])
         res += [(name, (cmd, body))]
+
+    modified_segments = res.copy()
+    for key, val in res:
+        if val[0] == "IMPORT":
+            try:
+                with open(key) as fp:
+                    pass
+            except FileNotFoundError:
+                ui_log(f"WARNING: Imported file {key} not found!")
+                return []
+            modified_segments = split_ebl_at_headers(key) + modified_segments
+            ui_log(f"Imported {key}")
+    res = modified_segments
 
     return res
 
@@ -311,7 +342,8 @@ def create_events(data) -> list:
 
 
 mod_entity_idx = 0
-
+horde_index = 0
+coin_index = 0
 
 def add_decorator_command(
     decorator: str, event_cls: eternalevents.EternalEvent
@@ -536,7 +568,7 @@ def concat_strings(s, is_expression=False):
                     s = s.replace(f"{var}", str(val))
                     break
             else:  # replace all instances of matches in quotes
-                if not is_number_or_keyword(s):
+                if not is_number_or_keyword(val):
                     val = f'"{val}"'
                 s = s.replace(f'"{var}"', str(val))
 
@@ -576,6 +608,7 @@ def concat_strings(s, is_expression=False):
 @cache_result()
 def parse_ebl(s):
     # print(s)
+
     return ebl.parse(s + "\n")
 
 
@@ -586,27 +619,40 @@ def compile_ebl(s, vars_only=False) -> str:
     :param vars_only:
     :return events:
     """
-    result = ""
-    item_index = 0
-    events = create_events(parse_ebl(s))
-    if events is None:
-        return result
+    event_lists = parse_ebl(s)
+    events = []
+    if any(isinstance(item, list) for item in event_lists):
+        for event_list in event_lists:
+            new_events = create_events(event_list)
+            if new_events is None:
+                continue
+            events.append(new_events)
+    else:
+        events.append(create_events(event_lists))
 
-    result += f"num = {len(events)};\n"
-    for event in events:
-        if isinstance(event, Assignment):
-            add_variable(event.name, event.value)
-            continue
-        if vars_only:
-            continue
-        event_string = concat_strings(str(event))
-        result += f"item[{item_index}]" + " = {\n" + indent(event_string, "\t") + "}\n"
-        item_index += 1
-    return result
+    rendered_events = []
+    for event_list in events:
+        item_index = 0
+        result = f"num = {len(event_list)};\n"
+        for event in event_list:
+            if isinstance(event, Assignment):
+                add_variable(event.name, event.value)
+                continue
+            if vars_only:
+                continue
+            event_string = concat_strings(str(event))
+            if isinstance(event_string, list):
+                print(f"{event_string=}")
+            result += (
+                f"item[{item_index}]" + " = {\n" + indent(event_string, "\t") + "}\n"
+            )
+            item_index += 1
+        rendered_events.append(result)
+    return rendered_events
 
 
 @cache_result()
-def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
+def replace_encounter(encounter: str, events: Union[list, str], dlc_level: int) -> str:
     """
     Modifies encounter entity with list of EternalEvents
     :param encounter:
@@ -615,24 +661,34 @@ def replace_encounter(encounter: str, events: str, dlc_level: int) -> str:
     :return new_entity_string:
     """
     entity = parser.parse_entity(encounter)
-    entity_events = "{\n" + indent(events, "\t") + "}\n"
+    entity_events = [
+        "{\n" + indent(events_list, "\t") + "}\n" for events_list in events
+    ]
     entitydef = ""
     for key in entity:
         if key.startswith("entityDef"):
             entitydef = key
     if not entitydef:
         raise EntitiesSyntaxError("No entityDef component!")
-    try:
-        entity[entitydef]["edit"]["encounterComponent"]["entityEvents"]["item[0]"][
-            "events"
-        ] = entity_events
-        entity[entitydef]["edit"]["aiTypeDefAssignments"] = cc.ACTORPOPULATION[
-            dlc_level
-        ]
-        # ui_log(f"changed aiTypeDefAssignments to {actorpopulation[dlc_level]}")
-    except KeyError:
-        ui_log("ERROR: Unable to replace encounter")
-        ui_log(entity[entitydef]["edit"])
+    for idx, script in enumerate(entity_events):
+        try:
+            dic = entity
+            for key in [
+                entitydef,
+                "edit",
+                "encounterComponent",
+                "entityEvents",
+                f"item[{idx}]",
+            ]:
+                dic = dic.setdefault(key, {})
+            dic["events"] = script
+            dic["entity"] = entitydef.removeprefix("entityDef ")
+            entity[entitydef]["edit"]["aiTypeDefAssignments"] = cc.ACTORPOPULATION[
+                dlc_level
+            ]
+        except KeyError:
+            ui_log(f"ERROR: Unable to replace Script {idx} for encounter")
+            ui_log(entity[entitydef]["edit"])
     result = entity_tools.generate_entity(entity)
     return result
 
@@ -698,10 +754,8 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
                 for key in keys[:-1]:
                     dic = dic.setdefault(key, {})
                 if isinstance(value[0], str):
-                    # print(f"{value[0]=}")
                     modded_val, _ = EntityTemplate.modify_args(None, [value[0]])
                     value[0] = modded_val[0]
-                    # print(f"{value[0]=}")
                     value[0] = concat_strings(value[0], is_expression=True)
                     try:
                         value[0] = float(value[0])
@@ -786,27 +840,34 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
         ui_log("ERROR: no entityDef component!")
         return spawn_target
 
-    existing_entitydefs = entity[entitydef]["edit"]["entityDefs"]
-    existing_entitydefs.pop("num")
+    entity_name = entitydef.removeprefix("entityDef ")
+    if entity_name in ignored_entity_names:
+        return entity_tools.generate_entity(entity)
 
-    # Add existing entitydefs to end of list (to preserve functionality for non-demon spawns)
-    if len(existing_entitydefs) > 0:
-        names = []
-        for assignment in list(existing_entitydefs.values()):
-            names += list(assignment.values())
-        entitydefs = entitydefs + names
+    if entity_name.startswith("custom_"):
+        ui_log(f"Skipping custom spawn target {entity_name}")
+        return entity_tools.generate_entity(entity)
+
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
     except KeyError:
         pass
     else:
         no_spawnanim = not spawn_editable["spawnAnim"]
+        no_traversal_override = not spawn_editable["initialTargetOverride"]
         # no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
-        if no_spawnanim:
+        if no_spawnanim and no_traversal_override:
             entity[entitydef]["edit"]["spawnEditable"][
                 "aiStateOverride"
             ] = "AIOVERRIDE_TELEPORT"
-        else:
+
+        try:
+            entity[entitydef]["edit"]["spawnConditions"]["reuseDelaySec"] = 3
+            entity[entitydef]["edit"]["spawnConditions"]["minDistance"] = int(
+                Settings["spawn_min_distance"]
+            )
+            entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
+        except KeyError:
             pass
 
     listed_targets = list_targets(entitydefs)
@@ -817,8 +878,52 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
 
+    entity_horde = {}
+    if "add_horde_bounty_targets" in Settings:
+        entity_horde = deepcopy(entity)
+        entitydefs = cc.HORDE_ENTITYDEFS_NO_AIR
+        if (
+            "add_ground_spawns_only" in Settings
+            and Settings["add_ground_spawns_only"] == "true"
+        ):
+            if "//#EBL_IS_AIR_TARGET" not in spawn_target:
+                entitydefs = cc.HORDE_ENTITYDEFS_NO_AIR
+        listed_targets = list_targets(entitydefs)
+        targets = "{\n" + indent(listed_targets, "\t") + "}\n"
+        entity_horde[entitydef]["edit"]["targets"] = targets
+
+        listed_entitydefs = list_entitydefs(entitydefs)
+        entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
+        entity_horde[entitydef]["edit"]["entityDefs"] = entitydefs
+        global horde_index
+        entity_horde[f"entityDef bounty{horde_index}"] = entity_horde[entitydef]
+        del entity_horde[entitydef]
+
+        entity_coin = {}
+        if "add_coin_targets" in Settings:
+            entity_coin = deepcopy(entity)
+            entitydefs = cc.HORDE_COIN
+            if (
+                    "add_ground_spawns_only" in Settings
+                    and Settings["add_ground_spawns_only"] == "true"
+            ):
+                if "//#EBL_IS_AIR_TARGET" not in spawn_target:
+                    entitydefs = cc.HORDE_COIN
+            listed_targets = list_targets(entitydefs)
+            targets = "{\n" + indent(listed_targets, "\t") + "}\n"
+            entity_coin[entitydef]["edit"]["targets"] = targets
+
+            listed_entitydefs = list_entitydefs(entitydefs)
+            entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
+            entity_coin[entitydef]["edit"]["entityDefs"] = entitydefs
+            global coin_index
+            entity_coin[f"entityDef coin{coin_index}"] = entity_coin[entitydef]
+            del entity_coin[entitydef]
+
     result = entity_tools.generate_entity(entity)
-    return result
+    result_horde = entity_tools.generate_entity(entity_horde) if entity_horde else ""
+    result_coin = entity_tools.generate_entity(entity_coin) if entity_coin else ""
+    return result + result_horde + result_coin
 
 
 def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) -> str:
@@ -900,6 +1005,7 @@ def apply_ebl(
     reset_all()
     new_ebl_cache["__PREVIOUS_FILES__"] = (base_file, ebl_file, output_folder)
 
+    CACHE_FILE = f"ebl_cache/{Path(ebl_file).stem}_cache.txt"
     try:
         with open(CACHE_FILE, "r") as fp:
             ebl_cache = json.load(fp)
@@ -907,10 +1013,6 @@ def apply_ebl(
         ui_log(f"Failed to read {CACHE_FILE}, creating new")
 
     oodle.decompress_entities(base_file)
-
-    # Add entitydefs with appropriate DLC level
-    dlc_level = 2
-    entitydefs = cc.BASE_ENTITYDEFS + cc.DLC1_ENTITYDEFS + cc.DLC2_ENTITYDEFS
     try:
         with open(ANIM_OFFSETS_FILE, "r") as fp:
             cc.NAME_TO_HORIZONTAL_OFFSET = json.load(fp)
@@ -930,7 +1032,17 @@ def apply_ebl(
     entities = []
     added_entities = []
     entities = list(parser.generate_entity_segments(base_file, version_numbers=True))
-    entities = entities[0:2] + all_idai2s(dlc_level=dlc_level) + entities[3:]
+    entities = entities[0:3] + all_idai2s(dlc_level=dlc_level) + entities[3:]
+
+    try:
+        base_entitydefs_list = (
+            cc.BASE_ENTITYDEFS_NO_AIR_DEMONS
+            if Settings["add_ground_spawns_only"] == "true"
+            else cc.BASE_ENTITYDEFS
+        )
+    except KeyError:
+        base_entitydefs_list = cc.BASE_ENTITYDEFS
+    entitydefs = base_entitydefs_list + cc.DLC1_ENTITYDEFS + cc.DLC2_ENTITYDEFS
 
     # 3) find + store entity templates
     for key, val in deltas:
@@ -941,6 +1053,9 @@ def apply_ebl(
             ui_log_verbose(f"Template {t_name} found")
         elif val[0] == "INIT":
             compile_ebl(val[1], vars_only=True)
+        elif val[0] == "IGNORE":
+            ignored_entity_names.append(key)
+            ui_log(f"Ignoring entity {key}")
 
     # 4) Create copies of entities
     break_idx = len(entities)
@@ -955,8 +1070,7 @@ def apply_ebl(
             if f"entityDef {ident} {{" in entity:
                 ui_log_verbose(f"Found entity {ident}")
                 apply_entity_changes(name, entity, params, dlc_level)
-                modified_count += 1
-                break
+                continue
     entities.append(cc.MAIN_SPAWN_PARENT)
 
     # 5) initialize variables, add new entities, and compile encounters
@@ -967,16 +1081,15 @@ def apply_ebl(
             try:
                 deltas[idx] = key, (val[0], compile_ebl(val[1]))
             except Exception as e:
-                ui_log(e)
+                raise Exception(e)
                 return
         elif val[0] == "ADD":
             is_template = False
             for template in templates.keys():
                 if not show_spawn_targets and template == "PointLabel":
-                    print("skipped Pointlabel")
+                    # print("skipped Pointlabel")
                     continue
                 full_text = key + val[1]
-                # print(f"{full_text=}")
                 if (
                     full_text.replace(" ", "")
                     .replace("\n", "")
@@ -986,18 +1099,41 @@ def apply_ebl(
                     _, args = parse_event(full_text)
                     args = [concat_strings(arg, is_expression=True) for arg in args]
                     rendered_template = templates[template].render(*args)
+                    try:
+                        pickup_respawn_ms = float(
+                            Settings["all_powerups_respawn_time_ms"]
+                        )
+                        if (
+                            pickup_respawn_ms >= 0
+                            and "//#EBL_IS_PICKUP" in rendered_template
+                        ):
+                            rendered_template = rendered_template.replace(
+                                "//#EBL_IS_PICKUP",
+                                f"timeUntilRespawnMS = {pickup_respawn_ms};",
+                            )
+                    except KeyError:
+                        pass
                     template_entities = re.split(
                         parser.ENTITY_SPLIT_PATTERN, rendered_template
                     )
                     template_entities = [
-                        "entity {" + re.sub(r"//.*$", "", segment)
+                        "entity {\n\t" + strip_comments(segment)
                         for segment in template_entities
                         if segment
                     ]
                     is_template = True
                     template_added_count[template] += 1
+
                     for template_entity in template_entities:
                         entities.append(template_entity + "\n")
+
+                    if (
+                        "//#EBL_IS_AIR_TARGET" in rendered_template
+                        or "//#EBL_IS_BOUNTY_TARGET" in rendered_template
+                    ):
+                        ui_log_verbose(f"Ignoring air target {args[0]}")
+                        ignored_entity_names.append(args[0])
+
             if not is_template:
                 entity = val[1].strip()
                 ui_log(f"Added entity {key}")
@@ -1020,7 +1156,7 @@ def apply_ebl(
     )
     modded_file = str(output_folder) + "/" + entities_name
 
-    # 6) iterate vanilla entities, apply changes, then write to output file
+    # 6) iterate entities, apply changes, then write to output file
     with open(modded_file, "w") as fp:
         for entity in entities:
             total_count += 1
@@ -1050,21 +1186,35 @@ def apply_ebl(
             if skip_entity:
                 continue
 
+            # replace encounters first
             for name, params in deltas:
                 cmd, _ = params
-                if cmd == "INIT" or cmd == "MODIFY COPY" or cmd == "ADD":
+                if cmd != "REPLACE ENCOUNTER":
+                    continue
+                ident = name.split()[0]
+                if f"entityDef {ident} {{" in entity:
+                    ui_log_verbose(f"Found encounter {ident}")
+                    entity = apply_entity_changes(name, entity, params, dlc_level)
+                    modified_count += 1
+
+            # ...then modify
+            for name, params in deltas:
+                cmd, _ = params
+                if cmd in ["INIT", "MODIFY COPY", "ADD", "IGNORE", "REPLACE ENCOUNTER"]:
                     continue
                 ident = name.split()[0]
                 if f"entityDef {ident} {{" in entity:
                     ui_log_verbose(f"Found entity {ident}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
-                    break
+                    # break
+            global horde_index
             if (
                 'class = "idTarget_Spawn";' in entity
                 or 'class = "idTarget_Spawn_Parent";' in entity
             ):
                 entity = format_spawn_target(entity, entitydefs)
+                horde_index += 1
                 global spawn_target_hashes
                 spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1
@@ -1072,16 +1222,10 @@ def apply_ebl(
         fp.write("\n")
 
         # 7) TODO: remove this part
-        #  iterate added entities, apply changes, then write to output file
-        for new_entity in added_entities:
-            total_count += 1
-            if (
-                'class = "idTarget_Spawn";' in new_entity
-                or 'class = "idTarget_Spawn_Parent";' in new_entity
-            ):
-                pass
-                # new_entity = format_spawn_target(new_entity, entitydefs)
-            fp.write(new_entity + "\n")
+        #  write ignored entities to output file
+        # for new_entity in ignored_entities:
+        #     total_count += 1
+        #     fp.write(new_entity + "\n")
 
     if show_spawn_targets:
         ui_log("Adding spawn target markers...")
@@ -1126,6 +1270,11 @@ def apply_ebl(
     total_count -= 1
     ui_log(f"Added {added_count} new entities")
     ui_log(f"{modified_count} entities out of {total_count} modified!")
-    ui_log(f"Done processing in {time.time() - tic:.1f} seconds")
-    print(Settings)
+    if "add_horde_bounty_targets" in Settings:
+        ui_log(f"Horde bounty targets final index: {horde_index}")
+    if "add_coin_targets" in Settings:
+        ui_log(f"Horde coin targets final index: {coin_index}")
+    ui_log(
+        f"Done processing in {time.time() - tic:.1f} seconds ({datetime.datetime.now().strftime('%H:%M:%S')})"
+    )
     return True
