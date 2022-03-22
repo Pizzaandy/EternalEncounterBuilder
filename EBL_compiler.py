@@ -27,7 +27,7 @@ from entities_parser import EntitiesSyntaxError
 
 
 run_count = 0
-
+horde_index = 0
 
 def reset_all():
     global run_count
@@ -40,9 +40,9 @@ def reset_all():
     global mod_entity_idx
     global Settings
     global spawn_target_hashes
+    global horde_index
     mod_entity_idx = 0
     horde_index = 0
-    coin_index = 0
     variables = {}
     ebl_cache = {}
     new_ebl_cache = {}
@@ -342,8 +342,6 @@ def create_events(data) -> list:
 
 
 mod_entity_idx = 0
-horde_index = 0
-coin_index = 0
 
 def add_decorator_command(
     decorator: str, event_cls: eternalevents.EternalEvent
@@ -811,7 +809,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
 
 
 @cache_result()
-def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
+def format_spawn_target(spawn_target: str, entitydefs: List[str], current_horde_index: int) -> Tuple[str, int]:
     """
     Adds custom idAI2s and applies changes to the given spawn target
     :param spawn_target:
@@ -823,7 +821,7 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     except Exception as e:
         ui_log("ERROR: couldn't parse spawn target")
         ui_log(spawn_target)
-        return spawn_target
+        return spawn_target, current_horde_index
     entitydef = ""
     # name = ""
     for idx, key in enumerate(entity):
@@ -838,15 +836,15 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
             # name = entitydef.replace("entityDef", "").strip()
     if not entitydef:
         ui_log("ERROR: no entityDef component!")
-        return spawn_target
+        return spawn_target, current_horde_index
 
     entity_name = entitydef.removeprefix("entityDef ")
     if entity_name in ignored_entity_names:
-        return entity_tools.generate_entity(entity)
+        return entity_tools.generate_entity(entity), current_horde_index
 
     if entity_name.startswith("custom_"):
         ui_log(f"Skipping custom spawn target {entity_name}")
-        return entity_tools.generate_entity(entity)
+        return entity_tools.generate_entity(entity), current_horde_index
 
     try:
         spawn_editable = entity[entitydef]["edit"]["spawnEditable"]
@@ -861,14 +859,23 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
                 "aiStateOverride"
             ] = "AIOVERRIDE_TELEPORT"
 
-        try:
-            entity[entitydef]["edit"]["spawnConditions"]["reuseDelaySec"] = 3
-            entity[entitydef]["edit"]["spawnConditions"]["minDistance"] = int(
-                Settings["spawn_min_distance"]
-            )
-            entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
-        except KeyError:
-            pass
+        if not entity_name.startswith("bounty"):
+            try:
+                entity[entitydef]["edit"]["spawnConditions"]["reuseDelaySec"] = 3
+                entity[entitydef]["edit"]["spawnConditions"]["minDistance"] = int(
+                    Settings["spawn_min_distance"]
+                )
+                entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
+            except KeyError:
+                pass
+
+            try:
+                entity[entitydef]["edit"]["spawnConditions"]["maxDistance"] = int(
+                    Settings["spawn_max_distance"]
+                )
+                entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
+            except KeyError:
+                pass
 
     listed_targets = list_targets(entitydefs)
     targets = "{\n" + indent(listed_targets, "\t") + "}\n"
@@ -878,8 +885,12 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
     entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
     entity[entitydef]["edit"]["entityDefs"] = entitydefs
 
+    global horde_index
     entity_horde = {}
-    if "add_horde_bounty_targets" in Settings:
+    if (
+        "add_horde_bounty_targets" in Settings
+        and 'class = "idTarget_Spawn_Parent";' not in spawn_target
+    ):
         entity_horde = deepcopy(entity)
         entitydefs = cc.HORDE_ENTITYDEFS_NO_AIR
         if (
@@ -888,6 +899,11 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
         ):
             if "//#EBL_IS_AIR_TARGET" not in spawn_target:
                 entitydefs = cc.HORDE_ENTITYDEFS_NO_AIR
+
+        # entity_horde[entitydef]["edit"]["targetSpawnParent"] = "ai_encounter_spawn_group_parent_bounty_base"
+
+        current_horde_index += 1
+
         listed_targets = list_targets(entitydefs)
         targets = "{\n" + indent(listed_targets, "\t") + "}\n"
         entity_horde[entitydef]["edit"]["targets"] = targets
@@ -895,35 +911,36 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str]) -> str:
         listed_entitydefs = list_entitydefs(entitydefs)
         entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
         entity_horde[entitydef]["edit"]["entityDefs"] = entitydefs
-        global horde_index
         entity_horde[f"entityDef bounty{horde_index}"] = entity_horde[entitydef]
         del entity_horde[entitydef]
 
-        entity_coin = {}
-        if "add_coin_targets" in Settings:
-            entity_coin = deepcopy(entity)
-            entitydefs = cc.HORDE_COIN
-            if (
-                    "add_ground_spawns_only" in Settings
-                    and Settings["add_ground_spawns_only"] == "true"
-            ):
-                if "//#EBL_IS_AIR_TARGET" not in spawn_target:
-                    entitydefs = cc.HORDE_COIN
-            listed_targets = list_targets(entitydefs)
-            targets = "{\n" + indent(listed_targets, "\t") + "}\n"
-            entity_coin[entitydef]["edit"]["targets"] = targets
+    entity_coin = {}
+    if (
+        "add_coin_targets" in Settings
+        and 'class = "idTarget_Spawn_Parent";' not in spawn_target
+    ):
+        entity_coin = deepcopy(entity)
+        entitydefs = cc.HORDE_COIN
+        if (
+            "add_ground_spawns_only" in Settings
+            and Settings["add_ground_spawns_only"] == "true"
+        ):
+            if "//#EBL_IS_AIR_TARGET" not in spawn_target:
+                entitydefs = cc.HORDE_COIN
+        listed_targets = list_targets(entitydefs)
+        targets = "{\n" + indent(listed_targets, "\t") + "}\n"
+        entity_coin[entitydef]["edit"]["targets"] = targets
 
-            listed_entitydefs = list_entitydefs(entitydefs)
-            entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
-            entity_coin[entitydef]["edit"]["entityDefs"] = entitydefs
-            global coin_index
-            entity_coin[f"entityDef coin{coin_index}"] = entity_coin[entitydef]
-            del entity_coin[entitydef]
+        listed_entitydefs = list_entitydefs(entitydefs)
+        entitydefs = "{\n" + indent(listed_entitydefs, "\t") + "}\n"
+        entity_coin[entitydef]["edit"]["entityDefs"] = entitydefs
+        entity_coin[f"entityDef coin{horde_index}"] = entity_coin[entitydef]
+        del entity_coin[entitydef]
 
     result = entity_tools.generate_entity(entity)
     result_horde = entity_tools.generate_entity(entity_horde) if entity_horde else ""
     result_coin = entity_tools.generate_entity(entity_coin) if entity_coin else ""
-    return result + result_horde + result_coin
+    return result + result_horde + result_coin, current_horde_index
 
 
 def apply_entity_changes(name, entity: str, params: tuple[str, str], dlc_level) -> str:
@@ -1003,6 +1020,8 @@ def apply_ebl(
     global ebl_cache
     global new_ebl_cache
     reset_all()
+    global horde_index
+    horde_index = 0
     new_ebl_cache["__PREVIOUS_FILES__"] = (base_file, ebl_file, output_folder)
 
     CACHE_FILE = f"ebl_cache/{Path(ebl_file).stem}_cache.txt"
@@ -1022,6 +1041,7 @@ def apply_ebl(
     #     entitydefs += cc.DLC2_ENTITYDEFS
     # if dlc_level >= 1:
     #     entitydefs += cc.DLC1_ENTITYDEFS
+
 
     # 1) Get file deltas
     deltas = split_ebl_at_headers(ebl_file) if ebl_file else []
@@ -1208,13 +1228,11 @@ def apply_ebl(
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
                     # break
-            global horde_index
             if (
                 'class = "idTarget_Spawn";' in entity
                 or 'class = "idTarget_Spawn_Parent";' in entity
             ):
-                entity = format_spawn_target(entity, entitydefs)
-                horde_index += 1
+                entity, horde_index = format_spawn_target(entity, entitydefs, horde_index)
                 global spawn_target_hashes
                 spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1
@@ -1273,7 +1291,7 @@ def apply_ebl(
     if "add_horde_bounty_targets" in Settings:
         ui_log(f"Horde bounty targets final index: {horde_index}")
     if "add_coin_targets" in Settings:
-        ui_log(f"Horde coin targets final index: {coin_index}")
+        ui_log(f"Horde coin targets final index: {horde_index}")
     ui_log(
         f"Done processing in {time.time() - tic:.1f} seconds ({datetime.datetime.now().strftime('%H:%M:%S')})"
     )

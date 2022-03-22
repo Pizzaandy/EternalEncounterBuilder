@@ -218,7 +218,7 @@ class SetCombatRoles(EternalEvent):
 
 
 class ClearCombatRoles(EternalEvent):
-    spawnType = "eEncounterSpawnType_t"
+    spawnType = "eEncounterSpawnType_t=ENCOUNTER_SPAWN_ANY"
     group_label = "string*"
 
 

@@ -177,3 +177,5 @@ def parse_entity(entity: str):
     except Exception as e:
         print(f"ERROR: unable to parse entity:\n{entity}")
         return {}
+
+parse_decl = parse_entity

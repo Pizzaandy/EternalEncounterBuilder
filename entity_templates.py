@@ -391,12 +391,15 @@ BUILTIN_TEMPLATES = {
 			maxEnemyCoverDistance = 0;
 		}
 		entityDefs = {
-			num = 2;
+			num = 3;
 			item[0] = {
 				name = "custom_ai_heavy_painelemental";
 			}
 			item[1] = {
 				name = "custom_ai_heavy_cacodemon";
+			}
+			item[2] = {
+				name = "custom_ai_fodder_lostsoul";
 			}
 		}
 		conductorEntityAIType = "SPAWN_AI_TYPE_ANY";
@@ -1297,6 +1300,11 @@ entity {
 		    size = {{scale}}
 			clipModelName = "{{clipmodel}}";
 		}
+		dormancy = {
+			allowDistanceDormancy = false;
+			allowDormancy = false;
+			allowPvsDormancy = false;
+		}
 	}
 }
 }
@@ -1352,10 +1360,15 @@ entity {
 		    size = {{scale}}
 			clipModelName = "{{clipmodel}}";
 		}
+		dormancy = {
+			allowDistanceDormancy = false;
+			allowDormancy = false;
+			allowPvsDormancy = false;
+		}
 		resetScriptOnExit = false;
 		triggerOnce = false;
 		forceAIToFlee = {{force_ai_to_flee}};
-		despawn = false;
+		despawn = {{force_ai_to_flee}};
 	}
 }
 }
@@ -2137,6 +2150,11 @@ entity {
 			num = 0;
 		}
 		repeat = true;
+		dormancy = {
+			allowDistanceDormancy = false;
+			allowDormancy = false;
+			allowPvsDormancy = false;
+		}
 	}
 }
 }
@@ -2155,9 +2173,14 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
-		temporarySoundEvent = true;
-		spawnPosition = {{position}}
+		temporarySoundEvent = false;
+		soundOcclusionBypass = true;
+		spawnPosition = {x = 0; y = 0; z = 0;}
 		startEvents = {
+			num = 1;
+			item[0] = "{{sound}}";
+		}
+		stopEvents = {
 			num = 1;
 			item[0] = "{{sound}}";
 		}
@@ -2165,7 +2188,7 @@ entity {
 }
 }
 """,
-        ["name", "position", "sound"],
+        ["name", "sound"],
     ),
     "Checkpoint": EntityTemplate(
         "Checkpoint",

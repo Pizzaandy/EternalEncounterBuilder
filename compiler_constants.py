@@ -153,9 +153,8 @@ BASE_ENTITYDEFS = [
     "custom_ai_fodder_zombie_maykr",
 ]
 
-HORDE_COIN = [
-    "horde_mode_coin"
-]
+HORDE_COIN = ["horde_mode_coin"]
+
 HORDE_ENTITYDEFS = [
     "ai_ai_bounty_ambient_zombie_cueball_1",
     "ai_ai_bounty_fodder_carcass_1",
@@ -171,7 +170,6 @@ HORDE_ENTITYDEFS = [
     "ai_ai_bounty_heavy_hellknight_1",
     "ai_ai_bounty_heavy_dreadknight_1",
     "ai_ai_bounty_heavy_pinky_1",
-    "ai_ai_bounty_heavy_pinky_spectre_1",
     "ai_ai_bounty_heavy_arachnotron_1",
     "ai_ai_bounty_heavy_cacodemon_1",
     "ai_ai_bounty_heavy_painelemental_1",
@@ -181,15 +179,11 @@ HORDE_ENTITYDEFS = [
     "ai_ai_bounty_heavy_mancubus_goo_1",
     "ai_ai_bounty_heavy_whiplash_1",
     "ai_ai_bounty_superheavy_baron_1",
-    "ai_ai_bounty_superheavy_baron_armored_1",
-    "ai_ai_bounty_superheavy_doom_hunter_1",
-    "ai_ai_bounty_superheavy_marauder_1",
-    "ai_ai_bounty_superheavy_archvile_1",
     "ai_ai_bounty_superheavy_tyrant_1",
-    "ai_ai_bounty_fodder_prowler_cursed_1",
     "ai_ai_bounty_fodder_zombie_maykr_1",
-    "ai_ai_bounty_ambient_turretl_1",
+    "custom_ai_ambient_spirit",
 ]
+
 HORDE_ENTITYDEFS_NO_AIR = HORDE_ENTITYDEFS.copy()
 HORDE_ENTITYDEFS_NO_AIR.remove("ai_ai_bounty_heavy_cacodemon_1")
 HORDE_ENTITYDEFS_NO_AIR.remove("ai_ai_bounty_heavy_painelemental_1")
@@ -201,6 +195,7 @@ HORDE_ENTITYDEFS_AIR = [
 BASE_ENTITYDEFS_NO_AIR_DEMONS = BASE_ENTITYDEFS.copy()
 BASE_ENTITYDEFS_NO_AIR_DEMONS.remove("custom_ai_heavy_cacodemon")
 BASE_ENTITYDEFS_NO_AIR_DEMONS.remove("custom_ai_heavy_painelemental")
+BASE_ENTITYDEFS_NO_AIR_DEMONS.remove("custom_ai_fodder_lostsoul")
 
 DLC1_ENTITYDEFS = [
     "custom_ai_ambient_turret",

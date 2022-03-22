@@ -196,3 +196,19 @@ class NodeVisitor(NodeVisitor):
 
 def ebl_syntax_check(filename):
     pass
+
+
+def update_script_indices(ebl_file):
+    script_idx = 0
+    with open(ebl_file, "r") as fp:
+        ebl_encounter = fp.read()
+    with open(ebl_file, "w") as fp:
+        for line in ebl_encounter.splitlines():
+            newline = line
+            if line.startswith("REPLACE ENCOUNTER"):
+                script_idx = 0
+            if line.startswith("Script ") and line.endswith("{"):
+                newline = f"Script {script_idx} {{"
+                script_idx += 1
+            fp.write(newline + "\n")
+    print("Update script indices")
