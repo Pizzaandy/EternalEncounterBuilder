@@ -5,6 +5,43 @@ from ebl_grammar import EblTypeError
 import re
 import ast
 
+
+def render_subtemplate(subtemplate):
+    try:
+        clsname, clsargs = subtemplate.split("[")
+    except ValueError:
+        raise EblTypeError(f"Subtemplate parsing error -- check your commas")
+    if clsname not in [cls.__name__ for cls in EntityTemplate.__subclasses__()]:
+        print(f"class {clsname} not found")
+    clsargs = clsargs.replace("]", "").split()
+    clsargs = [str(evaluate_arithmetic(arg.strip())) for arg in clsargs]
+    cls = getattr(sys.modules[__name__], clsname)
+    return cls().render(*clsargs), (cls(), clsargs)
+
+
+def evaluate_arithmetic(expression):
+    try:
+        tree = ast.parse(expression, mode="eval")
+    except SyntaxError:
+        return expression  # not a Python expression
+    if not all(
+        isinstance(
+            node,
+            (
+                ast.Expression,
+                ast.UnaryOp,
+                ast.unaryop,
+                ast.BinOp,
+                ast.operator,
+                ast.Num,
+            ),
+        )
+        for node in ast.walk(tree)
+    ):
+        return expression  # not a mathematical expression (numbers and operators)
+    return eval(compile(tree, filename="", mode="eval"))
+
+
 # TODO: move entity templates to another module
 class EntityTemplate:
     """
@@ -22,54 +59,17 @@ class EntityTemplate:
         added_args = {}
         for i, arg in enumerate(args):
             if "[" in arg:
-                try:
-                    clsname, clsargs = arg.split("[")
-                except ValueError:
-                    raise EblTypeError(
-                        f"More than one subtemplate in template {self.name} found -- check your commas:\n"
-                        + ", ".join(args)
-                    )
-                if clsname not in [
-                    cls.__name__ for cls in EntityTemplate.__subclasses__()
-                ]:
-                    print(f"class {clsname} not found")
-                    continue
-                clsargs = clsargs.replace("]", "").split()
-                clsargs = [arg.strip() for arg in clsargs]
-                cls = getattr(sys.modules[__name__], clsname)
+                args[i], (cls, subargs) = render_subtemplate(arg)
                 if self is not None:
                     added_args.update(
                         {
                             f"{self.args[i]}.{arg_name}": arg_value
-                            for arg_name, arg_value in zip(cls().args, clsargs)
+                            for arg_name, arg_value in zip(cls.args, subargs)
                         }
                     )
-                args[i] = cls().render(*clsargs)
         return args, added_args
 
     def render(self, *argv) -> str:
-        def evaluate_arithmetic(expression):
-            try:
-                tree = ast.parse(expression, mode="eval")
-            except SyntaxError:
-                return None  # not a Python expression
-            if not all(
-                isinstance(
-                    node,
-                    (
-                        ast.Expression,
-                        ast.UnaryOp,
-                        ast.unaryop,
-                        ast.BinOp,
-                        ast.operator,
-                        ast.Num,
-                    ),
-                )
-                for node in ast.walk(tree)
-            ):
-                return None  # not a mathematical expression (numbers and operators)
-            return eval(compile(tree, filename="", mode="eval"))
-
         try:
             argv, added_args = self.modify_args(argv)
         except ValueError:
@@ -90,23 +90,26 @@ class EntityTemplate:
         sorted_params = sorted(
             sorted_params.items(), key=lambda x: len(x[0]), reverse=True
         )
+
         expressions = re.findall(r"{{(.*?)}}", self.template)
         modified_template = self.template + "\n"
         for idx, expr in enumerate(expressions):
-            if not any(c in expr for c in "+-/*."):
-                continue
             original_expr = expr
-            # print(f"expr {expr} contains math")
+            if "[" in original_expr:
+                pass
+            elif not any(c in expr for c in "+-/*."):
+                continue
             for arg_name, arg_value in sorted_params:
                 if arg_name in expr:
-                    # print(f"{arg_name=}")
                     expr = expr.replace(arg_name, arg_value)
             new_key = f"__unique_{idx}__"
             modified_template = modified_template.replace(
                 "{{" + original_expr + "}}", "{{" + new_key + "}}"
             )
-            if (new_value := evaluate_arithmetic(expr)) is not None:
-                params[new_key] = new_value
+            if "[" in original_expr:
+                params[new_key], _ = render_subtemplate(expr)
+            else:
+                params[new_key] = evaluate_arithmetic(expr)
 
         return chevron.render(template=modified_template, data=params)
 
@@ -274,7 +277,8 @@ class Mat2(EntityTemplate):
             sp, cp = sin_cos(args[1])
             return [cy, sy, cp, sp]
         elif len(args) == 1:
-            sy, cy = sin_cos(args[0])
+            angle = args[0]
+            sy, cy = sin_cos(angle)
             sp, cp = 0, 1
             return [cy, sy, cp, sp]
         else:
@@ -435,7 +439,7 @@ BUILTIN_TEMPLATES = {
 """,
         ["name", "position", "orientation"],
     ),
-"HordeBountyTarget": EntityTemplate(
+    "HordeBountyTarget": EntityTemplate(
         "HordeBountyTarget",
         """entity {
 	entityDef {{name}} {
@@ -1272,6 +1276,12 @@ entity {
 			num = 1;
 			item[0] = "{{flag}}";
 		}
+		exitTriggers = {
+			num = 0;
+		}
+		userFlagTriggers = {
+			num = 0;
+		}
 		allowSlayerUnknownUI = true;
 	}
 }
@@ -1369,6 +1379,7 @@ entity {
 		triggerOnce = false;
 		forceAIToFlee = {{force_ai_to_flee}};
 		despawn = {{force_ai_to_flee}};
+		removeFlag = "RMV_NEVER";
 	}
 }
 }
@@ -2117,7 +2128,7 @@ entity {
 			noFlood = true;
 		}
 		spawnPosition = {x = 0; y = 0; z = 0;}
-		whenToSave = "SGT_CHECKPOINT";
+		whenToSave = "SGT_NO_SAVE";
 		targets = {
 			num = 1;
 			item[0] = "{{target}}";
@@ -2142,6 +2153,7 @@ entity {
 	edit = {
 		flags = {
 			noFlood = true;
+			canBecomeDormant = false;
 		}
 		spawnPosition = {x = 0; y = 0; z = 0;}
 		networkSerializeTransforms = false;
@@ -2173,7 +2185,7 @@ entity {
 	networkReplicated = false;
 	disableAIPooling = false;
 	edit = {
-		temporarySoundEvent = false;
+		temporarySoundEvent = true;
 		soundOcclusionBypass = true;
 		spawnPosition = {x = 0; y = 0; z = 0;}
 		startEvents = {
@@ -2332,6 +2344,36 @@ entity {
 }
 """,
         ["name", "position"],
+    ),
+    "EnableTarget": EntityTemplate(
+        "EnableTarget",
+        """entity {
+	entityDef {{name}} {
+	inherit = "target/enable_target";
+	class = "idTarget_EnableTarget";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			noFlood = true;
+		}
+		enableFlag = {{enable}};
+		spawnPosition = {
+			x = 1;
+			y = 1;
+			z = 1;
+		}
+		targets = {
+			num = 0;
+		}
+	}
+}
+}
+""",
+        ["name", "enable"],
     ),
 }
 

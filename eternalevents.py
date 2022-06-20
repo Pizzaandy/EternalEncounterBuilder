@@ -233,6 +233,11 @@ class ClearFactionOverrides(EternalEvent):
     pass
 
 
+class ChangeArchvileTemplate(EternalEvent):
+    archvileTemplate = "entity"
+    archvile_label = "string"
+
+
 class ForceChargeOnAllAI(EternalEvent):
     pass
 
@@ -257,8 +262,9 @@ class Wait(EternalEvent, alias="time"):
 
 class WaitAIHealthLevel(EternalEvent, alias=["healthLevel", "AIHealthLevel"]):
     spawnType = "eEncounterSpawnType_t"
-    target_group_health = "int"
+    target_group_health = "float"
     group_label = "string*"
+    disableAIHighlight = "bool=false"
 
 
 class WaitAIRemaining(EternalEvent, alias="AIRemaining"):

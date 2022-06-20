@@ -5751,8 +5751,8 @@ entity {
 					}
 				}
 				components[0] = {
-					max = 500;
-					starting = 500;
+					max = 1000;
+					starting = 1000;
 				}
 			}
 		}

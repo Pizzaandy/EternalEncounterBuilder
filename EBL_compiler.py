@@ -29,6 +29,7 @@ from entities_parser import EntitiesSyntaxError
 run_count = 0
 horde_index = 0
 
+
 def reset_all():
     global run_count
     run_count += 1
@@ -343,6 +344,7 @@ def create_events(data) -> list:
 
 mod_entity_idx = 0
 
+
 def add_decorator_command(
     decorator: str, event_cls: eternalevents.EternalEvent
 ) -> list:
@@ -456,56 +458,63 @@ def apply_decorator_command(
         traversal_path = (
             f"animweb/characters/monsters/{demon_name}/{traversal_s}/" + anim_name
         )
+        if demon_name == "cacodemon" or demon_name == "painelemental":
+            traversal_path = (
+                f"animweb/characters/monsters/{demon_name}/spawn/" + anim_name
+            )
+
+        if anim_name not in cc.ANIM_TO_OFFSET:
+            traversal_path = f"animweb/characters/monsters/{demon_name}/" + anim_name
+
+        parsed_entity[entitydef]["edit"]["spawnEditable"]["spawnAnim"] = traversal_path
+        parsed_entity[entitydef]["edit"]["spawnEditable"][
+            "aiStateOverride"
+        ] = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION"
         try:
-            parsed_entity[entitydef]["edit"]["spawnEditable"][
-                "spawnAnim"
-            ] = traversal_path
-            parsed_entity[entitydef]["edit"]["spawnEditable"][
-                "aiStateOverride"
-            ] = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION"
             x_off, y_off = cc.ANIM_TO_OFFSET[anim_name]
-            x_off, y_off = -x_off, -y_off
-            x, y, z = (
-                parsed_entity[entitydef]["edit"]["spawnPosition"].get("x", 0),
-                parsed_entity[entitydef]["edit"]["spawnPosition"].get("y", 0),
-                parsed_entity[entitydef]["edit"]["spawnPosition"].get("z", 0),
-            )
-            try:
-                forward_cos = parsed_entity[entitydef]["edit"]["spawnOrientation"][
-                    "mat"
-                ]["mat[0]"]["x"]
-                forward_sin = parsed_entity[entitydef]["edit"]["spawnOrientation"][
-                    "mat"
-                ]["mat[0]"]["y"]
-            except KeyError:
-                forward_cos = 1
-                forward_sin = 0
-            try:
-                demon_width, ledge_offset = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
-            except TypeError:
-                demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
-                ledge_offset = 0
-            if "ledge" in anim_name:
-                demon_width += ledge_offset
-            dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
-            dy = y_off
-            dz = forward_sin * sign(x_off) * (abs(x_off) + demon_width)
-            offset_scalar_x = 1 / 100
-            offset_scalar_y = 1 / 100
-            # Z is up
-            parsed_entity[entitydef]["edit"]["spawnPosition"]["x"] = x + (
-                dx * offset_scalar_x
-            )
-            parsed_entity[entitydef]["edit"]["spawnPosition"]["y"] = y + (
-                dz * offset_scalar_x
-            )
-            parsed_entity[entitydef]["edit"]["spawnPosition"]["z"] = z + (
-                dy * offset_scalar_y
-            )
-            # change name
-            parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
-        except KeyError as e:
-            ui_log(f"ERROR: Couldn't find key {e}")
+        except KeyError:
+            ui_log(f"WARNING: anim {anim_name} not recognized")
+        x_off, y_off = cc.ANIM_TO_OFFSET.get(anim_name, (0, 0))
+        x_off, y_off = -x_off, -y_off
+        x, y, z = (
+            parsed_entity[entitydef]["edit"]["spawnPosition"].get("x", 0),
+            parsed_entity[entitydef]["edit"]["spawnPosition"].get("y", 0),
+            parsed_entity[entitydef]["edit"]["spawnPosition"].get("z", 0),
+        )
+        try:
+            forward_cos = parsed_entity[entitydef]["edit"]["spawnOrientation"]["mat"][
+                "mat[0]"
+            ]["x"]
+            forward_sin = parsed_entity[entitydef]["edit"]["spawnOrientation"]["mat"][
+                "mat[0]"
+            ]["y"]
+        except KeyError:
+            forward_cos = 1
+            forward_sin = 0
+        try:
+            demon_width, ledge_offset = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+        except TypeError:
+            demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+            ledge_offset = 0
+        if "ledge" in anim_name:
+            demon_width += ledge_offset
+        dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
+        dy = y_off
+        dz = forward_sin * sign(x_off) * (abs(x_off) + demon_width)
+        offset_scalar_x = 1 / 100
+        offset_scalar_y = 1 / 100
+        # Z is up
+        parsed_entity[entitydef]["edit"]["spawnPosition"]["x"] = x + (
+            dx * offset_scalar_x
+        )
+        parsed_entity[entitydef]["edit"]["spawnPosition"]["y"] = y + (
+            dz * offset_scalar_x
+        )
+        parsed_entity[entitydef]["edit"]["spawnPosition"]["z"] = z + (
+            dy * offset_scalar_y
+        )
+        # change name
+        parsed_entity[f"entityDef {new_entity_name}"] = parsed_entity.pop(entitydef)
     else:
         ui_log(f"ERROR: Tag {cmd_name} is not recognized")
 
@@ -809,7 +818,9 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
 
 
 @cache_result()
-def format_spawn_target(spawn_target: str, entitydefs: List[str], current_horde_index: int) -> Tuple[str, int]:
+def format_spawn_target(
+    spawn_target: str, entitydefs: List[str], current_horde_index: int
+) -> Tuple[str, int]:
     """
     Adds custom idAI2s and applies changes to the given spawn target
     :param spawn_target:
@@ -865,7 +876,9 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str], current_horde_
                 entity[entitydef]["edit"]["spawnConditions"]["minDistance"] = int(
                     Settings["spawn_min_distance"]
                 )
-                entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
+                entity[entitydef]["edit"]["spawnConditions"][
+                    "playerToTest"
+                ] = "PLAYER_SP"
             except KeyError:
                 pass
 
@@ -873,7 +886,9 @@ def format_spawn_target(spawn_target: str, entitydefs: List[str], current_horde_
                 entity[entitydef]["edit"]["spawnConditions"]["maxDistance"] = int(
                     Settings["spawn_max_distance"]
                 )
-                entity[entitydef]["edit"]["spawnConditions"]["playerToTest"] = "PLAYER_SP"
+                entity[entitydef]["edit"]["spawnConditions"][
+                    "playerToTest"
+                ] = "PLAYER_SP"
             except KeyError:
                 pass
 
@@ -1042,7 +1057,6 @@ def apply_ebl(
     # if dlc_level >= 1:
     #     entitydefs += cc.DLC1_ENTITYDEFS
 
-
     # 1) Get file deltas
     deltas = split_ebl_at_headers(ebl_file) if ebl_file else []
 
@@ -1130,6 +1144,9 @@ def apply_ebl(
                             rendered_template = rendered_template.replace(
                                 "//#EBL_IS_PICKUP",
                                 f"timeUntilRespawnMS = {pickup_respawn_ms};",
+                            ).replace(
+                                """removeFlag = "RMV_CHECKPOINT_ALLOW_MS";""",
+                                """removeFlag="RMV_NEVER";""",
                             )
                     except KeyError:
                         pass
@@ -1232,7 +1249,9 @@ def apply_ebl(
                 'class = "idTarget_Spawn";' in entity
                 or 'class = "idTarget_Spawn_Parent";' in entity
             ):
-                entity, horde_index = format_spawn_target(entity, entitydefs, horde_index)
+                entity, horde_index = format_spawn_target(
+                    entity, entitydefs, horde_index
+                )
                 global spawn_target_hashes
                 spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1

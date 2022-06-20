@@ -319,6 +319,12 @@ ANIM_TO_OFFSET = {
     "ledge_up_500": (0, 500),
     "ledge_up_1000": (0, 1000),
     "rail_up_400": (0, 400),
+    "riseup_1000": (0, 1000),
+    "riseup_1000_roar": (0, 1000),
+    "qc_intro": (1000, 1000),
+    "dropdown_1000": (0, -1000),
+    "short_jump_forward_1000_up_1000": (1000, 1000),
+    "short_ledge_up_1000": (0, 1000),
 }
 
 TRAVERSALS_ENEMIES = ["REVENANT", "MARAUDER"]
@@ -347,6 +353,7 @@ NAME_TO_HORIZONTAL_OFFSET = {
     "ARMORED_BARON": 640,
     "BARON": 610,
     "BLOOD_ANGEL": 150,
+    "CACODEMON": 0,
     "CHAINGUN_SOLDIER": 200,
     "CUEBALL": 200,
     "CURSED_PROWLER": (450, 100),
@@ -505,6 +512,9 @@ ANIM_LIST = [
     "rail_up_700",
     "rail_up_700_into",
     "rail_up_700_out",
+    "riseup_1000",
+    "riseup_1000_roar",
+    "qc_intro"
 ]
 
 MAIN_SPAWN_PARENT = """entity {

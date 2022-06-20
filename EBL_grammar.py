@@ -211,4 +211,4 @@ def update_script_indices(ebl_file):
                 newline = f"Script {script_idx} {{"
                 script_idx += 1
             fp.write(newline + "\n")
-    print("Update script indices")
+    print(f"Updated script indices of {ebl_file}")

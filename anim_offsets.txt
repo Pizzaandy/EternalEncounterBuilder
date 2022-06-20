@@ -15,6 +15,10 @@
         150,
         0
     ],
+    "CACODEMON": [
+        0,
+        0
+    ],
     "CHAINGUN_SOLDIER": [
         200,
         0
@@ -89,7 +93,7 @@
     ],
     "TYRANT": [
         500,
-        600
+        450
     ],
     "WHIPLASH": [
         50,
