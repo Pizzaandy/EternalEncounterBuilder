@@ -366,17 +366,22 @@ def add_decorator_command(
         cmd_name, _ = cmd.split(" ", 1) if " " in cmd else (cmd.strip(), "")
         is_possessed = False
         # Decide what to do based on event type, then decorator type
-        if type(event_cls) in eternalevents.SPAWN_TARGET_EVENTS:
-            if type(event_cls) == eternalevents.SpawnSingleAI:
+        event_cls_name = type(event_cls).__name__
+        if event_cls_name in eternalevents.SPAWN_TARGET_EVENTS:
+            if event_cls_name == "SpawnSingleAI":
                 spawn_type = format_args(event_cls.spawnType)
-            elif type(event_cls) == eternalevents.SpawnArchvile:
+            elif event_cls_name == "SpawnArchvile":
                 spawn_type = "ENCOUNTER_SPAWN_ARCHVILE"
-            elif type(event_cls) == eternalevents.SpawnPossessedAI:
+            elif event_cls_name == "SpawnPossessedAI":
                 spawn_type = format_args(event_cls.ai_spawnType)
                 is_possessed = True
             spawn_type = spawn_type.removeprefix("ENCOUNTER_SPAWN_")
 
             if cmd_name == "anim":
+                if event_cls_name not in eternalevents.SPAWN_TARGET_EVENTS:
+                    raise EntitiesSyntaxError(
+                        f"Cannot apply anim to event call {event_cls_name}"
+                    )
                 old_spawntarget = concat_strings(
                     original_event.spawnTarget, is_expression=True
                 )
@@ -462,14 +467,24 @@ def apply_decorator_command(
             traversal_path = (
                 f"animweb/characters/monsters/{demon_name}/spawn/" + anim_name
             )
-
-        if anim_name not in cc.ANIM_TO_OFFSET:
+        if anim_name == "none":
+            traversal_path = ""
+        elif anim_name == "sneaky_spawn":
+            traversal_path = (
+                "animweb/characters/monsters/zombie_tier_1/spawn/sneaky_spawn_01"
+            )
+        elif anim_name not in cc.ANIM_TO_OFFSET:
             traversal_path = f"animweb/characters/monsters/{demon_name}/" + anim_name
 
         parsed_entity[entitydef]["edit"]["spawnEditable"]["spawnAnim"] = traversal_path
-        parsed_entity[entitydef]["edit"]["spawnEditable"][
-            "aiStateOverride"
-        ] = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION"
+        if anim_name == "none":
+            parsed_entity[entitydef]["edit"]["spawnEditable"][
+                "aiStateOverride"
+            ] = "AIOVERRIDE_FORCE_AWARENESS_OF_PLAYER"
+        else:
+            parsed_entity[entitydef]["edit"]["spawnEditable"][
+                "aiStateOverride"
+            ] = "AIOVERRIDE_PLAY_ENTRANCE_ANIMATION"
         try:
             x_off, y_off = cc.ANIM_TO_OFFSET[anim_name]
         except KeyError:
@@ -491,11 +506,12 @@ def apply_decorator_command(
         except KeyError:
             forward_cos = 1
             forward_sin = 0
-        try:
-            demon_width, ledge_offset = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
-        except TypeError:
-            demon_width = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
-            ledge_offset = 0
+
+        demon_width, ledge_offset = cc.NAME_TO_HORIZONTAL_OFFSET[spawn_type]
+        if anim_name not in cc.ANIM_TO_OFFSET:
+            demon_width = 0
+        if anim_name == "none":
+            demon_width = 0
         if "ledge" in anim_name:
             demon_width += ledge_offset
         dx = forward_cos * sign(x_off) * (abs(x_off) + demon_width)
@@ -614,8 +630,6 @@ def concat_strings(s, is_expression=False):
 
 @cache_result()
 def parse_ebl(s):
-    # print(s)
-
     return ebl.parse(s + "\n")
 
 
@@ -693,6 +707,9 @@ def replace_encounter(encounter: str, events: Union[list, str], dlc_level: int) 
             entity[entitydef]["edit"]["aiTypeDefAssignments"] = cc.ACTORPOPULATION[
                 dlc_level
             ]
+            entity[entitydef]["edit"][
+                "combatRatingScale"
+            ] = "COMBAT_RATING_SCALE_IGNORE"
         except KeyError:
             ui_log(f"ERROR: Unable to replace Script {idx} for encounter")
             ui_log(entity[entitydef]["edit"])
@@ -709,7 +726,7 @@ def edit_entity_fields(name: str, base_entity: str, edits: str) -> str:
     :param edits:
     :return edited_entity:
     """
-    entity = parser.parse_entity(base_entity)
+    entity = parser.parse_entity(base_entity.strip())
     entitydef = ""
     for key in entity:
         if key.startswith("entityDef"):
@@ -823,6 +840,7 @@ def format_spawn_target(
 ) -> Tuple[str, int]:
     """
     Adds custom idAI2s and applies changes to the given spawn target
+    Also generates extra spawn targets depending on Settings
     :param spawn_target:
     :param entitydefs:
     :return modified_spawn_target:
@@ -850,7 +868,15 @@ def format_spawn_target(
         return spawn_target, current_horde_index
 
     entity_name = entitydef.removeprefix("entityDef ")
+
+    # exit if ignored entity
     if entity_name in ignored_entity_names:
+        return entity_tools.generate_entity(entity), current_horde_index
+    # exit if spawn_target_group_filter is set and entity is not included
+    if (
+        "spawn_target_group_filter" in Settings
+        and entity_name not in Settings["spawn_target_group_filter"]
+    ):
         return entity_tools.generate_entity(entity), current_horde_index
 
     if entity_name.startswith("custom_"):
@@ -864,8 +890,12 @@ def format_spawn_target(
     else:
         no_spawnanim = not spawn_editable["spawnAnim"]
         no_traversal_override = not spawn_editable["initialTargetOverride"]
+        no_wander = spawn_editable["aiStateOverride"] != "AIOVERRIDE_WANDER"
+        no_forced_awareness = (
+            spawn_editable["aiStateOverride"] != "AIOVERRIDE_FORCE_AWARENESS_OF_PLAYER"
+        )
         # no_add_targets = spawn_editable["additionalTargets"]["num"] == 0
-        if no_spawnanim and no_traversal_override:
+        if no_spawnanim and no_traversal_override and no_wander and no_forced_awareness:
             entity[entitydef]["edit"]["spawnEditable"][
                 "aiStateOverride"
             ] = "AIOVERRIDE_TELEPORT"
@@ -1014,6 +1044,7 @@ def apply_ebl(
     dlc_level=2,
     output_name_override="",
     do_punctuation_check=False,
+    init_flags=[],
 ):
     """
     Applies all changes in an EBL file to a copy of a vanilla entities file
@@ -1078,7 +1109,7 @@ def apply_ebl(
         base_entitydefs_list = cc.BASE_ENTITYDEFS
     entitydefs = base_entitydefs_list + cc.DLC1_ENTITYDEFS + cc.DLC2_ENTITYDEFS
 
-    # 3) find + store entity templates
+    # 3) find + store entity templates, INIT vars and IGNORE entities
     for key, val in deltas:
         if val[0] == "TEMPLATE":
             # TODO: make a PEG parser for this
@@ -1086,7 +1117,19 @@ def apply_ebl(
             templates[t_name] = EntityTemplate(t_name, val[1], t_args)
             ui_log_verbose(f"Template {t_name} found")
         elif val[0] == "INIT":
-            compile_ebl(val[1], vars_only=True)
+            init_flag_name = key
+            if init_flags:
+                if init_flag_name in init_flags:
+                    compile_ebl(val[1], vars_only=True)
+                    ui_log(f'''Initialized variables with flag: "{init_flag_name}"''')
+                elif not init_flag_name:
+                    compile_ebl(val[1], vars_only=True)
+                    ui_log("""Initialized variables without flag""")
+                else:
+                    ui_log(f"""Skipped flag {init_flag_name}""")
+            else:
+                compile_ebl(val[1], vars_only=True)
+                ui_log(f"Initialized variables")
         elif val[0] == "IGNORE":
             ignored_entity_names.append(key)
             ui_log(f"Ignoring entity {key}")
@@ -1192,6 +1235,7 @@ def apply_ebl(
         Path(base_file).name if not output_name_override else output_name_override
     )
     modded_file = str(output_folder) + "/" + entities_name
+    spawngroup_filter_entity = ""
 
     # 6) iterate entities, apply changes, then write to output file
     with open(modded_file, "w") as fp:
@@ -1220,10 +1264,11 @@ def apply_ebl(
                     fp.write(decorator_entity)
                 else:
                     entities.append(decorator_entity)
+
             if skip_entity:
                 continue
 
-            # replace encounters first
+            # replace encounters first...
             for name, params in deltas:
                 cmd, _ = params
                 if cmd != "REPLACE ENCOUNTER":
@@ -1234,7 +1279,7 @@ def apply_ebl(
                     entity = apply_entity_changes(name, entity, params, dlc_level)
                     modified_count += 1
 
-            # ...then modify
+            # ...then modify entities
             for name, params in deltas:
                 cmd, _ = params
                 if cmd in ["INIT", "MODIFY COPY", "ADD", "IGNORE", "REPLACE ENCOUNTER"]:
@@ -1243,8 +1288,36 @@ def apply_ebl(
                 if f"entityDef {ident} {{" in entity:
                     ui_log_verbose(f"Found entity {ident}")
                     entity = apply_entity_changes(name, entity, params, dlc_level)
+                    if (
+                        "spawn_target_group_filter" in Settings
+                        and ident == Settings["spawn_target_group_filter"]
+                    ):
+                        spawngroup_filter_entity = entity
                     modified_count += 1
-                    # break
+
+            if (
+                'class = "idTarget_Spawn";' in entity
+                or 'class = "idTarget_Spawn_Parent";' in entity
+            ):
+                continue
+            fp.write(entity)
+        fp.write("\n")
+
+        if spawngroup_filter_entity:
+            entity_dic = parser.parse_entity(spawngroup_filter_entity)
+            entitydef = ""
+            for key in entity:
+                if key.startswith("entityDef"):
+                    entitydef = key
+            Settings["spawn_target_group_filter"] = entity_dic[entitydef]["edit"][
+                "spawners"
+            ]
+            Settings["spawn_target_group_filter"].remove("num")
+            print("Spawn target group filter set!")
+            print(Settings["spawn_target_group_filter"])
+
+        # final pass for spawn targets
+        for entity in entities:
             if (
                 'class = "idTarget_Spawn";' in entity
                 or 'class = "idTarget_Spawn_Parent";' in entity
@@ -1256,7 +1329,6 @@ def apply_ebl(
                 spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1
             fp.write(entity)
-        fp.write("\n")
 
         # 7) TODO: remove this part
         #  write ignored entities to output file

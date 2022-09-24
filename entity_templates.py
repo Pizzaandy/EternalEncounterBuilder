@@ -19,10 +19,19 @@ def render_subtemplate(subtemplate):
     return cls().render(*clsargs), (cls(), clsargs)
 
 
+def sin(angle):
+    return round(math.sin(math.radians(angle)), 3)
+
+
+def cos(angle):
+    return round(math.cos(math.radians(angle)), 3)
+
+
 def evaluate_arithmetic(expression):
     try:
         tree = ast.parse(expression, mode="eval")
     except SyntaxError:
+        print(f"WARNING: {expression} is not a python expression")
         return expression  # not a Python expression
     if not all(
         isinstance(
@@ -34,10 +43,20 @@ def evaluate_arithmetic(expression):
                 ast.BinOp,
                 ast.operator,
                 ast.Num,
+                ast.Call,
+                ast.Attribute,
+                ast.Name,
+                ast.arg,
+                ast.arguments,
+                ast.keyword,
+                ast.Expr,
+                ast.Starred,
+                ast.Load
             ),
         )
         for node in ast.walk(tree)
     ):
+        print(f"WARNING: {expression} is not a mathematical expression")
         return expression  # not a mathematical expression (numbers and operators)
     return eval(compile(tree, filename="", mode="eval"))
 
@@ -731,16 +750,19 @@ entity {
             distance = 78.029007;
         }
         fadeIn = 0;
-        fadeOut = 1.7;
+        fadeOut = 1.5;
         spawnPosition = {{position}}
         spawnOrientation = {{orientation}}
         renderModelInfo = { 
+            depthSortBias = -1;
+            sortBias = -101;
             {{color}} 
             scale = {
 				x = {{scale}};
 				y = {{scale}};
 				z = {{scale}};
 			}
+			fadeVisibilityOver = 100;
         }
         startOff = true;
         particleSystem = "map_e2m2_base/portal_opening_white";
@@ -769,7 +791,7 @@ entity {
         spawnPosition = {{position}}
         spawnOrientation = {{orientation}}
         renderModelInfo = {
-            sortBias = 1;
+            sortBias = 999;
             {{color}} 
             scale = {
 				x = {{scale}};
@@ -2374,6 +2396,40 @@ entity {
 }
 """,
         ["name", "enable"],
+    ),
+    "ParticleBurst": EntityTemplate(
+        "ParticleBurst",
+        """entity {
+	entityDef {{name}} {
+	inherit = "func/emitter";
+	class = "idParticleEmitter";
+	expandInheritance = false;
+	poolCount = 0;
+	poolGranularity = 2;
+	networkReplicated = false;
+	disableAIPooling = false;
+	edit = {
+		flags = {
+			canBecomeDormant = true;
+		}
+		dormancy = {
+			delay = 5;
+			distance = 78.029007;
+		}
+		fadeIn = 0;
+		fadeOut = 0;
+		spawnPosition = {{pos}}
+		renderModelInfo = {
+			scale = {{scale}}
+		}
+		soundOcclusionBypass = true;
+		startOff = true;
+		particleSystem = "{{particleSystem}}";
+	}
+}
+}
+""",
+        ["name", "pos", "scale", "particleSystem"],
     ),
 }
 

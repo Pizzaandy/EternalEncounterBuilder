@@ -78,9 +78,10 @@ def build_all_maps(skip_maps=False):
     with open(starting_inventory_file, "w") as fp:
         for line in data.splitlines():
             newline = line
-            if line.strip().startswith("currencyToGive"):
+            line_text = line.strip()
+            if line_text.startswith("currencyToGive"):
                 idx = 0
-            if line.strip().startswith("item[") and line.strip().endswith("{"):
+            if line_text.startswith("item[") and line_text.endswith("{"):
                 newline = f"\t\t\titem[{idx}] = {{"
                 idx += 1
             fp.write(newline + "\n")

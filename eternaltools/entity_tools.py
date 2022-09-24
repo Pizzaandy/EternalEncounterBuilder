@@ -132,6 +132,8 @@ def verify_file(filename) -> str:
             depth += line.count("{") + line.count("[")
             depth -= line.count("}") + line.count("]")
             quote_count = line.count('"')
+            if line.count("{") > 1 or line.count("}") > 1:
+                return f"Multiple brackets of the same type on line {last_entity_line + 1}"
             if quote_count % 2 != 0:
                 return f"Unbalanced quotes at line {last_entity_line + 1}"
             if "}" in line or "]" in line:

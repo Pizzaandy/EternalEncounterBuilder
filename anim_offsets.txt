@@ -48,7 +48,7 @@
         20
     ],
     "GARGOYLE": [
-        150,
+        300,
         0
     ],
     "HELL_KNIGHT": [

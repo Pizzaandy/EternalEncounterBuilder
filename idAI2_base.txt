@@ -4579,18 +4579,11 @@ entity {
 		}
 		aiEditable = {
 			perception = {
-				actorPerceptionRadius = 75;
+				actorPerceptionRadius = 39;
 				obstaclePerceptionRadius = 78;
 				closePerceptionRadius = 5;
 				eventPerceptionRadius = 39;
 				senseUpdatesOnNonEnemies = false;
-				fieldOfView = {
-					value = 360;
-				}
-				fieldOfView_close = {
-					value = 360;
-				}
-				exposedSightTime = 0;
 			}
 			useTouchComponent = true;
 			death = {

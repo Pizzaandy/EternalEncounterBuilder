@@ -200,7 +200,7 @@ class RestoreDefaultPerception(EternalEvent):
     group_label = "string*"
 
 
-class ActivateTarget(EternalEvent, alias="activate"):
+class ActivateTarget(EternalEvent, alias=["activate", "trigger"]):
     targetEntity = "entity"
     command = "string"
 
@@ -378,4 +378,4 @@ class DesignerComment(EternalEvent, alias="print"):
     printToConsole = "bool=true"
 
 
-SPAWN_TARGET_EVENTS = [SpawnSingleAI, SpawnArchvile, SpawnPossessedAI]
+SPAWN_TARGET_EVENTS = ["SpawnSingleAI", "SpawnArchvile", "SpawnPossessedAI"]

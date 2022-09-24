@@ -1,7 +1,7 @@
 # CACHE_FILE = "cache.txt"
 ANIM_OFFSETS_FILE = "anim_offsets.txt"
 
-EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^IGNORE |^IMPORT |^INIT|^ADD )"
+EBL_HEADERS_REGEX = r"(^REPLACE ENCOUNTER |^REPLACE |^MODIFY COPY |^REMOVE |^TEMPLATE |^MODIFY |^IGNORE |^IMPORT |^INIT |^INIT|^ADD )"
 
 # character reserved for spaces in string literals
 SPACE_CHAR = "^"
@@ -315,6 +315,7 @@ ANIM_TO_OFFSET = {
     "ledge_down_100": (0, -100),
     "ledge_down_500": (0, -500),
     "ledge_down_1000": (0, -1000),
+    "jump_ledge_down_1000": (0, -1000),
     "ledge_up_100": (0, 100),
     "ledge_up_500": (0, 500),
     "ledge_up_1000": (0, 1000),
@@ -325,6 +326,7 @@ ANIM_TO_OFFSET = {
     "dropdown_1000": (0, -1000),
     "short_jump_forward_1000_up_1000": (1000, 1000),
     "short_ledge_up_1000": (0, 1000),
+    "none": (0, 0)
 }
 
 TRAVERSALS_ENEMIES = ["REVENANT", "MARAUDER"]
@@ -361,7 +363,7 @@ NAME_TO_HORIZONTAL_OFFSET = {
     "CYBER_MANCUBUS": 500,
     "DOOM_HUNTER": (450, 200),
     "DREAD_KNIGHT": (390, 20),
-    "GARGOYLE": 150,
+    "GARGOYLE": 300,
     "HELL_KNIGHT": 380,
     "HELL_SOLDIER": 200,
     "IMP": 150,
