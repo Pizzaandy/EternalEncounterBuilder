@@ -877,6 +877,7 @@ def format_spawn_target(
         "spawn_target_group_filter" in Settings
         and entity_name not in Settings["spawn_target_group_filter"]
     ):
+        ui_log(f"{entity_name} not in spawn_target_group_filter, skipping")
         return entity_tools.generate_entity(entity), current_horde_index
 
     if entity_name.startswith("custom_"):
@@ -1306,15 +1307,13 @@ def apply_ebl(
         if spawngroup_filter_entity:
             entity_dic = parser.parse_entity(spawngroup_filter_entity)
             entitydef = ""
-            for key in entity:
+            for key in entity_dic:
                 if key.startswith("entityDef"):
                     entitydef = key
-            Settings["spawn_target_group_filter"] = entity_dic[entitydef]["edit"][
-                "spawners"
-            ]
-            Settings["spawn_target_group_filter"].remove("num")
-            print("Spawn target group filter set!")
-            print(Settings["spawn_target_group_filter"])
+            Settings["spawn_target_group_filter"] = list(
+                entity_dic[entitydef]["edit"]["spawners"].values()
+            )[1:]
+            ui_log(Settings["spawn_target_group_filter"])
 
         # final pass for spawn targets
         for entity in entities:
@@ -1329,12 +1328,6 @@ def apply_ebl(
                 spawn_target_hashes.append(hashlib.md5(entity.encode()).hexdigest())
                 modified_count += 1
             fp.write(entity)
-
-        # 7) TODO: remove this part
-        #  write ignored entities to output file
-        # for new_entity in ignored_entities:
-        #     total_count += 1
-        #     fp.write(new_entity + "\n")
 
     if show_spawn_targets:
         ui_log("Adding spawn target markers...")
